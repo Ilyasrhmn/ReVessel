@@ -1,0 +1,243 @@
+.symbol {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.24em;
+  letter-spacing: -0.07em;
+  white-space: nowrap;
+}
+
+.lockup .symbol {
+  flex: none;
+  inline-size: 1.12em;
+}
+
+.preview {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 9vw, 9rem);
+  padding-block: clamp(3.5rem, 11svh, 8rem);
+}
+
+.tile {
+  justify-self: center;
+  inline-size: min(100%, min(22rem, 54svh));
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 22%;
+  background: var(--color-ink);
+  color: var(--color-canvas);
+}
+
+.tile .symbol {
+  inline-size: 78%;
+}
+
+.previewCopy h2,
+.philosophy > h2 {
+  font-size: var(--type-title);
+  font-weight: 450;
+  letter-spacing: var(--tracking-title);
+}
+
+.previewCopy h2 {
+  max-inline-size: 14ch;
+}
+
+.previewCopy p {
+  margin-block: 1.25rem 0.65rem;
+  max-inline-size: 40ch;
+  color: var(--color-muted);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.philosophy {
+  margin-block-start: clamp(3rem, 8svh, 7rem);
+  padding-block-start: clamp(2.5rem, 7svh, 5rem);
+  border-block-start: 1px solid var(--color-line);
+}
+
+.diagram {
+  display: block;
+  inline-size: min(100%, 36rem);
+  block-size: auto;
+  margin: clamp(1.5rem, 5svh, 3rem) auto;
+}
+
+.diagramTile {
+  fill: var(--color-ink);
+}
+
+.diagramMark {
+  color: var(--color-canvas);
+}
+
+.leadersInside {
+  color: var(--color-canvas);
+}
+
+.leadersOutside {
+  color: var(--color-muted);
+}
+
+.leadersInside path,
+.leadersOutside path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.leadersInside circle {
+  fill: currentColor;
+  stroke: var(--color-ink);
+  stroke-width: 1.5;
+}
+
+.diagramLabels circle,
+.number {
+  background: var(--color-canvas);
+  fill: var(--color-canvas);
+  stroke: var(--color-muted);
+}
+
+.diagramLabels text {
+  fill: var(--color-ink);
+  font-size: 18px;
+  font-weight: 550;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.meanings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.25rem, 4vw, 3.5rem);
+  padding: 0;
+}
+
+.meanings li {
+  list-style: none;
+  border-block-start: 1px solid var(--color-line);
+  padding-block-start: 1rem;
+}
+
+.meanings h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: clamp(1.1rem, 1.5vw, 1.35rem);
+  font-weight: 550;
+  letter-spacing: -0.02em;
+}
+
+.number {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 1.65rem;
+  block-size: 1.65rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-line);
+  font-size: 0.8rem;
+  letter-spacing: 0;
+}
+
+.meanings p {
+  margin-block-start: 0.7rem;
+  max-inline-size: 42ch;
+  color: var(--color-muted);
+}
+
+.turn,
+.palette {
+  margin-block-start: clamp(2.75rem, 7svh, 5rem);
+}
+
+.turn h3,
+.palette h3 {
+  margin-block-end: 1.5rem;
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.turn p,
+.nameMeaning {
+  max-inline-size: 65ch;
+  color: var(--color-muted);
+}
+
+.nameMeaning {
+  margin-block-start: clamp(2rem, 5svh, 3.5rem);
+}
+
+.nameMeaning strong {
+  color: var(--color-ink);
+}
+
+.palette dl {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.palette dt {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 550;
+}
+
+.palette dd {
+  margin-block-start: 0.6rem;
+  max-inline-size: 65ch;
+  color: var(--color-muted);
+}
+
+.swatch {
+  flex: none;
+  inline-size: 1.6875rem;
+  block-size: 1.6875rem;
+  border: 1px solid var(--color-muted);
+  border-radius: 50%;
+}
+
+.graphite {
+  background: var(--color-ink);
+}
+
+.softWhite {
+  background: var(--color-canvas);
+}
+
+@media (min-width: 761px) and (min-height: 34.01rem) {
+  .preview {
+    min-block-size: 100svh;
+    scroll-margin-block-start: calc(-1 * var(--site-scroll-top));
+  }
+}
+
+@media (max-width: 760px) {
+  .preview,
+  .meanings {
+    grid-template-columns: 1fr;
+  }
+
+  .tile {
+    justify-self: start;
+    inline-size: min(68vw, 16rem);
+  }
+}

@@ -56,7 +56,3 @@ export const articles = [
     ],
   },
 ] as const;
-
-export const project = {
-  team: "Harus Menang",
-};

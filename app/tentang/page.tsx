@@ -1,31 +1,27 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import SiteFrame from "../ui/site-frame";
-import Icon from "../ui/interface-icon";
-import { project } from "../content";
+import { BrandPhilosophy } from "../ui/brand-story";
 import styles from "../pages.module.css";
 
 export const metadata: Metadata = {
   title: "Tentang | ReVessel",
   description:
-    "Konsep ReVessel dan peran penyetor, titik kumpul, serta perajin.",
+    "Panduan ReVessel untuk menyiapkan, mengumpulkan, dan memakai kembali botol kaca.",
 };
 
 export default function AboutPage() {
   return (
-    <SiteFrame title="Tentang ReVessel." active="/tentang">
+    <SiteFrame title="Tentang ReVessel">
       <div className={styles.aboutLead}>
         <p>
-          ReVessel adalah konsep platform yang menghubungkan pemilik botol kaca
-          bekas, titik kumpul, dan perajin. Botol yang masih layak diarahkan
-          untuk pakai ulang; material lainnya mengikuti syarat penerima daur
-          ulang.
+          ReVessel membantu kamu menyiapkan botol kaca dan menentukan apakah
+          botolnya bisa dipakai kembali atau perlu diolah.
         </p>
         <div className={styles.aboutImage}>
           <Image
-            src="/images/glass-study.webp"
-            alt="Botol dan jar kaca bening"
+            src="/images/perajin-kaca.webp"
+            alt="Perajin memeriksa botol kaca di meja kerja"
             fill
             priority
             sizes="(max-width: 760px) 90vw, 55vw"
@@ -33,7 +29,7 @@ export default function AboutPage() {
         </div>
       </div>
       <section className={styles.roles} aria-labelledby="roles-title">
-        <h2 id="roles-title">Siapa melakukan apa?</h2>
+        <h2 id="roles-title">Peran dalam pengumpulan</h2>
         <dl>
           {[
             ["Penyetor", "Memilah dan menyiapkan botol sesuai panduan."],
@@ -50,14 +46,7 @@ export default function AboutPage() {
           ))}
         </dl>
       </section>
-      <div className={styles.projectLine}>
-        <span>Tim {project.team}</span>
-        <span>Prototipe</span>
-        <Link href="/kontak" className={styles.textLink}>
-          <Icon kind="contact" />
-          Kontak proyek
-        </Link>
-      </div>
+      <BrandPhilosophy />
     </SiteFrame>
   );
 }

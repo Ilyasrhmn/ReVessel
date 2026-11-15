@@ -59,15 +59,6 @@
   color: var(--color-muted);
   font-size: 0.95rem;
 }
-.projectLine {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  margin-top: 4rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--color-line);
-  font-size: 0.85rem;
-}
 .textLink {
   display: inline-flex;
   gap: 0.65rem;
@@ -78,10 +69,6 @@
 .textLink svg {
   flex: none;
   inline-size: 1.1rem;
-}
-.projectLine .textLink {
-  padding: 0;
-  margin-left: auto;
 }
 .galleryGrid {
   display: grid;

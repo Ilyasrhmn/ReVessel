@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import BrandLogo from "./brand-logo";
 import styles from "../pages.module.css";
 
 const links = [
@@ -14,7 +15,6 @@ export default function SiteFrame({
   children,
 }: {
   title: string;
-  active?: string;
   children: ReactNode;
 }) {
   return (
@@ -25,7 +25,7 @@ export default function SiteFrame({
       </main>
       <footer className={`${styles.footer} page-shell`}>
         <Link href="/" className={styles.brand}>
-          ReVessel
+          <BrandLogo />
         </Link>
         <nav aria-label="Halaman situs">
           {links.map((link) => (

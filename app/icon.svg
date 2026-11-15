@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>ReVessel</title>
+  <rect width="256" height="256" rx="56" fill="#202124"/>
+  <path fill="#f3f3f1" d="M43 38H146A67 67 0 0 1 213 105V117H181V105A35 35 0 0 0 146 70H75V113H43Z M213 218H110A67 67 0 0 1 43 151V139H75V151A35 35 0 0 0 110 186H181V143H213Z"/>
+</svg>

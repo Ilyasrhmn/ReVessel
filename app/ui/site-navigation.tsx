@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 import Icon from "./interface-icon";
+import BrandLogo from "./brand-logo";
 import NavBubble from "./nav-bubble";
 import glass from "./liquid-glass.module.css";
 import styles from "./site-navigation.module.css";
@@ -190,7 +191,7 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
           className={styles.brand}
           aria-label="ReVessel, beranda"
         >
-          ReVessel
+          <BrandLogo />
         </SectionLink>
         {home ? (
           <div className={styles.navigation}>

@@ -6,6 +6,8 @@ import styles from "./landing.module.css";
 import glass from "./ui/liquid-glass.module.css";
 import { moveGlassLight } from "./ui/glass-light";
 import Icon from "./ui/interface-icon";
+import BrandLogo from "./ui/brand-logo";
+import { BrandPreview } from "./ui/brand-story";
 import { useBottleGuide } from "./ui/site-navigation";
 import Link from "next/link";
 import { articles } from "./content";
@@ -380,6 +382,8 @@ export default function Landing() {
         </div>
       </section>
 
+      <BrandPreview />
+
       <section
         id="kontak"
         className={`${styles.contactSection} page-shell`}
@@ -428,7 +432,7 @@ export default function Landing() {
         </nav>
         <div className={styles.footerBottom}>
           <a href="#beranda" className={styles.brand}>
-            ReVessel
+            <BrandLogo />
           </a>
           <a href="#panduan">Panduan botol</a>
         </div>
