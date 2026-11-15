@@ -17,3 +17,13 @@
     background-size: 100% 1px;
   }
 }
+
+.new-tab-link {
+  gap: 0.5rem;
+}
+
+.new-tab-link > svg {
+  flex: none;
+  inline-size: 0.95rem;
+  block-size: auto;
+}

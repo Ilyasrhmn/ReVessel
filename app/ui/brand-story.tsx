@@ -1,4 +1,4 @@
-import Link from "next/link";
+import NewTabLink from "./new-tab-link";
 import { BrandSymbol } from "./brand-logo";
 import styles from "./brand.module.css";
 
@@ -33,9 +33,11 @@ export function BrandPreview() {
           Dua garis bertukar tempat saat logo diputar. Putaran itu
           menggambarkan gagasan ReVessel tentang pakai ulang.
         </p>
-        <Link href="/tentang#filosofi-logo" className={`${styles.link} link-reveal`}>
-          <span>Lihat makna logo</span>
-        </Link>
+        <NewTabLink
+          href="/tentang#filosofi-logo"
+          label="Lihat makna logo"
+          className={`${styles.link} link-reveal`}
+        />
       </div>
     </section>
   );

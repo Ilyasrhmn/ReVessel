@@ -7,6 +7,7 @@ import glass from "./ui/liquid-glass.module.css";
 import { moveGlassLight } from "./ui/glass-light";
 import Icon from "./ui/interface-icon";
 import BrandLogo from "./ui/brand-logo";
+import NewTabLink from "./ui/new-tab-link";
 import { BrandPreview } from "./ui/brand-story";
 import { useBottleGuide } from "./ui/site-navigation";
 import Link from "next/link";
@@ -178,9 +179,11 @@ export default function Landing() {
             Botol utuh bisa dipakai lagi sebagai wadah. Kaca lainnya dapat
             disalurkan ke pengolah sesuai jenis dan kondisinya.
           </p>
-          <Link href="/tentang" className={`${styles.sectionLink} link-reveal`}>
-            <span>Tentang ReVessel</span>
-          </Link>
+          <NewTabLink
+            href="/tentang"
+            label="Tentang ReVessel"
+            className={`${styles.sectionLink} link-reveal`}
+          />
         </div>
         <div className={styles.introImage}>
           <Image
@@ -286,9 +289,11 @@ export default function Landing() {
       >
         <div className={`${styles.galleryHeading} page-shell`}>
           <h2 id="possibilities-title">Botol & jar kaca</h2>
-          <Link href="/galeri" className={`${styles.sectionLink} link-reveal`}>
-            <span>Lihat galeri</span>
-          </Link>
+          <NewTabLink
+            href="/galeri"
+            label="Lihat galeri"
+            className={`${styles.sectionLink} link-reveal`}
+          />
         </div>
         <div
           className={styles.gallery}
@@ -334,9 +339,11 @@ export default function Landing() {
       >
         <div className={styles.sectionHeading}>
           <h2 id="articles-title">Artikel</h2>
-          <Link href="/artikel" className={styles.sectionLink}>
-            <span>Semua artikel</span>
-          </Link>
+          <NewTabLink
+            href="/artikel"
+            label="Semua artikel"
+            className={styles.sectionLink}
+          />
         </div>
         <div className={styles.articleRows}>
           {articles.map((article) => (
@@ -391,9 +398,11 @@ export default function Landing() {
         tabIndex={-1}
       >
         <h2 id="contact-title">Kontak</h2>
-        <Link href="/kontak" className={`${styles.sectionLink} link-reveal`}>
-          <span>Kirim masukan</span>
-        </Link>
+        <NewTabLink
+          href="/kontak"
+          label="Kirim masukan"
+          className={`${styles.sectionLink} link-reveal`}
+        />
       </section>
 
       <footer className={styles.footer}>
