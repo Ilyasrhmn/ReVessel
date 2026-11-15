@@ -59,5 +59,4 @@ export const articles = [
 
 export const project = {
   team: "Harus Menang",
-  demoEmail: "info@revessel.com",
 };

@@ -1,13 +1,13 @@
 export default function Icon({
-  kind = "arrow",
+  kind,
   className = "",
 }: {
-  kind?:
-    | "arrow"
+  kind:
     | "down"
     | "close"
     | "plus"
     | "minus"
+    | "external"
     | "bottle"
     | "route"
     | "home"
@@ -22,7 +22,7 @@ export default function Icon({
     close: "m6 6 12 12M6 18 18 6",
     plus: "M12 5v14M5 12h14",
     minus: "M5 12h14",
-    arrow: "M5 12h14M13 6l6 6-6 6",
+    external: "M6 18 18 6M9 6h9v9",
     bottle:
       "M9 3h6M10 3v5l-3 4v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8l-3-4V3M7 14h10",
     route:

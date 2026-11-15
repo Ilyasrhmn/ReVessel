@@ -133,7 +133,8 @@
 .intro h2,
 .galleryHeading h2,
 .sectionHeading h2,
-.faq h2 {
+.faq h2,
+.contactSection h2 {
   font-size: var(--type-title);
   font-weight: 450;
   letter-spacing: -0.055em;
@@ -433,6 +434,18 @@
   line-height: 1.7;
   color: #666970;
 }
+.contactSection {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  align-items: center;
+  gap: 1rem 8%;
+  padding-block: clamp(3rem, 8svh, 6rem);
+  border-top: 1px solid var(--color-line);
+}
+.contactSection .sectionLink {
+  justify-self: start;
+  margin: 0;
+}
 .footer {
   padding: 2.5rem var(--page-gutter) 1.5rem;
   background: #d8dbe0;
@@ -565,6 +578,9 @@
   }
 }
 @media (max-width: 760px) {
+  .contactSection {
+    grid-template-columns: 1fr;
+  }
   .hero {
     padding: clamp(4.5rem, 12svh, 6rem) 5%
       max(5.5rem, calc(4.5rem + env(safe-area-inset-bottom)));

@@ -380,6 +380,18 @@ export default function Landing() {
         </div>
       </section>
 
+      <section
+        id="kontak"
+        className={`${styles.contactSection} page-shell`}
+        aria-labelledby="contact-title"
+        tabIndex={-1}
+      >
+        <h2 id="contact-title">Kontak</h2>
+        <Link href="/kontak" className={`${styles.sectionLink} link-reveal`}>
+          <span>Kirim masukan</span>
+        </Link>
+      </section>
+
       <footer className={styles.footer}>
         <div className={styles.footerTop}>
           <a href="#" aria-label="Kembali ke atas">
