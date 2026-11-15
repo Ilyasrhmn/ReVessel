@@ -1,1 +1,232 @@
 @import "tailwindcss";
+
+@theme {
+  --color-canvas: #f3f3f1;
+  --color-surface: #ffffff;
+  --color-ink: #202124;
+  --color-muted: #666970;
+  --color-line: #dcdde0;
+  --color-scene-dark: #151618;
+  --color-on-dark: #f7f7f5;
+  --color-error: #ad302f;
+  --color-warning: #875300;
+  --color-success: #345b85;
+}
+
+:root {
+  color-scheme: light;
+  --color-focus: #3c5e97;
+
+  --font-interface: var(--font-instrument, Arial), Helvetica, sans-serif;
+  --font-editorial: var(--font-interface);
+  --type-caption: 0.8125rem;
+  --type-body: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --type-title: clamp(2.25rem, 1.25rem + 4vw, 5.5rem);
+  --type-display: clamp(3.25rem, 1.3rem + 8vw, 10rem);
+  --leading-body: 1.55;
+  --leading-title: 1.05;
+  --leading-display: 0.95;
+  --tracking-title: -0.045em;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --page-gutter: clamp(1.25rem, 4vw, 5rem);
+  --section-space: clamp(4rem, 9vw, 10rem);
+  --content-width: 90rem;
+  --reading-width: 65ch;
+  --radius-control: 0.875rem;
+  --radius-panel: 1.5rem;
+  --radius-pill: 999px;
+
+  --duration-fast: 160ms;
+  --duration-normal: 280ms;
+  --duration-scene: 700ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --glass-fill: rgb(255 255 255 / 32%);
+  --glass-fallback: #edeeec;
+  --glass-ink: var(--color-ink);
+  --glass-edge: rgb(255 255 255 / 72%);
+  --glass-highlight: rgb(255 255 255 / 85%);
+  --glass-shade: rgb(32 33 36 / 14%);
+  --glass-blur: 18px;
+  --glass-shadow: 0 8px 28px rgb(20 22 25 / 9%);
+}
+
+@theme inline {
+  --font-sans: var(--font-interface);
+  --font-display: var(--font-editorial);
+}
+
+@layer base {
+  html {
+    background: var(--color-canvas);
+    scroll-padding-top: 6rem;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-interface);
+    font-size: var(--type-body);
+    line-height: var(--leading-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-editorial);
+    line-height: var(--leading-title);
+    letter-spacing: var(--tracking-title);
+    text-wrap: balance;
+  }
+
+  button, input, select, textarea {
+    font: inherit;
+  }
+
+  button:not(:disabled), summary {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 4px;
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-surface);
+  }
+}
+
+@layer components {
+  .page-shell {
+    width: min(100% - var(--page-gutter) * 2, var(--content-width));
+    margin-inline: auto;
+  }
+
+  .section-space {
+    padding-block: var(--section-space);
+  }
+
+  .type-display {
+    font-family: var(--font-editorial);
+    font-size: var(--type-display);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-title);
+    text-wrap: balance;
+  }
+
+  .type-title {
+    font-size: var(--type-title);
+    line-height: var(--leading-title);
+    letter-spacing: var(--tracking-title);
+    text-wrap: balance;
+  }
+
+  .glass-surface, .glass-button {
+    color: var(--glass-ink);
+    background: var(--glass-fallback);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      inset 0 -1px 0 var(--glass-shade),
+      var(--glass-shadow);
+  }
+
+  .glass-milk {
+    --glass-fill: rgb(255 255 255 / 78%);
+    --glass-fallback: #f8f8f7;
+    --glass-blur: 24px;
+  }
+
+  .glass-smoke {
+    --glass-fill: rgb(21 22 24 / 72%);
+    --glass-fallback: #292a2d;
+    --glass-ink: var(--color-on-dark);
+    --glass-edge: rgb(255 255 255 / 24%);
+    --glass-highlight: rgb(255 255 255 / 26%);
+    --glass-shade: rgb(0 0 0 / 28%);
+    --color-focus: #b9ccef;
+  }
+
+  .glass-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-pill);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.25;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      background-color var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+
+  .glass-button:active:not(:disabled, [aria-disabled="true"]) {
+    transform: scale(0.98);
+  }
+
+  .glass-button:is(:disabled, [aria-disabled="true"]) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .glass-button:hover:not(:disabled, [aria-disabled="true"]) {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 1px 0 var(--glass-highlight),
+        inset 0 -1px 0 var(--glass-shade),
+        0 12px 32px rgb(20 22 25 / 14%);
+    }
+  }
+
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass-surface, .glass-button {
+      background: var(--glass-fill);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
+      backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-scene: 0ms;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .glass-button {
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-surface, .glass-button {
+    background: var(--glass-fallback);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
