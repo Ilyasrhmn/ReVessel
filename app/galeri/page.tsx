@@ -10,23 +10,23 @@ export const metadata: Metadata = {
 
 export default function GalleryPage() {
   return (
-    <SiteFrame title="Galeri kaca." active="/galeri">
+    <SiteFrame title="Galeri kaca">
       <div className={styles.galleryGrid}>
-        <figure>
+        <figure id="jar-bening">
           <div className={styles.galleryPhoto}>
             <Image
-              src="/images/glass-study.webp"
-              alt="Botol dan jar bening dengan pembiasan cahaya"
+              src="/images/galeri-kaca-bening.webp"
+              alt="Botol dan jar kaca bening di atas baki perak"
               fill
               priority
               sizes="(max-width:760px) 90vw, 55vw"
             />
           </div>
           <figcaption>
-            Botol & jar bening <span>Visual konsep</span>
+            Botol & jar bening
           </figcaption>
         </figure>
-        <figure>
+        <figure id="botol-amber">
           <div className={styles.galleryPhoto}>
             <Image
               src="/images/amber-study.webp"
@@ -36,16 +36,15 @@ export default function GalleryPage() {
             />
           </div>
           <figcaption>
-            Botol amber <span>Foto referensi</span>
+            Botol amber
           </figcaption>
         </figure>
       </div>
       <div className={styles.credits}>
-        <span>Kredit foto</span>
+        <span>Visual botol bening: ilustrasi ReVessel.</span>
         <a href="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108">
-          Unsplash
+          Foto botol amber: Unsplash
         </a>
-        <span>Visual botol bening dihasilkan untuk ReVessel.</span>
       </div>
     </SiteFrame>
   );

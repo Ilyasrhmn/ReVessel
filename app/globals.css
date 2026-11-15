@@ -15,6 +15,8 @@
 
 :root {
   color-scheme: light;
+  --site-scroll-top: 6rem;
+  --site-scroll-bottom: 0px;
   --color-focus: #3c5e97;
 
   --font-interface: var(--font-instrument, Arial), Helvetica, sans-serif;
@@ -49,15 +51,6 @@
   --duration-scene: 700ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-
-  --glass-fill: rgb(255 255 255 / 32%);
-  --glass-fallback: #edeeec;
-  --glass-ink: var(--color-ink);
-  --glass-edge: rgb(255 255 255 / 72%);
-  --glass-highlight: rgb(255 255 255 / 85%);
-  --glass-shade: rgb(32 33 36 / 14%);
-  --glass-blur: 18px;
-  --glass-shadow: 0 8px 28px rgb(20 22 25 / 9%);
 }
 
 @theme inline {
@@ -68,7 +61,7 @@
 @layer base {
   html {
     background: var(--color-canvas);
-    scroll-padding-top: 6rem;
+    scroll-padding-block: var(--site-scroll-top) var(--site-scroll-bottom);
     scroll-behavior: smooth;
   }
 
@@ -133,33 +126,6 @@
     text-wrap: balance;
   }
 
-  .glass-surface, .glass-button {
-    color: var(--glass-ink);
-    background: var(--glass-fallback);
-    border: 1px solid var(--glass-edge);
-    border-radius: var(--radius-panel);
-    box-shadow:
-      inset 0 1px 0 var(--glass-highlight),
-      inset 0 -1px 0 var(--glass-shade),
-      var(--glass-shadow);
-  }
-
-  .glass-milk {
-    --glass-fill: rgb(255 255 255 / 78%);
-    --glass-fallback: #f8f8f7;
-    --glass-blur: 24px;
-  }
-
-  .glass-smoke {
-    --glass-fill: rgb(21 22 24 / 72%);
-    --glass-fallback: #292a2d;
-    --glass-ink: var(--color-on-dark);
-    --glass-edge: rgb(255 255 255 / 24%);
-    --glass-highlight: rgb(255 255 255 / 26%);
-    --glass-shade: rgb(0 0 0 / 28%);
-    --color-focus: #b9ccef;
-  }
-
   .glass-button {
     display: inline-flex;
     align-items: center;
@@ -175,8 +141,7 @@
     text-decoration: none;
     transition:
       transform var(--duration-fast) var(--ease-out),
-      background-color var(--duration-normal) var(--ease-out),
-      box-shadow var(--duration-normal) var(--ease-out);
+      background-color var(--duration-normal) var(--ease-out);
   }
 
   .glass-button:active:not(:disabled, [aria-disabled="true"]) {
@@ -191,18 +156,6 @@
   @media (hover: hover) and (pointer: fine) {
     .glass-button:hover:not(:disabled, [aria-disabled="true"]) {
       transform: translateY(-1px);
-      box-shadow:
-        inset 0 1px 0 var(--glass-highlight),
-        inset 0 -1px 0 var(--glass-shade),
-        0 12px 32px rgb(20 22 25 / 14%);
-    }
-  }
-
-  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .glass-surface, .glass-button {
-      background: var(--glass-fill);
-      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
-      backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
     }
   }
 }
@@ -223,10 +176,9 @@
   }
 }
 
-@media (prefers-reduced-transparency: reduce) {
-  .glass-surface, .glass-button {
-    background: var(--glass-fallback);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+@media (max-width: 760px) {
+  :root {
+    --site-scroll-top: 0px;
+    --site-scroll-bottom: calc(4.5rem + max(1rem, env(safe-area-inset-bottom)));
   }
 }

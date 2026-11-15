@@ -1,0 +1,33 @@
+.bubble {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 999px;
+  transform-origin: left top;
+  background: linear-gradient(155deg, #fff5, #fff1 55%, #fff2);
+  border: 1px solid rgb(255 255 255 / 29%);
+  box-shadow:
+    inset 1px 1px 2px rgb(255 255 255 / 46%),
+    inset -1px -2px 4px rgb(20 24 32 / 10%),
+    0 2px 7px rgb(20 24 32 / 10%);
+}
+
+:global([data-tone="dark"]) > .bubble {
+  background: linear-gradient(155deg, #fff4, #fff1 55%, #fff2);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .bubble {
+    background: #cdd1d5;
+  }
+  :global([data-tone="dark"]) > .bubble {
+    background: #51565e;
+  }
+}
+
+@media (forced-colors: active) {
+  .bubble {
+    border: 2px solid Highlight;
+  }
+}

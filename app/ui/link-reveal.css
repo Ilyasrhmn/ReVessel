@@ -1,0 +1,19 @@
+.link-reveal {
+  text-decoration: none;
+}
+
+.link-reveal > span {
+  padding-block-end: 0.18em;
+  background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
+  transition: background-size var(--duration-normal) var(--ease-out);
+}
+
+.link-reveal:focus-visible > span {
+  background-size: 100% 1px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link-reveal:hover > span {
+    background-size: 100% 1px;
+  }
+}

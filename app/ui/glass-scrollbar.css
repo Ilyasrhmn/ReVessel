@@ -1,0 +1,51 @@
+@media (forced-colors: none) {
+  :where(html, [data-glass-scroll]) {
+    --scroll-glass-fill: #aeb4ba;
+    --scroll-glass-edge: rgb(255 255 255 / 70%);
+    --scroll-glass-shade: rgb(54 60 67 / 35%);
+    --scroll-glass-track: transparent;
+  }
+
+  [data-glass-scroll][data-tone="dark"] {
+    --scroll-glass-fill: #858b92;
+    --scroll-glass-edge: rgb(255 255 255 / 58%);
+    --scroll-glass-shade: rgb(0 0 0 / 38%);
+  }
+
+  @supports selector(::-webkit-scrollbar) {
+    :where(html, [data-glass-scroll])::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    :where(html, [data-glass-scroll])::-webkit-scrollbar-track,
+    :where(html, [data-glass-scroll])::-webkit-scrollbar-corner {
+      background: var(--scroll-glass-track);
+    }
+
+    :where(html, [data-glass-scroll])::-webkit-scrollbar-thumb {
+      background:
+        linear-gradient(135deg, var(--scroll-glass-edge), transparent 55%)
+        var(--scroll-glass-fill);
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background-clip: padding-box;
+      box-shadow: inset 0 0 1px 1px var(--scroll-glass-shade);
+    }
+
+    :where(html, [data-glass-scroll])::-webkit-scrollbar-thumb:hover {
+      border-width: 1px;
+    }
+
+    :where(html, [data-glass-scroll])::-webkit-scrollbar-button {
+      display: none;
+    }
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    :where(html, [data-glass-scroll]) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scroll-glass-fill) transparent;
+    }
+  }
+}
