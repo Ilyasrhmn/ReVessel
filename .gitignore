@@ -14,6 +14,7 @@
 /coverage
 
 # next.js
+/.next-dev/
 /.next/
 /out/
 
@@ -29,9 +30,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +42,24 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local working documentation
+/.agents/
+/.codex/
+/.cursor/
+/.claude/
+/skills/
+/prompts/
+/rules/
+/docs/
+/DESIGN.md
+/PWA-AUDIT.md
+[Aa][Gg][Ee][Nn][Tt][Ss].md
+[Cc][Ll][Aa][Uu][Dd][Ee].md
+[Gg][Ee][Mm][Ii][Nn][Ii].md
+[Ss][Yy][Ss][Tt][Ee][Mm].md
+*[Pp][Rr][Oo][Mm][Pp][Tt]*.md
+*[Pp][Rr][Oo][Mm][Pp][Tt]*.txt
+
+# generated Prisma client
+/apps/web/server/generated/
