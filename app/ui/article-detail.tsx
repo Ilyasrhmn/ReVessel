@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import SiteFrame from "./site-frame";
-import Icon from "./interface-icon";
 import { articles } from "../content";
 import styles from "../pages.module.css";
 
@@ -11,10 +10,9 @@ export default function ArticleDetail({
   article: (typeof articles)[number];
 }) {
   return (
-    <SiteFrame title={article.title} active="/artikel">
-      <Link href="/artikel" className={styles.textLink}>
-        <Icon kind="article" />
-        Semua artikel
+    <SiteFrame title={article.title}>
+      <Link href="/artikel" className={`${styles.textLink} link-reveal`}>
+        <span>Semua artikel</span>
       </Link>
       <div className={styles.articleImage}>
         <Image
@@ -39,7 +37,6 @@ export default function ArticleDetail({
               <li key={source.href}>
                 <a href={source.href}>
                   {source.label}
-                  <Icon />
                 </a>
               </li>
             ))}

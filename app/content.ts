@@ -15,7 +15,7 @@ export const articles = [
       },
       {
         title: "Pilih sesuai kondisi dan tujuan",
-        text: "Di dalam konsep ReVessel, botol diperiksa sebelum diarahkan ke perajin atau pengolah. Gunakan wadah sesuai tujuan yang aman; kemasan bekas bahan kimia atau kosmetik tidak otomatis cocok untuk makanan, minuman, atau pemanasan.",
+        text: "Gunakan kembali botol utuh sesuai bahan dan isi sebelumnya. Simpan botol parfum dan kosmetik untuk penggunaan nonpangan, seperti wadah aksesori atau dekorasi.",
       },
     ],
     sources: [
@@ -37,11 +37,11 @@ export const articles = [
     sections: [
       {
         title: "Periksa penerimanya",
-        text: "Jenis kaca dan kondisi yang diterima dapat berbeda antarprogram. Konfirmasikan syarat titik kumpul sebelum membawa botol. Panduan umum dari luar Indonesia bukan daftar penerimaan bank sampah setempat.",
+        text: "Jenis kaca dan kondisi yang diterima dapat berbeda antarprogram. Sebelum berangkat, tanyakan jenis kaca yang diterima, cara mengemasnya, dan waktu penyerahan.",
       },
       {
         title: "Pisahkan komponennya",
-        text: "Dalam checklist ReVessel, botol disiapkan dalam keadaan kosong, bersih, dan kering. Tutup atau pompa dilepas jika memungkinkan; komponen yang menyatu perlu diperiksa oleh penerima. EPA juga menyarankan pemisahan tutup logam dari botol kaca.",
+        text: "Kosongkan, bersihkan, dan keringkan botol. Lepas tutup atau pompa yang mudah dibuka. Tanyakan kepada penerima jika komponennya menyatu dengan botol.",
       },
       {
         title: "Pisahkan kaca yang rusak",

@@ -153,17 +153,10 @@
   transform: scale(1.03);
 }
 .articleCard h2 {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
   font-size: clamp(1.4rem, 2.3vw, 2.1rem);
   line-height: 1.2;
   font-weight: 450;
   margin-top: 1.25rem;
-}
-.articleCard h2 svg {
-  flex-shrink: 0;
 }
 .articleImage {
   position: relative;
@@ -198,18 +191,11 @@
   list-style: none;
 }
 .sources a {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  display: inline-block;
   padding-block: 0.5rem;
   text-decoration: underline;
   text-underline-offset: 4px;
   font-size: 0.9rem;
-}
-.sources svg {
-  flex-shrink: 0;
-  width: 14px;
-  height: 14px;
 }
 .contactGrid {
   display: grid;
@@ -298,6 +284,15 @@
   text-decoration: none;
   font-size: 0.8rem;
   padding-block: 0.5rem;
+}
+@media (min-width: 761px) {
+  .main:has(.articleList) .title {
+    margin-block-end: clamp(2rem, 5svh, 4rem);
+  }
+  .articleList .cardImage {
+    inline-size: 100%;
+    max-block-size: 44svh;
+  }
 }
 @media (max-width: 760px) {
   .main {

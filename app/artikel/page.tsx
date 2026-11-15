@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import SiteFrame from "../ui/site-frame";
-import Icon from "../ui/interface-icon";
 import { articles } from "../content";
 import styles from "../pages.module.css";
 
@@ -14,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function ArticlesPage() {
   return (
-    <SiteFrame title="Baca sebelum memilah." active="/artikel">
+    <SiteFrame title="Artikel">
       <div className={styles.articleList}>
         {articles.map((article) => (
           <Link
@@ -25,15 +24,12 @@ export default function ArticlesPage() {
             <div className={styles.cardImage}>
               <Image
                 src={article.image}
-                alt={article.alt}
+                alt=""
                 fill
                 sizes="(max-width:760px) 90vw, 45vw"
               />
             </div>
-            <h2>
-              {article.title}
-              <Icon />
-            </h2>
+            <h2>{article.title}</h2>
           </Link>
         ))}
       </div>
