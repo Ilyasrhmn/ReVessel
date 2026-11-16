@@ -662,12 +662,14 @@ details[open] > .row .expand {
   background: var(--ui-secondary);
 }
 
-.status[data-state="accepted"] {
+.status[data-state="accepted"],
+.status[data-state="approved"] {
   color: #254f78;
   background: #e4edf7;
 }
 
-.status[data-state="adjustment"] {
+.status[data-state="adjustment"],
+.status[data-state="rejected"] {
   color: #704b29;
   background: #f5eadc;
 }
@@ -750,6 +752,7 @@ details[open] > .row .expand {
 }
 
 .field input,
+.field textarea,
 .field select {
   width: 100%;
   min-width: 0;
@@ -987,6 +990,11 @@ details[open] > .row .expand {
   justify-content: space-between;
   gap: .75rem;
   padding-block: .75rem;
+}
+
+.pickupAddress {
+  font-style: normal;
+  overflow-wrap: anywhere;
 }
 
 .formPair {

@@ -1,7 +1,10 @@
 import { materials, maxBottles, type Material } from "../deposit-options";
 
 export const statusLabels = {
-  waiting: "Menunggu disetor",
+  pending_approval: "Menunggu persetujuan",
+  approved: "Disetujui",
+  rejected: "Pengajuan ditolak",
+  waiting: "Menunggu serah terima",
   accepted: "Diterima",
   adjustment: "Perlu penyesuaian",
   cancelled: "Dibatalkan",
@@ -13,6 +16,14 @@ export const adjustmentReasons = [
   "Jenis atau jumlah botol berbeda dari catatan setoran.",
 ] as const;
 
+export const fulfillmentLabels = {
+  dropoff: "Antar sendiri",
+  pickup: "Penjemputan diminta",
+} as const;
+
+export type FulfillmentMethod = keyof typeof fulfillmentLabels;
+export type PickupDetails = { address: string; phone: string };
+
 export type ReviewReason = (typeof adjustmentReasons)[number];
 export type Deposit = {
   code: string;
@@ -20,8 +31,10 @@ export type Deposit = {
   quantity: number;
   createdAt: string;
   pointName: string;
+  method: FulfillmentMethod | null;
+  approvalNote: string | null;
 } & (
-  | { status: "waiting" | "accepted" | "cancelled"; reason?: never }
+  | { status: Exclude<keyof typeof statusLabels, "adjustment">; reason?: never }
   | { status: "adjustment"; reason: ReviewReason }
 );
 

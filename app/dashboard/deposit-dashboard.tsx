@@ -15,9 +15,10 @@ import SessionSubmit from "../ui/session-submit";
 import { bottleChecklist, bottleQuestions } from "../bottle-guide";
 import { logout } from "../session-actions";
 import { maxBottles, type CollectionPoint } from "../deposit-options";
-import { statusLabels, type Deposit } from "./deposit-store";
+import { fulfillmentLabels, statusLabels, type Deposit } from "./deposit-store";
 import { cancelDeposit as cancelOnServer, createDeposit } from "./deposit-actions";
 import DepositReview from "./deposit-review";
+import DepositFulfillment from "./deposit-fulfillment";
 import ResidentRewards, { type ResidentRewardData } from "./resident-rewards";
 import styles from "./dashboard.module.css";
 import DepositAnalytics, { type MaterialFilter, type Period } from "./deposit-analytics";
@@ -186,7 +187,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
           )}
           <Tooltip><TooltipTrigger asChild><Link href={dashboardHref("titik-kumpul")} aria-label="Lihat titik kumpul"><MapPin /></Link></TooltipTrigger><TooltipContent side="right">Titik kumpul</TooltipContent></Tooltip>
           <Tooltip><TooltipTrigger asChild><Link href={dashboardHref("panduan")} aria-label="Buka panduan botol"><CircleHelp /></Link></TooltipTrigger><TooltipContent side="right">Panduan botol</TooltipContent></Tooltip>
-          {!isReviewer && points.length > 0 && <Tooltip><TooltipTrigger asChild><button type="button" aria-label="Buat kode baru" onClick={openDeposit}><Plus aria-hidden="true" /></button></TooltipTrigger><TooltipContent side="right">Buat setoran</TooltipContent></Tooltip>}
+          {!isReviewer && points.length > 0 && <Tooltip><TooltipTrigger asChild><button type="button" aria-label="Ajukan setoran baru" onClick={openDeposit}><Plus aria-hidden="true" /></button></TooltipTrigger><TooltipContent side="right">Buat setoran</TooltipContent></Tooltip>}
           <Tooltip><TooltipTrigger asChild><button type="button" aria-label="Tema gelap" aria-pressed={dark} onClick={() => setDark(!dark)}>{dark ? <Sun /> : <Moon />}</button></TooltipTrigger><TooltipContent side="right">{dark ? "Tema terang" : "Tema gelap"}</TooltipContent></Tooltip>
         </nav>
       </TooltipProvider>
@@ -247,9 +248,13 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
                             <div className={styles.detail}>
                               <p>{deposit.pointName} · {dateFormat.format(new Date(deposit.createdAt))}</p>
                               {deposit.reason && <p className={styles.reason}>{deposit.reason} Buat setoran baru setelah botol siap.</p>}
-                              {deposit.status === "waiting" && (
+                              {deposit.approvalNote && <p className={styles.reason}>{deposit.approvalNote}</p>}
+                              {deposit.method && <p>{fulfillmentLabels[deposit.method]}</p>}
+                              {deposit.status === "waiting" && deposit.method === "pickup" && <p>Operator akan menghubungimu untuk mengatur penjemputan.</p>}
+                              {deposit.status === "approved" && <DepositFulfillment code={deposit.code} />}
+                              {["pending_approval", "approved", "waiting"].includes(deposit.status) && (
                                 <div className={styles.detailActions}>
-                                  <button type="button" className={styles.subtle} onClick={() => copyCode(deposit.code)}>Salin kode</button>
+                                  {deposit.status === "waiting" && <button type="button" className={styles.subtle} onClick={() => copyCode(deposit.code)}>Salin kode</button>}
                                   <button type="button" className={styles.subtle} onClick={() => cancelDeposit(deposit.code)}>Batalkan setoran</button>
                                 </div>
                               )}
@@ -261,7 +266,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
                   ) : (
                     <div className={styles.empty}>
                       <h3>Belum ada setoran</h3>
-                      <p>{points.length ? "Buat setoran untuk mendapatkan kode yang ditunjukkan saat membawa botol." : "Setoran bisa dibuat setelah titik kumpul aktif tersedia."}</p>
+                      <p>{points.length ? "Ajukan setoran untuk diperiksa operator." : "Setoran bisa dibuat setelah titik kumpul aktif tersedia."}</p>
                     </div>
                   )}
                   <p role="status" className={styles.feedback}>{notice}</p>
@@ -292,12 +297,14 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
         <button type="button" className={styles.close} aria-label="Tutup setoran" disabled={submitting} onClick={() => dialogRef.current?.close()}>
           <X aria-hidden="true" />
         </button>
-        <h2 id="create-title">{newDeposit ? "Kode setoranmu" : "Buat setoran"}</h2>
+        <h2 id="create-title">{newDeposit ? "Pengajuan terkirim" : "Buat setoran"}</h2>
         {newDeposit ? (
           <div className={`${styles.fields} ${styles.appear}`}>
             <output className={styles.code}>{newDeposit.code}</output>
-            <p className={styles.secondary}>Tunjukkan kode ini saat membawa botol ke {newDeposit.pointName}.</p>
-            <Button type="button" className={styles.action} onClick={() => copyCode(newDeposit.code)}>Salin kode</Button>
+            <p className={styles.secondary}>Pilih cara serah terima setelah operator menyetujui setoran.</p>
+            <Button asChild className={styles.action}>
+              <Link href={dashboardHref("setoran")} onClick={() => dialogRef.current?.close()}>Lihat pengajuan</Link>
+            </Button>
             <p role="status" className={styles.feedback}>{notice}</p>
           </div>
         ) : (
@@ -321,7 +328,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
               <input required name="quantity" type="number" inputMode="numeric" min={1} max={maxBottles} step={1} />
             </label>
             <p role="alert" className={styles.feedback}>{formError}</p>
-            <Button type="submit" className={styles.action} disabled={submitting}>{submitting ? "Menyimpan setoran…" : "Buat kode setoran"}</Button>
+            <Button type="submit" className={styles.action} disabled={submitting}>{submitting ? "Mengirim pengajuan…" : "Ajukan setoran"}</Button>
           </form>
         )}
       </dialog>}

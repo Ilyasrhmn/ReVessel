@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Search } from "lucide-react";
+import { Check, Search, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { adjustmentReasons, statusLabels, type Deposit } from "./deposit-store";
-import { lookupDeposit, submitReview } from "./deposit-actions";
+import { adjustmentReasons, fulfillmentLabels, statusLabels, type Deposit, type PickupDetails } from "./deposit-store";
+import { decideApproval, lookupDeposit, submitReview } from "./deposit-actions";
 import styles from "./dashboard.module.css";
 
 
-export default function DepositReview() {
-  const [code, setCode] = useState("");
-  const [deposit, setDeposit] = useState<Deposit | null>(null);
+export default function DepositReview({ initial }: { initial?: { deposit: Deposit; pickup: PickupDetails | null } | null }) {
+  const [code, setCode] = useState(initial?.deposit.code ?? "");
+  const [deposit, setDeposit] = useState<Deposit | null>(initial?.deposit ?? null);
+  const [pickup, setPickup] = useState<PickupDetails | null>(initial?.pickup ?? null);
   const [notice, setNotice] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -19,13 +20,36 @@ export default function DepositReview() {
     event.preventDefault();
     setNotice("");
     setDeposit(null);
+    setPickup(null);
     setPending(true);
     try {
       const result = await lookupDeposit(code.trim().toUpperCase());
-      if (result.deposit) setDeposit(result.deposit);
-      else setNotice(result.error);
+      if ("deposit" in result) {
+        setDeposit(result.deposit);
+        setPickup(result.pickup);
+      } else setNotice(result.error);
     } catch {
       setNotice("Pencarian belum selesai. Coba lagi.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function approval(event: FormEvent<HTMLFormElement>, item: Deposit) {
+    event.preventDefault();
+    if (pending) return;
+    const submitter = (event.nativeEvent as SubmitEvent).submitter;
+    const form = new FormData(event.currentTarget, submitter);
+    setNotice("");
+    setPending(true);
+    try {
+      const result = await decideApproval(item.code, form);
+      if (result.deposit) {
+        setDeposit(result.deposit);
+        setNotice("Keputusan tersimpan.");
+      } else setNotice(result.error);
+    } catch {
+      setNotice("Keputusan belum dapat dikonfirmasi. Coba lagi.");
     } finally {
       setPending(false);
     }
@@ -40,6 +64,7 @@ export default function DepositReview() {
       const result = await submitReview(item.code, form);
       if (result.deposit) {
         setDeposit(result.deposit);
+        setPickup(null);
         setNotice("Hasil pemeriksaan tersimpan.");
       } else setNotice(result.error);
     } catch {
@@ -50,7 +75,7 @@ export default function DepositReview() {
   }
 
   return (
-    <div className={styles.review}>
+    <div id="pemeriksaan" className={styles.review}>
       <section className={styles.panel} aria-labelledby="lookup-title">
         <h2 id="lookup-title">Cari kode setoran</h2>
         <form className={styles.lookup} onSubmit={search}>
@@ -76,6 +101,25 @@ export default function DepositReview() {
           </div>
           <p className={styles.secondary}>{deposit.quantity} wadah · {deposit.material} · {deposit.pointName}</p>
           {deposit.reason && <p className={styles.reason}>{deposit.reason}</p>}
+          {deposit.approvalNote && <p className={styles.reason}>{deposit.approvalNote}</p>}
+          {deposit.method && <p>{fulfillmentLabels[deposit.method]}</p>}
+          {pickup && deposit.status === "waiting" && (
+            <address className={styles.pickupAddress}>
+              <p>{pickup.address}</p>
+              <a className="link-reveal" href={`tel:${pickup.phone}`}><span>{pickup.phone}</span></a>
+            </address>
+          )}
+          {deposit.status === "pending_approval" && (
+            <form className={styles.fields} onSubmit={(event) => approval(event, deposit)}>
+              <label className={styles.field}>Alasan jika ditolak
+                <textarea name="note" rows={2} maxLength={240} />
+              </label>
+              <div className={styles.detailActions}>
+                <Button name="decision" value="approve" type="submit" disabled={pending}><Check aria-hidden="true" />Setujui pengajuan</Button>
+                <Button name="decision" value="reject" type="submit" variant="outline" disabled={pending}><X aria-hidden="true" />Tolak pengajuan</Button>
+              </div>
+            </form>
+          )}
           {deposit.status === "waiting" && (
             <form key={deposit.code} className={styles.fields} onSubmit={(event) => review(event, deposit)}>
               <label className={styles.check}>

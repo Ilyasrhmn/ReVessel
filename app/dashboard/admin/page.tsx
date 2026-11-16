@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { LogOut } from "lucide-react";
+import { FileCheck, LogOut } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { readAdminDeposits, readAdminResidents } from "@/lib/server/admin";
+import { lookupAssignedDeposit } from "@/lib/server/deposits";
 import { currentUser } from "@/lib/server/auth";
 import { readPendingRedemptions, readRewards } from "@/lib/server/rewards";
 import { logout } from "../../session-actions";
@@ -23,7 +24,7 @@ const tabs = [
   { id: "pengguna", label: "Pengguna" },
   { id: "reward", label: "Reward" },
 ] as const;
-const filters = ["semua", "waiting", "accepted", "adjustment", "cancelled"] as const;
+const filters = ["semua", "pending_approval", "approved", "waiting", "accepted", "adjustment", "rejected", "cancelled"] as const;
 const base = "/dashboard/admin";
 const number = new Intl.NumberFormat("id-ID");
 const date = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" });
@@ -44,6 +45,7 @@ async function AuthorizedAdmin({ searchParams }: Pick<PageProps<"/dashboard/admi
   const query = await searchParams;
   const tab = tabs.find((item) => item.id === query.bagian) ?? tabs[0];
   const filter = filters.find((item) => item === query.status) ?? "semua";
+  const code = typeof query.kode === "string" && /^RV-[A-F0-9]{8}$/.test(query.kode) ? query.kode : null;
 
   return (
     <div className={`${styles.dashboard} ${styles.admin}`}>
@@ -70,19 +72,22 @@ async function AuthorizedAdmin({ searchParams }: Pick<PageProps<"/dashboard/admi
           <Badge className={styles.roleBadge} variant="outline">Admin</Badge>
         </header>
         <div key={tab.id} className={styles.appear}>
-          {tab.id === "pengguna" ? <AdminResidents /> : tab.id === "reward" ? <AdminRewards /> : <AdminDeposits filter={filter} />}
+          {tab.id === "pengguna" ? <AdminResidents /> : tab.id === "reward" ? <AdminRewards /> : <AdminDeposits filter={filter} code={code} userId={user.id} />}
         </div>
       </main>
     </div>
   );
 }
 
-async function AdminDeposits({ filter }: { filter: (typeof filters)[number] }) {
-  const { summary, entries } = await readAdminDeposits(filter === "semua" ? null : filter);
+async function AdminDeposits({ filter, code, userId }: { filter: (typeof filters)[number]; code: string | null; userId: string }) {
+  const [{ summary, entries }, initial] = await Promise.all([
+    readAdminDeposits(filter === "semua" ? null : filter),
+    code ? lookupAssignedDeposit(userId, code, true) : null,
+  ]);
   const stats = [
-    ["Menunggu disetor", summary.waiting],
+    ["Menunggu persetujuan", summary.pending],
+    ["Menunggu serah terima", summary.waiting],
     ["Setoran diterima", summary.accepted],
-    ["Perlu penyesuaian", summary.adjustment],
     ["Botol diterima", summary.units],
   ] as const;
 
@@ -114,13 +119,20 @@ async function AdminDeposits({ filter }: { filter: (typeof filters)[number] }) {
               <li className={styles.row} key={entry.code}>
                 <span><strong>{entry.code}</strong><small>{entry.pointName} · {date.format(entry.date)}</small></span>
                 <span>{entry.material} · {number.format(entry.quantity)} botol</span>
-                <Badge className={styles.status} variant="secondary" data-state={entry.status}>{statusLabels[entry.status]}</Badge>
+                <div className={styles.rowEnd}>
+                  <Badge className={styles.status} variant="secondary" data-state={entry.status}>{statusLabels[entry.status]}</Badge>
+                  {(entry.status === "waiting" || entry.status === "pending_approval") && (
+                    <Link href={`${base}?status=${filter}&kode=${entry.code}#pemeriksaan`} className={`${styles.guideLink} link-reveal`} aria-label={`Periksa ${entry.code}`}>
+                      <FileCheck aria-hidden="true" /><span>Periksa</span>
+                    </Link>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
         ) : <p className={styles.secondary}>Belum ada setoran dengan filter ini.</p>}
       </section>
-      <DepositReview />
+      <DepositReview key={code} initial={initial} />
     </div>
   );
 }

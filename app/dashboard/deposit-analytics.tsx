@@ -46,7 +46,7 @@ function subscribeToMotion(onChange: () => void) {
 function counts(deposits: Deposit[]) {
   return {
     total: deposits.length,
-    waiting: deposits.filter(({ status }) => status === "waiting").length,
+    waiting: deposits.filter(({ status }) => status === "pending_approval" || status === "approved" || status === "waiting").length,
     accepted: deposits.filter(({ status }) => status === "accepted").length,
     adjustment: deposits.filter(({ status }) => status === "adjustment").length,
     containers: deposits.reduce((sum, item) => item.status === "accepted" ? sum + item.quantity : sum, 0),
@@ -55,7 +55,7 @@ function counts(deposits: Deposit[]) {
 
 const metrics = [
   ["total", "Setoran"],
-  ["waiting", "Menunggu disetor"],
+  ["waiting", "Dalam proses"],
   ["accepted", "Diterima"],
   ["adjustment", "Perlu penyesuaian"],
   ["containers", "Wadah diterima"],

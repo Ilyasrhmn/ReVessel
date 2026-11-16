@@ -3,12 +3,13 @@ import { randomBytes } from "node:crypto";
 import { connection } from "next/server";
 import { db } from "./db";
 import type { CollectionPoint, Material } from "@/app/deposit-options";
-import type { Deposit, ReviewReason } from "@/app/dashboard/deposit-store";
+import type { Deposit, FulfillmentMethod, PickupDetails, ReviewReason } from "@/app/dashboard/deposit-store";
 
 type DepositRow = Omit<Deposit, "createdAt"> & { createdAt: Date };
 
 const depositColumns = `d.code, d.material, d.quantity, d.status,
-  d.reason, d.created_at AS "createdAt", p.name AS "pointName"`;
+  d.reason, d.created_at AS "createdAt", p.name AS "pointName",
+  d.fulfillment_method AS method, d.approval_note AS "approvalNote"`;
 
 function fromRow(row: DepositRow): Deposit {
   const { reason, ...item } = row;
@@ -70,27 +71,61 @@ export async function createResidentDeposit(userId: string, point: string, mater
 
 export async function cancelResidentDeposit(userId: string, code: string) {
   const result = await db().query(
-    "UPDATE deposits SET status = 'cancelled' WHERE owner_id = $1 AND code = $2 AND status = 'waiting'",
+    `UPDATE deposits SET status = 'cancelled', pickup_address = NULL, pickup_phone = NULL
+     WHERE owner_id = $1 AND code = $2 AND status IN ('pending_approval', 'approved', 'waiting')`,
     [userId, code],
   );
   return result.rowCount === 1;
 }
 
 export async function lookupAssignedDeposit(reviewerId: string, code: string, isAdmin: boolean) {
-  const result = await db().query<DepositRow>(
-    `SELECT ${depositColumns}
+  const result = await db().query<DepositRow & { address: string | null; phone: string | null }>(
+    `SELECT ${depositColumns},
+       CASE WHEN $3 THEN d.pickup_address END AS address,
+       CASE WHEN $3 THEN d.pickup_phone END AS phone
      FROM deposits d JOIN collection_points p ON p.slug = d.point_slug
      WHERE d.code = $2 AND p.active AND ($3::boolean OR EXISTS (
        SELECT 1 FROM reviewer_assignments a WHERE a.user_id = $1 AND a.point_slug = d.point_slug
      ))`, [reviewerId, code, isAdmin],
   );
+  const row = result.rows[0];
+  if (!row) return null;
+  const { address, phone, ...deposit } = row;
+  return { deposit: fromRow(deposit), pickup: address && phone ? { address, phone } : null };
+}
+
+export async function decideDepositApproval(operatorId: string, code: string, note: string | null, isAdmin: boolean) {
+  const result = await db().query<DepositRow>(
+    `WITH d AS (
+       UPDATE deposits SET status = $3, approval_note = $4, decided_at = now(), decided_by = $1
+       WHERE code = $2 AND status = 'pending_approval' AND EXISTS (
+         SELECT 1 FROM collection_points p WHERE p.slug = deposits.point_slug AND p.active AND ($5::boolean OR EXISTS (
+           SELECT 1 FROM reviewer_assignments a WHERE a.user_id = $1 AND a.point_slug = p.slug
+         ))
+       )
+       RETURNING *
+     )
+     SELECT ${depositColumns} FROM d JOIN collection_points p ON p.slug = d.point_slug`,
+    [operatorId, code, note ? "rejected" : "approved", note, isAdmin],
+  );
   return result.rows[0] ? fromRow(result.rows[0]) : null;
+}
+
+export async function setDepositFulfillment(userId: string, code: string, method: FulfillmentMethod, pickup: PickupDetails | null) {
+  const result = await db().query(
+    `UPDATE deposits d SET status = 'waiting', fulfillment_method = $3, pickup_address = $4, pickup_phone = $5
+     WHERE d.owner_id = $1 AND d.code = $2 AND d.status = 'approved'
+       AND EXISTS (SELECT 1 FROM collection_points p WHERE p.slug = d.point_slug AND p.active)`,
+    [userId, code, method, pickup?.address ?? null, pickup?.phone ?? null],
+  );
+  return result.rowCount === 1;
 }
 
 export async function reviewAssignedDeposit(reviewerId: string, code: string, reason: ReviewReason | null, isAdmin: boolean) {
   const result = await db().query<DepositRow>(
     `WITH d AS (
-       UPDATE deposits SET status = $3, reason = $4, reviewer_id = $1, reviewed_at = now()
+       UPDATE deposits SET status = $3, reason = $4, reviewer_id = $1, reviewed_at = now(),
+         pickup_address = NULL, pickup_phone = NULL
        WHERE code = $2 AND status = 'waiting' AND EXISTS (
          SELECT 1 FROM collection_points p WHERE p.slug = deposits.point_slug AND p.active AND ($5::boolean OR EXISTS (
            SELECT 1 FROM reviewer_assignments a WHERE a.user_id = $1 AND a.point_slug = p.slug
