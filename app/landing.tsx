@@ -6,6 +6,7 @@ import styles from "./landing.module.css";
 import glass from "./ui/liquid-glass.module.css";
 import { moveGlassLight } from "./ui/glass-light";
 import Icon from "./ui/interface-icon";
+import FluidGlassLayer from "./ui/fluid-glass/fluid-glass-layer";
 import { useLandingMotion } from "./ui/use-landing-motion";
 import BrandLogo from "./ui/brand-logo";
 import NewTabLink from "./ui/new-tab-link";
@@ -13,6 +14,8 @@ import { BrandPreview } from "./ui/brand-story";
 import { useBottleGuide } from "./ui/site-navigation";
 import Link from "next/link";
 import { articles } from "./content";
+
+const heroPhoto = "/images/glass-study.webp";
 
 const chapters = [
   {
@@ -95,31 +98,34 @@ export default function Landing() {
 
   return (
     <main id="main" ref={pageRef} tabIndex={-1}>
+      <FluidGlassLayer />
       <section
         id="beranda"
+        data-fluid-zone=""
         className={styles.hero}
         ref={heroRef}
         aria-labelledby="hero-title"
         tabIndex={-1}
       >
-        <div className={styles.heroImage} data-hero-image="">
+        <div className={styles.heroImage} data-hero-image="" data-fluid-layer="image">
           <Image
-            src="/images/glass-study.webp"
+            src={heroPhoto}
             alt="Botol dan jar kaca bening tanpa tutup, diterangi cahaya yang membias"
             fill
             priority
             sizes="100vw"
           />
         </div>
-        <div className={styles.heroShade} />
+        <div className={styles.heroShade} data-fluid-layer="shade" />
         <div className={styles.heroCopy} data-hero-copy="">
-          <h1 id="hero-title">
+          <h1 id="hero-title" data-fluid-layer="text">
             Pakai ulang
             <br />
             botol kacamu.
           </h1>
           <a
             className={`glass-button ${glass.surface} ${styles.heroButton}`}
+            data-fluid-layer="control"
             onPointerMove={moveGlassLight}
             href="#perjalanan"
           >
@@ -127,7 +133,7 @@ export default function Landing() {
             <Icon kind="down" />
           </a>
         </div>
-        <div className={styles.wordmark} data-hero-wordmark="" aria-hidden="true">
+        <div className={styles.wordmark} data-hero-wordmark="" data-fluid-layer="text" aria-hidden="true">
           ReVessel
         </div>
       </section>
@@ -168,11 +174,11 @@ export default function Landing() {
         aria-labelledby="story-title"
         tabIndex={-1}
       >
-        <div ref={storyViewportRef} className={styles.storySticky}>
+        <div ref={storyViewportRef} className={styles.storySticky} data-fluid-zone="story">
           <div className={styles.storyTop}>
-            <h2 id="story-title">Perjalanan botol</h2>
+            <h2 id="story-title" data-fluid-layer="text">Perjalanan botol</h2>
           </div>
-          <div className={styles.storyVisual}>
+          <div className={styles.storyVisual} data-fluid-layer="story">
             {chapters.map((item, index) => (
               <div
                 key={item.detail}
@@ -198,11 +204,12 @@ export default function Landing() {
                 key={item.detail}
                 className={`${styles.chapter} ${chapter === index ? styles.chapterActive : ""}`}
               >
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
+                <h3 data-fluid-layer="text">{item.title}</h3>
+                <p data-fluid-layer="text">{item.text}</p>
                 {index === 0 && (
                   <button
                     className={`glass-button ${glass.surface} ${styles.storyButton}`}
+                    data-fluid-layer="control"
                     onPointerMove={moveGlassLight}
                     data-tone="dark"
                     onClick={(event) => openGuide(event.currentTarget)}
@@ -373,20 +380,21 @@ export default function Landing() {
         />
       </section>
 
-      <footer className={styles.footer}>
+      <footer className={styles.footer} data-fluid-zone="">
         <div className={styles.footerTop}>
           <a href="#" aria-label="Kembali ke atas">
             Kembali ke atas
             <Icon kind="down" />
           </a>
         </div>
-        <h2>
+        <h2 data-fluid-layer="text">
           Cek botol
           <br />
           sebelum disetor
         </h2>
         <button
           className={`glass-button ${glass.surface} ${styles.footerButton}`}
+          data-fluid-layer="control"
           onPointerMove={moveGlassLight}
           onClick={(event) => openGuide(event.currentTarget)}
         >

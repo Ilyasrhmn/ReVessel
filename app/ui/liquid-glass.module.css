@@ -56,7 +56,7 @@ button.surface {
   border-radius: inherit;
   background: radial-gradient(
     ellipse at var(--shine-x) var(--shine-y),
-    rgb(255 255 255 / 18%),
+    var(--liquid-highlight, rgb(255 255 255 / 18%)),
     transparent 62%
   );
   pointer-events: none;

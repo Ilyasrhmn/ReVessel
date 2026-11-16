@@ -1,0 +1,30 @@
+.layer {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 15;
+  width: 300px;
+  height: 300px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  margin-left: calc(-100vw - 320px);
+  will-change: transform;
+  transition: opacity 160ms ease-out, visibility 0s 160ms, margin-left 0s 160ms;
+}
+
+.layer[data-fluid-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  margin-left: 0;
+  transition-delay: 0s;
+}
+
+.layer :global(.fluid-glass[data-interaction="static"][data-clickable] .fluid-glass__handle) {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .layer {
+    display: none;
+  }
+}
