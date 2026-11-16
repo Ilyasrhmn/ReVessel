@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import styles from "./landing.module.css";
 import glass from "./ui/liquid-glass.module.css";
 import { moveGlassLight } from "./ui/glass-light";
@@ -14,6 +14,8 @@ import { BrandPreview } from "./ui/brand-story";
 import { useBottleGuide } from "./ui/site-navigation";
 import Link from "next/link";
 import { articles } from "./content";
+import { bottleQuestions } from "./bottle-guide";
+import CollectionMap from "./ui/collection-map";
 
 const heroPhoto = "/images/glass-study.webp";
 
@@ -41,26 +43,7 @@ const chapters = [
   },
 ];
 
-const questions = [
-  [
-    "Kaca seperti apa yang bisa disiapkan?",
-    "Siapkan botol parfum, botol kosmetik, dan jar kaca. Pisahkan keramik, cermin, bohlam, dan kaca jendela. Cek jenis kaca yang diterima oleh titik kumpul.",
-  ],
-  [
-    "Bagaimana kalau botol retak atau pecah?",
-    "Pisahkan dari botol utuh. Bungkus dengan bahan pelindung dan beri tanda kaca pecah. Jangan memasukkannya ke jalur pakai ulang; penerimaan daur ulang bergantung pada pengolah.",
-  ],
-  [
-    "Apakah semua botol akan menjadi produk baru?",
-    "Jalurnya bergantung pada kondisi, kebersihan, jenis kaca, serta kebutuhan penerima. Botol utuh dapat dipakai ulang, sementara material yang sesuai dapat didaur ulang.",
-  ],
-  [
-    "Apa yang perlu ditanyakan ke titik kumpul?",
-    "Tanyakan jenis kaca yang diterima, cara membungkusnya, dan waktu penyerahan.",
-  ],
-];
-
-export default function Landing() {
+export default function Landing({ points }: { points: ReactNode }) {
   const pageRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const storyRef = useRef<HTMLElement>(null);
@@ -123,15 +106,15 @@ export default function Landing() {
             <br />
             botol kacamu.
           </h1>
-          <a
+          <button
+            type="button"
             className={`glass-button ${glass.surface} ${styles.heroButton}`}
             data-fluid-layer="control"
             onPointerMove={moveGlassLight}
-            href="#perjalanan"
+            onClick={(event) => openGuide(event.currentTarget)}
           >
-            Lihat alur botol
-            <Icon kind="down" />
-          </a>
+            Cek botolmu
+          </button>
         </div>
         <div className={styles.wordmark} data-hero-wordmark="" data-fluid-layer="text" aria-hidden="true">
           ReVessel
@@ -338,7 +321,7 @@ export default function Landing() {
           <h2 id="faq-title">Panduan botol</h2>
         </div>
         <div className={styles.faqItems}>
-          {questions.map(([question, answer], index) => (
+          {bottleQuestions.map(([question, answer], index) => (
             <div key={question} className={styles.faqItem}>
               <h3>
                 <button
@@ -362,6 +345,20 @@ export default function Landing() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section
+        id="titik-kumpul"
+        className={`${styles.collectionPoint} page-shell`}
+        aria-labelledby="collection-title"
+        tabIndex={-1}
+      >
+        <h2 id="collection-title">Titik kumpul</h2>
+        <div className={styles.collectionList}>
+          <h3>Titik setoran ReVessel</h3>
+          {points}
+        </div>
+        <div className={styles.collectionMap}><CollectionMap /></div>
       </section>
 
       <BrandPreview />

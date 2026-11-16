@@ -106,10 +106,6 @@
   padding: 0.85rem 1.1rem;
   font-size: 0.78rem;
 }
-.heroButton svg {
-  margin-left: 1rem;
-  width: 17px;
-}
 .wordmark {
   position: relative;
   align-self: end;
@@ -430,6 +426,7 @@
   line-height: 1.7;
   color: #666970;
 }
+.collectionPoint,
 .contactSection {
   display: grid;
   grid-template-columns: 1fr 1.25fr;
@@ -437,6 +434,39 @@
   gap: 1rem 8%;
   padding-block: clamp(3rem, 8svh, 6rem);
   border-top: 1px solid var(--color-line);
+}
+.collectionPoint {
+  align-items: start;
+  scroll-margin-block-end: 1rem;
+}
+.collectionPoint h2 {
+  font-size: var(--type-title);
+  font-weight: 450;
+}
+.collectionDetails {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+}
+.collectionDetails h3 {
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 500;
+}
+.collectionDetails p {
+  max-width: 42ch;
+}
+.collectionList {
+  display: grid;
+  justify-items: start;
+  gap: 1.1rem;
+}
+.collectionList > h3 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.collectionMap {
+  grid-column: 1 / -1;
+  margin-block-start: clamp(.5rem, 2vw, 1.5rem);
 }
 .contactSection .sectionLink {
   justify-self: start;
@@ -541,6 +571,7 @@
   }
 }
 @media (max-width: 760px) {
+  .collectionPoint,
   .contactSection {
     grid-template-columns: 1fr;
   }

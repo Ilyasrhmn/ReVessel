@@ -1,0 +1,136 @@
+.directory {
+  display: grid;
+  gap: .75rem;
+  min-inline-size: 0;
+}
+
+.directory > h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.directory > p {
+  margin: 0;
+  font-size: .875rem;
+  color: var(--ui-muted-foreground, #575c62);
+}
+
+.mapFrame {
+  position: relative;
+  isolation: isolate;
+  min-block-size: clamp(21rem, 51svh, 33rem);
+  overflow: hidden;
+  border: 1px solid var(--ui-border, var(--color-line));
+  border-radius: 1.25rem;
+  background: #e5e7e7;
+}
+
+.map:global(.leaflet-container) {
+  position: absolute;
+  inset: 0;
+  background: #e5e7e7;
+  font: inherit;
+}
+
+.map :global(.leaflet-tile-pane) {
+  filter: saturate(.52);
+}
+
+.mapNotice {
+  position: absolute;
+  z-index: 450;
+  inset: auto auto 1.45rem .65rem;
+  margin: 0;
+  padding: .45rem .65rem;
+  border-radius: .5rem;
+  background: #fff;
+  color: #23272a;
+  font-size: .8rem;
+  pointer-events: none;
+}
+
+.pin {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #252b31;
+}
+
+.pin svg {
+  inline-size: 34px;
+  block-size: 34px;
+  padding: 7px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: #f8fafb;
+  box-shadow: 0 2px 8px #17202b38;
+  transition: transform var(--duration-fast, 150ms) var(--ease-out, ease-out),
+    background-color var(--duration-fast, 150ms) var(--ease-out, ease-out),
+    color var(--duration-fast, 150ms) var(--ease-out, ease-out);
+}
+
+.pin[aria-expanded="true"] svg,
+.pin:hover svg {
+  transform: scale(1.12);
+  background: #252b31;
+  color: #fff;
+}
+
+.pin:focus-visible {
+  outline: 2px solid #252b31;
+  outline-offset: 1px;
+}
+
+.popup :global(.leaflet-popup-content-wrapper),
+.popup :global(.leaflet-popup-tip) {
+  background: var(--ui-card, #fcfcfb);
+  color: var(--ui-foreground, #24282c);
+  box-shadow: 0 4px 16px #17202b24;
+}
+
+.popup :global(.leaflet-popup-content) {
+  margin: .85rem 1rem;
+  font: inherit;
+}
+
+.popup :global(a.leaflet-popup-close-button) {
+  color: var(--ui-foreground, #24282c);
+}
+
+.popupContent {
+  display: grid;
+  justify-items: start;
+  gap: .35rem;
+  line-height: 1.4;
+  font-size: .89rem;
+  overflow-wrap: anywhere;
+}
+
+.popupContent strong {
+  margin-inline-end: .35rem;
+  font-weight: 650;
+}
+
+.popupContent p {
+  margin: 0;
+}
+
+.popupContent p:nth-of-type(2) {
+  margin-block-start: .25rem;
+  font-weight: 550;
+}
+
+.popupContent a {
+  color: inherit;
+}
+
+.popupContent a:last-child {
+  margin-block-start: .35rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pin svg {
+    transition: none;
+  }
+}

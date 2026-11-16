@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BrandSymbol } from "../ui/brand-logo";
 import NavBubble from "../ui/nav-bubble";
+import CollectionMap from "../ui/collection-map";
 import SessionSubmit from "../ui/session-submit";
 import { bottleChecklist, bottleQuestions } from "../bottle-guide";
 import { logout } from "../session-actions";
@@ -228,6 +229,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
               {view === "ringkasan" && <DepositAnalytics deposits={deposits} period={period} material={material} compare={compare} setPeriod={setPeriod} setMaterial={setMaterial} setCompare={setCompare} />}
 
               <div className={styles.columns} data-wide={view !== "ringkasan"}>
+                {view === "titik-kumpul" && <CollectionMap />}
                 {view !== "titik-kumpul" && <Card role="region" className={styles.panel} aria-labelledby="history-title">
                   <h2 id="history-title">Riwayat setoran</h2>
                   {deposits.length ? (
