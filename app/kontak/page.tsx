@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import SiteFrame from "../ui/site-frame";
-import Icon from "../ui/interface-icon";
-import styles from "../pages.module.css";
+import ContactForm from "./contact-form";
 
 export const metadata: Metadata = {
   title: "Kontak | ReVessel",
@@ -11,19 +10,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <SiteFrame title="Kontak">
-      <div className={styles.contactChannel}>
-        <a
-          href="https://github.com/Ilyasrhmn/ReVessel/issues/new"
-          aria-describedby="contact-visibility"
-          className={`${styles.textLink} link-reveal`}
-        >
-          <Icon kind="external" />
-          <span>Tulis masukan di GitHub</span>
-        </a>
-        <p id="contact-visibility">
-          Perlu akun GitHub. Masukan yang kamu kirim bisa dibaca publik.
-        </p>
-      </div>
+      <ContactForm />
     </SiteFrame>
   );
 }

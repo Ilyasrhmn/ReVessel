@@ -997,6 +997,8 @@ details[open] > .row .expand {
   overflow-wrap: anywhere;
 }
 
+.contactMessage { white-space: pre-wrap; overflow-wrap: anywhere; }
+
 .formPair {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

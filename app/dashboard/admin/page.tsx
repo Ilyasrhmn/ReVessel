@@ -16,6 +16,7 @@ import DepositReview from "../deposit-review";
 import { statusLabels } from "../deposit-store";
 import styles from "../dashboard.module.css";
 import { HandOverForm, PublishRewardForm } from "./reward-forms";
+import ContactInbox from "./contact-inbox";
 
 export const metadata: Metadata = { title: "Dashboard admin | ReVessel" };
 
@@ -23,6 +24,7 @@ const tabs = [
   { id: "setoran", label: "Setoran masuk" },
   { id: "pengguna", label: "Pengguna" },
   { id: "reward", label: "Reward" },
+  { id: "pesan", label: "Pesan masuk" },
 ] as const;
 const filters = ["semua", "pending_approval", "approved", "waiting", "accepted", "adjustment", "rejected", "cancelled"] as const;
 const base = "/dashboard/admin";
@@ -72,7 +74,7 @@ async function AuthorizedAdmin({ searchParams }: Pick<PageProps<"/dashboard/admi
           <Badge className={styles.roleBadge} variant="outline">Admin</Badge>
         </header>
         <div key={tab.id} className={styles.appear}>
-          {tab.id === "pengguna" ? <AdminResidents /> : tab.id === "reward" ? <AdminRewards /> : <AdminDeposits filter={filter} code={code} userId={user.id} />}
+          {tab.id === "pengguna" ? <AdminResidents /> : tab.id === "reward" ? <AdminRewards /> : tab.id === "pesan" ? <ContactInbox /> : <AdminDeposits filter={filter} code={code} userId={user.id} />}
         </div>
       </main>
     </div>
