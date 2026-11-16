@@ -72,8 +72,11 @@ button.surface {
   }
 }
 @supports (backdrop-filter: url("#revessel-liquid-lens")) {
-  .surface {
+  :global(:where(html:not(.lenis-scrolling))) .surface {
     backdrop-filter: url("#revessel-liquid-lens") blur(5px) saturate(1.35);
+  }
+  :global(:where(.lenis-scrolling)) .surface {
+    backdrop-filter: blur(5px) saturate(1.35);
   }
 }
 @media (prefers-reduced-transparency: reduce) {

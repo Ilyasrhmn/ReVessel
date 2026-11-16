@@ -182,3 +182,7 @@
     --site-scroll-bottom: calc(4.5rem + max(1rem, env(safe-area-inset-bottom)));
   }
 }
+
+html.lenis {
+  scroll-behavior: auto;
+}

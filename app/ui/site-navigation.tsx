@@ -236,6 +236,7 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
             <nav
               id="site-menu"
               data-glass-scroll=""
+              data-lenis-prevent=""
               ref={menuRef}
               className={`${styles.siteMenu} ${glass.surface}`}
               data-tone={navTone}
@@ -291,6 +292,7 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
       <dialog
         ref={dialogRef}
         data-glass-scroll=""
+        data-lenis-prevent=""
         className={styles.dialog}
         aria-labelledby="guide-title"
         onClose={() => {

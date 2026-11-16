@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Instrument_Sans } from "next/font/google";
 import GlassLens from "./glass-lens";
 import SiteNavigation from "./ui/site-navigation";
+import "lenis/dist/lenis.css";
 import "./globals.css";
 import "./ui/glass-scrollbar.css";
 import "./ui/link-reveal.css";

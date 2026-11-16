@@ -27,7 +27,7 @@ export function BrandPreview() {
       <div className={styles.tile}>
         <BrandSymbol />
       </div>
-      <div className={styles.previewCopy}>
+      <div className={styles.previewCopy} data-scroll-copy="">
         <h2 id="brand-preview-title">Botol yang sama, guna yang baru</h2>
         <p>
           Dua garis bertukar tempat saat logo diputar. Putaran itu

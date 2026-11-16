@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import styles from "./landing.module.css";
 import glass from "./ui/liquid-glass.module.css";
 import { moveGlassLight } from "./ui/glass-light";
 import Icon from "./ui/interface-icon";
+import { useLandingMotion } from "./ui/use-landing-motion";
 import BrandLogo from "./ui/brand-logo";
 import NewTabLink from "./ui/new-tab-link";
 import { BrandPreview } from "./ui/brand-story";
@@ -57,6 +58,7 @@ const questions = [
 ];
 
 export default function Landing() {
+  const pageRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const storyRef = useRef<HTMLElement>(null);
   const storyViewportRef = useRef<HTMLDivElement>(null);
@@ -64,72 +66,35 @@ export default function Landing() {
   const [chapter, setChapter] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      if (heroRef.current) {
-        const progress = Math.min(
-          1,
-          Math.max(
-            0,
-            -heroRef.current.getBoundingClientRect().top / window.innerHeight,
-          ),
-        );
-        heroRef.current.style.setProperty(
-          "--hero-progress",
-          reduced.matches ? "0" : String(progress),
-        );
-      }
-      const storyViewport = storyViewportRef.current;
-      if (storyRef.current && storyViewport) {
-        const rect = storyRef.current.getBoundingClientRect();
-        const progress = Math.min(
-          1,
-          Math.max(
-            0,
-            -rect.top / Math.max(1, rect.height - storyViewport.offsetHeight),
-          ),
-        );
-        storyRef.current.style.setProperty(
-          "--story-progress",
-          String(reduced.matches ? 0 : progress),
-        );
-        setChapter(Math.min(2, Math.floor(progress * 3)));
-      }
-    };
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-    reduced.addEventListener("change", schedule);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-      reduced.removeEventListener("change", schedule);
-    };
-  }, []);
+  const lenisRef = useLandingMotion({
+    pageRef,
+    heroRef,
+    storyRef,
+    storyViewportRef,
+    chapterCount: chapters.length,
+    setChapter,
+  });
 
   function jumpToChapter(index: number) {
     const section = storyRef.current;
     const storyViewport = storyViewportRef.current;
     if (!section || !storyViewport) return;
-    window.scrollTo({
-      top:
-        window.scrollY +
-        section.getBoundingClientRect().top +
-        (section.offsetHeight - storyViewport.offsetHeight) *
-          ((index + 0.25) / 3),
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
-    });
+
+    const top = window.scrollY + section.getBoundingClientRect().top +
+      (section.offsetHeight - storyViewport.offsetHeight) * ((index + 0.25) / chapters.length);
+
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(top, { lerp: 0.18 });
+    } else {
+      window.scrollTo({
+        top,
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      });
+    }
   }
 
   return (
-    <main id="main" tabIndex={-1}>
+    <main id="main" ref={pageRef} tabIndex={-1}>
       <section
         id="beranda"
         className={styles.hero}
@@ -137,7 +102,7 @@ export default function Landing() {
         aria-labelledby="hero-title"
         tabIndex={-1}
       >
-        <div className={styles.heroImage}>
+        <div className={styles.heroImage} data-hero-image="">
           <Image
             src="/images/glass-study.webp"
             alt="Botol dan jar kaca bening tanpa tutup, diterangi cahaya yang membias"
@@ -147,7 +112,7 @@ export default function Landing() {
           />
         </div>
         <div className={styles.heroShade} />
-        <div className={styles.heroCopy}>
+        <div className={styles.heroCopy} data-hero-copy="">
           <h1 id="hero-title">
             Pakai ulang
             <br />
@@ -162,7 +127,7 @@ export default function Landing() {
             <Icon kind="down" />
           </a>
         </div>
-        <div className={styles.wordmark} aria-hidden="true">
+        <div className={styles.wordmark} data-hero-wordmark="" aria-hidden="true">
           ReVessel
         </div>
       </section>
@@ -174,7 +139,7 @@ export default function Landing() {
         tabIndex={-1}
       >
         <div className={styles.introCopy}>
-          <h2 id="intro-title">Botol bekas untuk perajin</h2>
+          <h2 id="intro-title" data-scroll-copy="">Botol bekas untuk perajin</h2>
           <p>
             Botol utuh bisa dipakai lagi sebagai wadah. Kaca lainnya dapat
             disalurkan ke pengolah sesuai jenis dan kondisinya.
@@ -185,7 +150,7 @@ export default function Landing() {
             className={`${styles.sectionLink} link-reveal`}
           />
         </div>
-        <div className={styles.introImage}>
+        <div className={styles.introImage} data-scroll-image="">
           <Image
             src="/images/perajin-kaca.webp"
             alt="Perajin memeriksa botol kaca di meja kerja"
@@ -215,12 +180,14 @@ export default function Landing() {
                 data-active={chapter === index}
                 aria-hidden={chapter !== index}
               >
-                <Image
-                  src={item.image}
-                  alt={item.alt}
-                  fill
-                  sizes="(max-width: 760px) 100vw, 70vw"
-                />
+                <div className={styles.storyMedia}>
+                  <Image
+                    src={item.image}
+                    alt={item.alt}
+                    fill
+                    sizes="(max-width: 760px) 100vw, 70vw"
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -298,13 +265,14 @@ export default function Landing() {
         <div
           className={styles.gallery}
           data-glass-scroll=""
+          data-lenis-prevent-horizontal=""
           tabIndex={0}
           role="region"
           aria-label="Galeri material kaca, geser untuk melihat foto berikutnya"
         >
           <figure className={styles.galleryPrimary}>
             <Link href="/galeri#botol-amber" className={styles.galleryLink}>
-              <div className={styles.galleryImage}>
+              <div className={styles.galleryImage} data-scroll-image="">
                 <Image
                   src="/images/amber-study.webp"
                   alt=""
@@ -317,7 +285,7 @@ export default function Landing() {
           </figure>
           <figure className={styles.gallerySecondary}>
             <Link href="/galeri#jar-bening" className={styles.galleryLink}>
-              <div className={styles.galleryImage}>
+              <div className={styles.galleryImage} data-scroll-image="">
                 <Image
                   src="/images/galeri-kaca-bening.webp"
                   alt=""
