@@ -9,7 +9,10 @@ import { decideApproval, lookupDeposit, submitReview } from "./deposit-actions";
 import styles from "./dashboard.module.css";
 
 
-export default function DepositReview({ initial }: { initial?: { deposit: Deposit; pickup: PickupDetails | null } | null }) {
+export default function DepositReview({ initial, compact }: {
+  initial?: { deposit: Deposit; pickup: PickupDetails | null } | null;
+  compact?: boolean;
+}) {
   const [code, setCode] = useState(initial?.deposit.code ?? "");
   const [deposit, setDeposit] = useState<Deposit | null>(initial?.deposit ?? null);
   const [pickup, setPickup] = useState<PickupDetails | null>(initial?.pickup ?? null);
@@ -75,7 +78,7 @@ export default function DepositReview({ initial }: { initial?: { deposit: Deposi
   }
 
   return (
-    <div id="pemeriksaan" className={styles.review}>
+    <div id="pemeriksaan" className={styles.review} data-wide={compact}>
       <section className={styles.panel} aria-labelledby="lookup-title">
         <h2 id="lookup-title">Cari kode setoran</h2>
         <form className={styles.lookup} onSubmit={search}>

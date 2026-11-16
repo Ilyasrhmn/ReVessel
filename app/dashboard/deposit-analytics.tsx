@@ -43,21 +43,39 @@ function subscribeToMotion(onChange: () => void) {
   return () => media.removeEventListener("change", onChange);
 }
 
-function counts(deposits: Deposit[]) {
-  return {
-    total: deposits.length,
-    waiting: deposits.filter(({ status }) => status === "pending_approval" || status === "approved" || status === "waiting").length,
-    accepted: deposits.filter(({ status }) => status === "accepted").length,
-    adjustment: deposits.filter(({ status }) => status === "adjustment").length,
-    containers: deposits.reduce((sum, item) => item.status === "accepted" ? sum + item.quantity : sum, 0),
-  };
+export type DepositBucket = Pick<Deposit, "createdAt" | "material" | "quantity" | "status"> & { count: number };
+type AnalyticsRow = Deposit | DepositBucket;
+
+function counts(deposits: AnalyticsRow[]) {
+  const totals = { total: 0, waiting: 0, pendingApproval: 0, handover: 0, accepted: 0, adjustment: 0, containers: 0 };
+  for (const item of deposits) {
+    const count = "count" in item ? item.count : 1;
+    totals.total += count;
+    if (item.status === "pending_approval" || item.status === "approved" || item.status === "waiting") totals.waiting += count;
+    if (item.status === "pending_approval") totals.pendingApproval += count;
+    if (item.status === "waiting") totals.handover += count;
+    if (item.status === "adjustment") totals.adjustment += count;
+    if (item.status === "accepted") {
+      totals.accepted += count;
+      totals.containers += item.quantity;
+    }
+  }
+  return totals;
 }
 
-const metrics = [
+const residentMetrics = [
   ["total", "Setoran"],
   ["waiting", "Dalam proses"],
   ["accepted", "Diterima"],
   ["adjustment", "Perlu penyesuaian"],
+  ["containers", "Wadah diterima"],
+] as const;
+
+const adminMetrics = [
+  ["total", "Setoran"],
+  ["pendingApproval", "Menunggu persetujuan"],
+  ["handover", "Menunggu serah terima"],
+  ["accepted", "Diterima"],
   ["containers", "Wadah diterima"],
 ] as const;
 
@@ -66,50 +84,50 @@ const chartConfig = {
   previous: { label: "Periode lalu", color: "var(--ui-muted-foreground)" },
 } satisfies ChartConfig;
 
-function getPeriodData(deposits: Deposit[], period: Period, material: MaterialFilter, today: number) {
+function getPeriodData(deposits: AnalyticsRow[], period: Period, material: MaterialFilter, today: number) {
   const end = today + day;
   const start = end - period * day;
   const prior = start - period * day;
-  const relevant = deposits.filter((deposit) => material === "all" || deposit.material === material);
+  const relevant = today ? deposits.filter((deposit) => material === "all" || deposit.material === material) : [];
   const current = relevant.filter(({ createdAt }) => Date.parse(createdAt) >= start && Date.parse(createdAt) < end);
   const previous = relevant.filter(({ createdAt }) => Date.parse(createdAt) >= prior && Date.parse(createdAt) < start);
   const points = Math.min(period, 12);
   const trend = Array.from({ length: points }, (_, index) => {
     const left = Math.floor(index * period / points) * day;
     const right = Math.floor((index + 1) * period / points) * day;
-    const inBucket = (rows: Deposit[], origin: number) => rows.filter(({ createdAt }) => {
+    const inBucket = (rows: AnalyticsRow[], origin: number) => rows.filter(({ createdAt }) => {
       const timestamp = Date.parse(createdAt);
       return timestamp >= origin + left && timestamp < origin + right;
     });
     return {
       label: today ? date.format(start + right - day) : "",
       ...counts(inBucket(current, start)),
-      previous: inBucket(previous, prior).length,
+      previous: counts(inBucket(previous, prior)).total,
     };
   });
   return { current, currentCounts: counts(current), previousCounts: counts(previous), trend };
 }
 
-function downloadCsv(deposits: Deposit[]) {
-  const rows = [
-    ["Kode", "Tanggal", "Jenis kaca", "Jumlah", "Status", "Alasan"],
-    ...deposits.map((item) => [
-      item.code, item.createdAt, item.material, item.quantity, statusLabels[item.status], item.reason ?? "",
-    ]),
-  ];
+function downloadCsv(deposits: AnalyticsRow[], grouped: boolean) {
+  const header = grouped
+    ? ["Tanggal", "Jenis kaca", "Status", "Setoran", "Wadah"]
+    : ["Kode", "Tanggal", "Jenis kaca", "Jumlah", "Status", "Alasan"];
+  const rows = [header, ...deposits.map((item) => "count" in item
+    ? [new Date(item.createdAt).toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" }), item.material, statusLabels[item.status], item.count, item.quantity]
+    : [item.code, item.createdAt, item.material, item.quantity, statusLabels[item.status], item.reason ?? ""])];
+
   const csv = rows.map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\r\n");
   const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
   const link = document.createElement("a");
   link.href = url;
-  link.download = "setoran-revessel.csv";
+  link.download = grouped ? "ringkasan-setoran-revessel.csv" : "setoran-revessel.csv";
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export default function DepositAnalytics({
-  deposits, period, material, compare, setPeriod, setMaterial, setCompare,
-}: {
-  deposits: Deposit[];
+  deposits, buckets, period, material, compare, setPeriod, setMaterial, setCompare,
+}: ({ deposits: Deposit[]; buckets?: never } | { deposits?: never; buckets: DepositBucket[] }) & {
   period: Period;
   material: MaterialFilter;
   compare: boolean;
@@ -119,8 +137,10 @@ export default function DepositAnalytics({
 }) {
   const today = useSyncExternalStore(subscribeToDay, currentDay, unknownDay);
   const allowMotion = useSyncExternalStore(subscribeToMotion, motionAllowed, motionOff);
+  const rows = deposits ?? buckets;
+  const metrics = buckets ? adminMetrics : residentMetrics;
   const { current, currentCounts, previousCounts, trend } = useMemo(
-    () => getPeriodData(deposits, period, material, today), [deposits, period, material, today],
+    () => getPeriodData(rows, period, material, today), [rows, period, material, today],
   );
   const animateChart = allowMotion && Boolean(current.length || (compare && previousCounts.total));
   const chartId = `volume-${useId().replace(/[^a-z0-9_-]/gi, "")}`;
@@ -151,7 +171,7 @@ export default function DepositAnalytics({
           <button type="button" role="switch" aria-checked={compare} className={styles.compare} onClick={() => setCompare(!compare)}>
             <span className={styles.switchTrack} aria-hidden="true" /> vs periode lalu
           </button>
-          <Button size="sm" variant="outline" type="button" className={styles.export} onClick={() => downloadCsv(current)}>
+          <Button size="sm" variant="outline" type="button" className={styles.export} disabled={!today} onClick={() => downloadCsv(current, Boolean(buckets))}>
             <Download aria-hidden="true" /> Ekspor CSV
           </Button>
         </div>
