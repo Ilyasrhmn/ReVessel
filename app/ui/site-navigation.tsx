@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogIn } from "lucide-react";
 import {
   createContext,
   useContext,
@@ -18,6 +19,7 @@ import NavBubble from "./nav-bubble";
 import glass from "./liquid-glass.module.css";
 import styles from "./site-navigation.module.css";
 import { moveGlassLight } from "./glass-light";
+import { bottleChecklist } from "../bottle-guide";
 
 const menuLinks = [
   { path: "/", label: "Beranda", icon: "home" },
@@ -67,6 +69,11 @@ export function useBottleGuide() {
 
 export default function SiteNavigation({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  if (pathname === "/dashboard" || pathname.startsWith("/dashboard/") || pathname === "/masuk" || pathname === "/daftar") return children;
+  return <PublicNavigation pathname={pathname}>{children}</PublicNavigation>;
+}
+
+function PublicNavigation({ children, pathname }: { children: ReactNode; pathname: string }) {
   const home = pathname === "/";
   const detailPath = menuLinks.find(
     ({ path }) => path !== "/" && (pathname === path || pathname.startsWith(`${path}/`)),
@@ -76,11 +83,11 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
   const menuRef = useRef<HTMLElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [checks, setChecks] = useState([false, false, false]);
+  const goingToCollection = useRef(false);
+  const [checks, setChecks] = useState(() => bottleChecklist.map(() => false));
+  const complete = checks.every(Boolean);
   const [navTone, setNavTone] = useState("dark");
-  const [navChoice, setNavChoice] = useState("guide");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [guideOpen, setGuideOpen] = useState(false);
 
   useEffect(() => {
     if (!home) return;
@@ -96,9 +103,6 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
       const overHero =
         hero && hero.top <= center && hero.bottom > Math.max(center, hero.height * 0.25);
       setNavTone(overStory || (overHero && window.innerWidth > 760) ? "dark" : "light");
-      const readingLine = window.innerHeight * 0.4;
-      const readingStory = story && story.top <= readingLine && story.bottom > readingLine;
-      setNavChoice(readingStory ? "journey" : "guide");
     }
 
     function schedule() {
@@ -174,11 +178,8 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
   function openGuide(trigger: HTMLButtonElement) {
     triggerRef.current = trigger;
     setMenuOpen(false);
-    setGuideOpen(true);
     dialogRef.current?.showModal();
   }
-
-  const activeNav = menuOpen ? "menu" : !guideOpen && navChoice === "journey" ? "journey" : "guide";
 
   return (
     <BottleGuide.Provider value={openGuide}>
@@ -201,17 +202,11 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
               className={`${styles.nav} ${glass.surface}`}
               aria-label="Navigasi utama"
             >
-              <NavBubble active={activeNav} />
-              <SectionLink
-                home={home}
-                section="perjalanan"
-                onSectionNavigate={onSectionNavigate}
-                data-nav-item="journey"
-                aria-current={navChoice === "journey" ? "location" : undefined}
-              >
-                <Icon kind="route" />
-                <span>Perjalanan</span>
-              </SectionLink>
+              <NavBubble active={menuOpen ? "menu" : "guide"} />
+              <Link href="/masuk" className={styles.loginLink}>
+                <LogIn aria-hidden="true" />
+                <span>Masuk</span>
+              </Link>
               <button
                 data-nav-item="guide"
                 aria-haspopup="dialog"
@@ -296,8 +291,8 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
         className={styles.dialog}
         aria-labelledby="guide-title"
         onClose={() => {
-          setGuideOpen(false);
-          triggerRef.current?.focus({ preventScroll: true });
+          if (!goingToCollection.current) triggerRef.current?.focus({ preventScroll: true });
+          goingToCollection.current = false;
         }}
       >
         <button
@@ -309,11 +304,7 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
         </button>
         <h2 id="guide-title">Siapkan botol</h2>
         <div className={styles.checklist}>
-          {[
-            "Botol utuh, tanpa retak atau gompal",
-            "Botol sudah kosong, bersih, dan kering",
-            "Tutup atau pompa yang bisa dilepas sudah dipisahkan",
-          ].map((text, index) => (
+          {bottleChecklist.map((text, index) => (
             <label key={text}>
               <input
                 type="checkbox"
@@ -328,8 +319,24 @@ export default function SiteNavigation({ children }: { children: ReactNode }) {
           ))}
         </div>
         <p role="status" className={styles.guideStatus}>
-          {checks.filter(Boolean).length} dari {checks.length} langkah selesai
+          {complete
+            ? "Botolmu sudah disiapkan. Cek jenis botol yang diterima titik kumpul."
+            : `${checks.filter(Boolean).length} dari ${checks.length} langkah selesai`}
         </p>
+        {complete && (
+          <a
+            className={styles.guideNext}
+            href={home ? "#titik-kumpul" : "/#titik-kumpul"}
+            onClick={(event) => {
+              if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              goingToCollection.current = true;
+              dialogRef.current?.close();
+              if (home) document.getElementById("titik-kumpul")?.focus({ preventScroll: true });
+            }}
+          >
+            Lihat titik kumpul <Icon kind="down" />
+          </a>
+        )}
       </dialog>
     </BottleGuide.Provider>
   );

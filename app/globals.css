@@ -56,6 +56,24 @@
 @theme inline {
   --font-sans: var(--font-interface);
   --font-display: var(--font-editorial);
+  --color-background: var(--ui-background, var(--color-canvas));
+  --color-foreground: var(--ui-foreground, var(--color-ink));
+  --color-card: var(--ui-card, var(--color-surface));
+  --color-card-foreground: var(--ui-foreground, var(--color-ink));
+  --color-popover: var(--ui-card, var(--color-surface));
+  --color-popover-foreground: var(--ui-foreground, var(--color-ink));
+  --color-border: var(--ui-border, var(--color-line));
+  --color-input: var(--ui-border, var(--color-line));
+  --color-muted-foreground: var(--ui-muted-foreground, var(--color-muted));
+  --color-primary: var(--ui-primary, var(--color-ink));
+  --color-primary-foreground: var(--ui-primary-foreground, #fff);
+  --color-secondary: var(--ui-secondary, #e5e7e1);
+  --color-secondary-foreground: var(--ui-foreground, var(--color-ink));
+  --color-accent: var(--ui-muted, #eff0ed);
+  --color-accent-foreground: var(--ui-foreground, var(--color-ink));
+  --color-ring: var(--color-focus);
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: #fff;
 }
 
 @layer base {

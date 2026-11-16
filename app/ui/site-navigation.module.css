@@ -76,6 +76,14 @@
   width: 15px;
   height: 15px;
 }
+.nav .loginLink {
+  min-block-size: 44px;
+}
+.nav .loginLink svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.5;
+}
 .menuToggleIcon {
   display: inline-flex;
   transition: transform var(--duration-normal) var(--ease-out);
@@ -219,6 +227,23 @@
 .guideStatus {
   margin-block-start: 1.25rem;
   font-variant-numeric: tabular-nums;
+}
+.guideNext {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  margin-block-start: 1rem;
+  padding-inline: 1rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-on-dark);
+  text-decoration: none;
+  font-size: var(--type-caption);
+}
+.guideNext svg {
+  width: 16px;
+  height: 16px;
 }
 @media (max-width: 1000px) {
   .nav a {

@@ -26,8 +26,8 @@ export default function NavBubble({ active }: { active: string }) {
       const rect = element.getBoundingClientRect();
       const origin = nav!.getBoundingClientRect();
       return {
-        x: rect.left - origin.left - nav!.clientLeft,
-        y: rect.top - origin.top - nav!.clientTop,
+        x: rect.left - origin.left - nav!.clientLeft + nav!.scrollLeft,
+        y: rect.top - origin.top - nav!.clientTop + nav!.scrollTop,
         width: rect.width,
         height: rect.height,
       };
