@@ -49,8 +49,20 @@ try {
       [user.rows[0].id, point],
     );
     console.log("Reviewer assigned to the collection point.");
+  } else if (command === "assign-admin") {
+    const [email] = args;
+    if (!email) throw new Error("Usage: npm run db:admin -- <registered-admin-email>");
+    const result = await client.query(
+      `UPDATE "user" u SET role = 'admin'
+       WHERE u.email = $1
+         AND NOT EXISTS (SELECT 1 FROM deposits d WHERE d.owner_id = u.id)
+         AND NOT EXISTS (SELECT 1 FROM reward_redemptions rr WHERE rr.owner_id = u.id)`,
+      [email.trim().toLowerCase()],
+    );
+    if (result.rowCount !== 1) throw new Error("Use a dedicated registered account without deposits or reward redemptions.");
+    console.log("Admin access assigned.");
   } else {
-    throw new Error("Choose migrate, point, or assign-reviewer.");
+    throw new Error("Choose migrate, point, assign-reviewer, or assign-admin.");
   }
   await client.query("COMMIT");
 } catch (error) {

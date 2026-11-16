@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { currentUser } from "@/lib/server/auth";
 import { collectionPoints, listResidentDeposits } from "@/lib/server/deposits";
+import { readResidentRewards } from "@/lib/server/rewards";
 import DepositDashboard from "./deposit-dashboard";
 import { dashboardHref, dashboardSection, loginHref } from "./sections";
 
@@ -23,13 +24,15 @@ async function AuthorizedDashboard({ searchParams }: Pick<PageProps<"/dashboard"
   const section = dashboardSection((await searchParams).bagian);
   const user = await currentUser();
   if (!user) redirect(loginHref(section));
+  if (user.role === "admin") redirect("/dashboard/admin");
   const role = user.role === "reviewer" ? "reviewer" : "resident";
   if (role === "resident" && section === "pemeriksaan") redirect(dashboardHref("ringkasan"));
-  if (role === "reviewer" && (section === "ringkasan" || section === "setoran")) redirect(dashboardHref("pemeriksaan"));
+  if (role === "reviewer" && (section === "ringkasan" || section === "setoran" || section === "poin")) redirect(dashboardHref("pemeriksaan"));
 
-  const [points, deposits] = await Promise.all([
+  const [points, deposits, rewards] = await Promise.all([
     collectionPoints(role === "reviewer" ? user.id : undefined),
     role === "resident" ? listResidentDeposits(user.id) : [],
+    role === "resident" && section === "poin" ? readResidentRewards(user.id) : null,
   ]);
-  return <DepositDashboard deposits={deposits} points={points} profile={{ name: user.name, role }} />;
+  return <DepositDashboard deposits={deposits} points={points} rewards={rewards} profile={{ name: user.name, role }} />;
 }

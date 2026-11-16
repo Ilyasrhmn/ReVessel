@@ -895,3 +895,108 @@ details[open] > .row .expand {
 @media (prefers-reduced-motion: reduce) {
   .dashboard { --dash-fast: 0ms; --dash-panel: 0ms; }
 }
+
+
+.admin {
+  --gutter: clamp(1rem, 4vw, 4.5rem);
+}
+
+.admin .topbar,
+.admin .main {
+  padding-inline: var(--gutter);
+}
+
+.admin .headerTools {
+  justify-self: end;
+}
+
+.adminStack {
+  display: grid;
+  gap: 1rem;
+}
+
+.adminStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(.5rem, 1.5vw, 1rem);
+}
+
+.adminStats dt {
+  color: var(--dash-muted);
+  font-size: .875rem;
+}
+
+.adminStats dd,
+.balance {
+  font-size: clamp(1.65rem, 4vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance small {
+  font-size: .95rem;
+  letter-spacing: 0;
+}
+
+.statusFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+
+.statusFilter a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding-inline: .65rem;
+  border-radius: .65rem;
+  text-decoration: none;
+  font-size: .82rem;
+  transition: background-color var(--dash-fast) var(--ease-out);
+}
+
+.statusFilter a:hover,
+.statusFilter [aria-current="true"] {
+  background: var(--ui-secondary);
+}
+
+.subheading {
+  margin-block: 1rem .45rem;
+  font-size: .95rem;
+  font-weight: 600;
+}
+
+.activity {
+  padding: 0;
+  list-style: none;
+  min-inline-size: 0;
+}
+
+.activity > li {
+  border-top: 1px solid var(--dash-line);
+  cursor: auto;
+  overflow-wrap: anywhere;
+}
+
+.rewardItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding-block: .75rem;
+}
+
+.formPair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .65rem;
+}
+
+@media (max-width: 650px) {
+  .adminStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

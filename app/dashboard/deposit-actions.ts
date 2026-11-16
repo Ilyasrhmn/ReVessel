@@ -25,6 +25,7 @@ export async function createDeposit(form: FormData) {
     const deposit = await createResidentDeposit(user.id, point, material, quantity, requestId);
     if (!deposit) return { error: "Titik kumpul tidak tersedia atau tidak menerima jenis kaca ini." };
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/admin");
     return { deposit };
   } catch {
     return { error: serviceError };
@@ -39,6 +40,7 @@ export async function cancelDeposit(code: string) {
       return { error: "Setoran tidak ditemukan atau statusnya sudah berubah." };
     }
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/admin");
     return { success: true };
   } catch {
     return { error: serviceError };
@@ -71,6 +73,7 @@ export async function submitReview(code: string, form: FormData) {
     const deposit = await reviewAssignedDeposit(user.id, code, validReason(reason) ? reason : null, user.role === "admin");
     if (!deposit) return { error: "Setoran tidak ditemukan atau statusnya sudah berubah." };
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/admin");
     return { deposit };
   } catch {
     return { error: serviceError };

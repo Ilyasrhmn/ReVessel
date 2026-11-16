@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Bell, BookOpen, Boxes, CircleHelp, ClipboardCheck, History, LogOut, MapPin, Moon, Plus, Search, Sun, UserRound, X } from "lucide-react";
+import { Bell, BookOpen, Boxes, CircleHelp, ClipboardCheck, Gift, History, LogOut, MapPin, Moon, Plus, Search, Sun, UserRound, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import { maxBottles, type CollectionPoint } from "../deposit-options";
 import { statusLabels, type Deposit } from "./deposit-store";
 import { cancelDeposit as cancelOnServer, createDeposit } from "./deposit-actions";
 import DepositReview from "./deposit-review";
+import ResidentRewards, { type ResidentRewardData } from "./resident-rewards";
 import styles from "./dashboard.module.css";
 import DepositAnalytics, { type MaterialFilter, type Period } from "./deposit-analytics";
 import { dashboardHref, dashboardSection, type DashboardSection } from "./sections";
@@ -31,13 +32,15 @@ const sections = {
   ringkasan: { label: "Ringkasan", title: "Ringkasan setoran", icon: Boxes },
   setoran: { label: "Setoran saya", title: "Setoran saya", icon: History },
   "titik-kumpul": { label: "Titik kumpul", title: "Titik kumpul", icon: MapPin },
+  poin: { label: "Poin & reward", title: "Poin & reward", icon: Gift },
   panduan: { label: "Panduan", title: "Panduan botol", icon: BookOpen },
   pemeriksaan: { label: "Pemeriksaan", title: "Pemeriksaan setoran", icon: ClipboardCheck },
 } as const;
 
 const sectionKeys = Object.keys(sections) as DashboardSection[];
 
-export default function DepositDashboard({ deposits, points, profile }: {
+export default function DepositDashboard({ deposits, points, profile, rewards }: {
+  rewards: ResidentRewardData | null;
   deposits: Deposit[];
   points: CollectionPoint[];
   profile: { name: string; role: "resident" | "reviewer" };
@@ -142,7 +145,7 @@ export default function DepositDashboard({ deposits, points, profile }: {
         </Link>
         <nav ref={navRef} className={styles.topNav} aria-label="Navigasi dashboard">
           <NavBubble active={view} />
-          {sectionKeys.filter((section) => isReviewer ? !["ringkasan", "setoran"].includes(section) : section !== "pemeriksaan").map((section) => {
+          {sectionKeys.filter((section) => isReviewer ? !["ringkasan", "setoran", "poin"].includes(section) : section !== "pemeriksaan").map((section) => {
             const { label, icon: SectionIcon } = sections[section];
             return (
               <Link key={section} href={dashboardHref(section)} data-nav-item={section} aria-current={view === section ? "page" : undefined}>
@@ -194,7 +197,7 @@ export default function DepositDashboard({ deposits, points, profile }: {
         </header>
 
         <div key={view} className={styles.appear}>
-          {view === "panduan" ? (
+          {view === "poin" && rewards ? <ResidentRewards data={rewards} /> : view === "panduan" ? (
             <div className={styles.guideGrid}>
               <Card className={styles.panel}>
                 <h2>Persiapan sebelum setor</h2>
