@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={instrument.variable}>
+    <html lang="id" className={instrument.variable} suppressHydrationWarning>
       <body>
         <GlassLens />
         <SiteNavigation>{children}</SiteNavigation>
