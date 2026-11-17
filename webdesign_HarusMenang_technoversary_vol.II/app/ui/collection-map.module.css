@@ -2,7 +2,7 @@
   position: relative;
   isolation: isolate;
   min-inline-size: 0;
-  min-block-size: clamp(21rem, 51svh, 33rem);
+  min-block-size: var(--collection-map-height, clamp(21rem, 51svh, 33rem));
   overflow: hidden;
   border: 1px solid var(--ui-border, var(--color-line));
   border-radius: 1.25rem;

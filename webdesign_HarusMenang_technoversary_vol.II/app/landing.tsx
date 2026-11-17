@@ -280,12 +280,14 @@ export default function Landing() {
 
       <section
         id="titik-kumpul"
-        className={`${styles.collectionPoint} page-shell`}
+        className={styles.collectionPoint}
         aria-labelledby="collection-title"
         tabIndex={-1}
       >
-        <h2 id="collection-title">Titik kumpul</h2>
-        <CollectionMap />
+        <div className={"page-shell " + styles.collectionContent}>
+          <h2 id="collection-title">Titik kumpul</h2>
+          <CollectionMap />
+        </div>
       </section>
 
       <BrandPreview />
