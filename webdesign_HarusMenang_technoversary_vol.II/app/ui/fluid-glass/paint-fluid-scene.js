@@ -35,29 +35,45 @@ function intersects(rect, viewport) {
     rect.bottom > viewport.top && rect.top < viewport.bottom;
 }
 
+const textLayouts = new WeakMap();
+
 function paintText(context, node, style, viewport) {
   const range = document.createRange();
   range.selectNodeContents(node);
-  if (!intersects(range.getBoundingClientRect(), viewport) || !node.textContent.trim()) return;
+  const bounds = range.getBoundingClientRect();
+  if (!intersects(bounds, viewport) || !node.textContent.trim()) return;
 
-  const lines = new Map();
-  for (const word of node.textContent.matchAll(/\S+/g)) {
-    range.setStart(node, word.index);
-    range.setEnd(node, word.index + word[0].length);
-    const rect = range.getBoundingClientRect();
-    if (!rect.width) continue;
-    const line = lines.get(rect.top);
-    if (line) line.text += " " + word[0];
-    else lines.set(rect.top, { rect, text: word[0] });
+  const key = [node.textContent, bounds.width, bounds.height, style.fontStyle, style.fontWeight,
+    style.fontSize, style.fontFamily, style.letterSpacing, style.lineHeight, style.wordSpacing,
+    style.width, style.textAlign, style.textIndent, style.whiteSpace, style.direction].join("|");
+  let layout = textLayouts.get(node);
+  if (layout?.key !== key) {
+    const lines = new Map();
+    for (const word of node.textContent.matchAll(/\S+/g)) {
+      range.setStart(node, word.index);
+      range.setEnd(node, word.index + word[0].length);
+      const rect = range.getBoundingClientRect();
+      if (!rect.width) continue;
+      const line = lines.get(rect.top);
+      if (line) line.text += " " + word[0];
+      else lines.set(rect.top, {
+        left: rect.left - bounds.left,
+        top: rect.top - bounds.top,
+        height: rect.height,
+        text: word[0],
+      });
+    }
+    layout = { key, lines: [...lines.values()] };
+    textLayouts.set(node, layout);
   }
 
   context.font = [style.fontStyle, style.fontWeight, style.fontSize, style.fontFamily].join(" ");
   context.letterSpacing = style.letterSpacing === "normal" ? "0px" : style.letterSpacing;
   context.fillStyle = style.color;
   const metrics = context.measureText("Hg");
-  for (const { rect, text } of lines.values()) {
-    const baseline = rect.top + (rect.height + metrics.fontBoundingBoxAscent - metrics.fontBoundingBoxDescent) / 2;
-    context.fillText(text, rect.left, baseline);
+  for (const { left, top, height, text } of layout.lines) {
+    const baseline = bounds.top + top + (height + metrics.fontBoundingBoxAscent - metrics.fontBoundingBoxDescent) / 2;
+    context.fillText(text, bounds.left + left, baseline);
   }
 }
 
