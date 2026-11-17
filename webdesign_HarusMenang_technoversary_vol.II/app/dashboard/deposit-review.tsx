@@ -4,7 +4,8 @@ import { useState, type FormEvent } from "react";
 import { Check, Search, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { adjustmentReasons, fulfillmentLabels, statusLabels, type Deposit } from "./deposit-store";
+import { adjustmentReasons, depositWeightLabel, fulfillmentLabels, statusLabels, type Deposit } from "./deposit-store";
+import { maxWeightGrams } from "@/lib/browser/glass-value";
 import type { Workspace } from "@/lib/browser/data";
 import { reviewDetails } from "@/lib/browser/selectors";
 import { decideApproval, lookupDeposit, submitReview } from "@/lib/browser/deposits";
@@ -102,7 +103,10 @@ export default function DepositReview({ initialCode, workspace, compact }: {
             <h2 id="review-title">{deposit.code}</h2>
             <Badge className={styles.status} variant="secondary" data-state={deposit.status}>{statusLabels[deposit.status]}</Badge>
           </div>
-          <p className={styles.secondary}>{deposit.quantity} wadah · {deposit.material} · {deposit.pointName}</p>
+          <div className={styles.reviewMeta}>
+            <div><p>{deposit.material}</p><p className={styles.cashoutNote}>{deposit.pointName}</p></div>
+            <strong>{depositWeightLabel(deposit)}</strong>
+          </div>
           {isDepositPhoto(photo) ? <DepositPhoto src={photo} /> : deposit.status === "pending_approval" && <p className={styles.secondary}>Foto setoran belum diunggah.</p>}
           {deposit.reason && <p className={styles.reason}>{deposit.reason}</p>}
           {deposit.approvalNote && <p className={styles.reason}>{deposit.approvalNote}</p>}
@@ -128,7 +132,7 @@ export default function DepositReview({ initialCode, workspace, compact }: {
             <form key={deposit.code} className={styles.fields} onSubmit={(event) => review(event, deposit)}>
               <label className={styles.check}>
                 <input type="checkbox" name="verified" />
-                <span>Kondisi, jenis, dan jumlah botol sudah sesuai.</span>
+                <span>Kondisi dan jenis kaca sudah diperiksa.</span>
               </label>
               <label className={styles.field}>
                 <span>Alasan penyesuaian jika ada</span>
@@ -136,6 +140,9 @@ export default function DepositReview({ initialCode, workspace, compact }: {
                   <option value="">Tidak ada penyesuaian</option>
                   {adjustmentReasons.map((reason) => <option key={reason}>{reason}</option>)}
                 </select>
+              </label>
+              <label className={styles.field}>Berat bersih kaca (g)
+                <input type="number" name="weightGrams" inputMode="numeric" min={1} max={maxWeightGrams} step={1} />
               </label>
               <Button type="submit" className={styles.action} disabled={pending}>Simpan pemeriksaan</Button>
             </form>

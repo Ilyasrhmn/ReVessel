@@ -37,7 +37,7 @@ const key = 'revessel.browser.v1';
 const request = () => crypto.randomUUID();
 const form = (values) => { const result = new FormData(); for (const [key, value] of Object.entries(values)) result.set(key, value); return result; };
 const photo = () => new File(['photo'], 'bottle.png', { type: 'image/png' });
-const submission = (id = request()) => form({ requestId: id, point: collectionPoints[0].slug, material: collectionPoints[0].materials[0], quantity: '30', photo: photo() });
+const submission = (id = request()) => form({ requestId: id, point: collectionPoints[0].slug, material: collectionPoints[0].materials[0], estimatedWeightGrams: '2900', photo: photo() });
 async function actor(id, role = 'resident') {
   await storage.changeState((state) => {
     if (!state.accounts.some((account) => account.id === id)) state.accounts.push({ id, role, name: id, email: `${id}@example.test`, createdAt: new Date().toISOString() });
@@ -77,7 +77,12 @@ test('photo requirement, approval, owner denial, dropoff, receive, points, redem
   assert.equal((await deposits.chooseFulfillment(code, form({ method: 'dropoff' }))).success, true);
   await actor('admin', 'admin');
   assert.ok((await deposits.submitReview(code, form({}))).error);
-  assert.equal((await deposits.submitReview(code, form({ verified: 'on' }))).deposit.status, 'accepted');
+  assert.match((await deposits.submitReview(code, form({ verified: 'on' }))).error, /berat bersih/i);
+  assert.match((await deposits.submitReview(code, form({ verified: 'on', weightGrams: '3.5' }))).error, /berat bersih/i);
+  const accepted = (await deposits.submitReview(code, form({ verified: 'on', weightGrams: '3099' }))).deposit;
+  assert.equal(accepted.status, 'accepted');
+  assert.equal(accepted.weightGrams, 3099);
+  assert.equal(accepted.estimatedWeightGrams, 2900);
   assert.ok((await deposits.submitReview(code, form({ verified: 'on' }))).error);
   await actor('ayu');
   let workspace = storage.readState().workspaces.account;

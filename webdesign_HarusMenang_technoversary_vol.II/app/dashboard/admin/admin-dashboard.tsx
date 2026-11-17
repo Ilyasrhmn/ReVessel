@@ -10,7 +10,7 @@ import type { BrowserState, Mode, Workspace } from "@/lib/browser/data";
 import BrowserGate from "../browser-gate";
 import DashboardShell from "../dashboard-shell";
 import DepositReview from "../deposit-review";
-import { statusLabels } from "../deposit-store";
+import { depositWeightLabel, statusLabels } from "../deposit-store";
 import styles from "../dashboard.module.css";
 import DepositAnalytics from "../deposit-analytics";
 import { HandOverForm, PublishRewardForm } from "./reward-forms";
@@ -122,9 +122,10 @@ function AdminDepositList({ entries, filter, overview }: {
           {entries.map((entry) => (
             <li key={entry.code}>
               <details name="admin-deposits">
-                <summary className={styles.row}>
-                  <span><strong>{entry.code}</strong><small>{entry.material} · {number.format(entry.quantity)} wadah</small></span>
+                <summary className={`${styles.row} ${styles.depositRow}`}>
+                  <span><strong>{entry.material}</strong><small>{entry.code}</small></span>
                   <div className={styles.rowEnd}>
+                    <span className={styles.depositWeight}>{depositWeightLabel(entry)}</span>
                     <Badge className={styles.status} variant="secondary" data-state={entry.status}>{statusLabels[entry.status]}</Badge>
                     <span className={styles.expand} aria-hidden="true" />
                   </div>

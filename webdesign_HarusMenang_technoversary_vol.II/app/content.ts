@@ -71,7 +71,7 @@ export const articles = [
       },
       {
         "title": "Susun dan foto setoran",
-        "text": "Susun botol di dalam kotak bersekat agar tidak saling berbenturan. Ambil foto yang memperlihatkan seluruh botol, lalu pilih jenis kaca dan masukkan jumlah wadah pada form setoran."
+        "text": "Susun botol di dalam kotak bersekat agar tidak saling berbenturan. Ambil foto seluruh botol, lalu pilih jenis kaca dan isi perkiraan berat dalam gram saat mengajukan setoran."
       },
       {
         "title": "Tunggu persetujuan, lalu pilih pengiriman",

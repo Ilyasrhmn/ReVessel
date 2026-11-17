@@ -1,8 +1,9 @@
 import { currentProfile, changeState, readState } from "./storage";
 import { collectionPoints, type BrowserState, type Mode, type Profile, type Role, type Workspace } from "./data";
 import { reviewDetails } from "./selectors";
+import { formatGrams, maxWeightGrams, validWeight } from "./glass-value";
 import { isDepositPhoto, prepareDepositPhoto } from "./deposit-photo";
-import { validMaterial, validQuantity, validReason, type Deposit } from "@/app/dashboard/deposit-store";
+import { validMaterial, validReason, type Deposit } from "@/app/dashboard/deposit-store";
 
 const noAccess = "Kamu tidak punya akses untuk melakukan tindakan ini.";
 const unavailable = "Setoran tidak ditemukan atau statusnya sudah berubah.";
@@ -29,11 +30,11 @@ export function nextCode(prefix: string, deposits: { code: string }[], bytes: nu
 export async function createDeposit(form: FormData) {
   const point = form.get("point");
   const material = form.get("material");
-  const quantity = Number(form.get("quantity"));
+  const estimatedWeightGrams = Number(form.get("estimatedWeightGrams"));
   const requestId = form.get("requestId");
   return saveWithPhoto(form.get("photo"), (data, user, photo) => {
-    if (typeof requestId !== "string" || !uuid.test(requestId) || !validMaterial(material) || !validQuantity(quantity)) {
-      return { error: "Pilih titik kumpul dan jenis kaca, lalu masukkan jumlah yang sesuai." };
+    if (typeof requestId !== "string" || !uuid.test(requestId) || !validMaterial(material) || !validWeight(estimatedWeightGrams)) {
+      return { error: `Pilih titik kumpul dan jenis kaca, lalu isi perkiraan berat antara 1 dan ${formatGrams(maxWeightGrams)}.` };
     }
     const prior = data.deposits.find((row) => row.owner === user.id && row.requestId === requestId);
     if (prior) return { deposit: prior.item };
@@ -41,7 +42,7 @@ export async function createDeposit(form: FormData) {
     if (!selected) return { error: "Titik kumpul tidak tersedia atau tidak menerima jenis kaca ini." };
     const deposit: Deposit = {
       code: nextCode("RV", data.deposits.map(({ item }) => item), 4),
-      material, quantity, pointName: selected.name, createdAt: new Date().toISOString(),
+      material, estimatedWeightGrams, pointName: selected.name, createdAt: new Date().toISOString(),
       status: "pending_approval", method: null, approvalNote: null, photo,
     };
     data.deposits.unshift({ item: deposit, point: selected.slug, owner: user.id, requestId });
@@ -127,14 +128,18 @@ export function chooseFulfillment(code: string, form: FormData) {
 
 export function submitReview(code: string, form: FormData) {
   const reason = form.get("reason");
+  const weightGrams = Number(form.get("weightGrams"));
   return scopedChange("admin", (data) => {
     if (reason && !validReason(reason)) return { error: "Pilih alasan penyesuaian." };
-    if (!reason && form.get("verified") !== "on") return { error: "Konfirmasi kondisi, jenis, dan jumlah botol sebelum menerima setoran." };
+    if (!reason && form.get("verified") !== "on") return { error: "Konfirmasi kondisi dan jenis kaca sebelum menerima setoran." };
     const row = data.deposits.find(({ item }) => item.code === code);
     if (row?.item.status !== "waiting") return { error: unavailable };
+    if (!reason && !validWeight(weightGrams)) {
+      return { error: `Isi berat bersih kaca antara 1 dan ${formatGrams(maxWeightGrams)}.` };
+    }
     row.item = validReason(reason)
       ? { ...row.item, status: "adjustment", reason }
-      : { ...row.item, status: "accepted" };
+      : { ...row.item, status: "accepted", weightGrams };
     row.reviewedAt = new Date().toISOString();
     delete row.pickup;
     return { deposit: row.item };

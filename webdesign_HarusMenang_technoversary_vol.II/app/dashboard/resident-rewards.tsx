@@ -5,6 +5,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import type { residentRewards } from "@/lib/browser/selectors";
 import { redeemReward } from "@/lib/browser/rewards";
+import { formatGrams, gramsPerPoint } from "@/lib/browser/glass-value";
 import styles from "./dashboard.module.css";
 
 export type ResidentRewardData = Awaited<ReturnType<typeof residentRewards>>;
@@ -49,13 +50,13 @@ export default function ResidentRewards({ data }: { data: ResidentRewardData }) 
       <section className={styles.panel} aria-labelledby="points-balance">
         <h2 id="points-balance">Saldo poin</h2>
         <p className={styles.balance}>{format.format(data.balance)} <small>poin</small></p>
-        <p className={styles.secondary}>Setiap botol yang diterima petugas menambah 1 poin.</p>
+        <p className={styles.secondary}>Setoran baru menghasilkan 1 poin per {gramsPerPoint} gram kaca yang diterima.</p>
         <h3 className={styles.subheading}>Riwayat poin terbaru</h3>
         {data.activity.length ? (
           <ul className={styles.activity}>
             {data.activity.map((item) => (
               <li key={item.code} className={styles.row}>
-                <span><strong>{item.description}</strong>{item.date && <small>{dateFormat.format(new Date(item.date))}</small>}</span>
+                <span><strong>{item.description}</strong>{item.date && <small>{dateFormat.format(new Date(item.date))}{"weightGrams" in item && typeof item.weightGrams === "number" ? " · " + formatGrams(item.weightGrams) : ""}</small>}</span>
                 <span>{item.points > 0 ? "+" : "−"}{format.format(Math.abs(item.points))}</span>
               </li>
             ))}

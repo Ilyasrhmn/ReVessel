@@ -2,6 +2,7 @@ import { materials, type AnalyticsPeriod, type CollectionPoint, type Material } 
 import { collectionDirectory } from "@/app/collection-directory";
 import type { Deposit, PickupDetails } from "@/app/dashboard/deposit-store";
 import { depositPhotoAssets } from "./deposit-photo-assets";
+import { gramsPerPoint } from "./glass-value";
 
 export const demoResident = { id: "resident-demo", name: "Warga ReVessel", email: "user@revessel.com", role: "resident" } as const;
 export const demoAdmin = { id: "admin-demo", name: "Admin ReVessel", email: "admin@revessel.com", role: "admin" } as const;
@@ -51,11 +52,13 @@ function seed(now: number): Workspace {
   const point = collectionPoints[0];
   const statuses = ["pending_approval", "approved", "waiting", "accepted", "adjustment", "rejected", "cancelled", "accepted"] as const;
   const deposits = statuses.map((status, index): DepositRecord => {
+    const grams = [7, 5, 9, 24, 6, 3, 4, 13][index] * gramsPerPoint;
     const base = {
       code: `RV-A000000${index + 1}`,
       material: materials[index % materials.length],
       photo: depositPhotoAssets[materials[index % materials.length]],
-      quantity: [7, 5, 9, 24, 6, 3, 4, 13][index],
+      estimatedWeightGrams: grams,
+      ...(status === "accepted" ? { weightGrams: grams } : {}),
       createdAt: ago(index * 3 + 1),
       pointName: point.name,
       method: (["waiting", "accepted", "adjustment"].includes(status) ? "dropoff" : null) as Deposit["method"],

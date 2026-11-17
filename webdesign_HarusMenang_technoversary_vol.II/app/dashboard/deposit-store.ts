@@ -1,4 +1,5 @@
-import { materials, maxBottles, type Material } from "../deposit-options";
+import { formatGrams } from "@/lib/browser/glass-value";
+import { materials, type Material } from "../deposit-options";
 
 export const statusLabels = {
   pending_approval: "Menunggu persetujuan",
@@ -13,7 +14,7 @@ export const statusLabels = {
 export const adjustmentReasons = [
   "Ada botol yang retak atau pecah.",
   "Botol masih berisi, kotor, atau basah.",
-  "Jenis atau jumlah botol berbeda dari catatan setoran.",
+  "Jenis kaca berbeda dari pengajuan.",
 ] as const;
 
 export const fulfillmentLabels = {
@@ -24,16 +25,19 @@ export const fulfillmentLabels = {
 export type FulfillmentMethod = keyof typeof fulfillmentLabels;
 export type PickupDetails = { address: string; phone: string };
 
-export type ReviewReason = (typeof adjustmentReasons)[number];
+type CurrentReviewReason = (typeof adjustmentReasons)[number];
+type ReviewReason = CurrentReviewReason | "Jenis atau jumlah botol berbeda dari catatan setoran.";
 export type Deposit = {
   code: string;
   material: Material;
-  quantity: number;
+  quantity?: number;
+  estimatedWeightGrams?: number;
   createdAt: string;
   pointName: string;
   method: FulfillmentMethod | null;
   approvalNote: string | null;
   photo?: string;
+  weightGrams?: number;
 } & (
   | { status: Exclude<keyof typeof statusLabels, "adjustment">; reason?: never }
   | { status: "adjustment"; reason: ReviewReason }
@@ -42,9 +46,13 @@ export type Deposit = {
 export function validMaterial(value: unknown): value is Material {
   return materials.some((material) => material === value);
 }
-export function validReason(value: unknown): value is ReviewReason {
+export function validReason(value: unknown): value is CurrentReviewReason {
   return adjustmentReasons.some((reason) => reason === value);
 }
-export function validQuantity(value: number) {
-  return Number.isInteger(value) && value >= 1 && value <= maxBottles;
+export function depositWeightLabel(deposit: Deposit) {
+  if (deposit.weightGrams !== undefined) return formatGrams(deposit.weightGrams);
+  if (deposit.status !== "accepted" && deposit.estimatedWeightGrams !== undefined) {
+    return `Perkiraan ${formatGrams(deposit.estimatedWeightGrams)}`;
+  }
+  return "Belum ditimbang";
 }

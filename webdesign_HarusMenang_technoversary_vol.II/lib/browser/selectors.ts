@@ -2,6 +2,7 @@ import type { DepositBucket } from "@/app/dashboard/deposit-analytics";
 import type { BrowserState, Workspace } from "./data";
 import { isKnownCollectionPointId } from "@/app/collection-directory";
 import type { Deposit } from "@/app/dashboard/deposit-store";
+import { pointsForWeight } from "./glass-value";
 
 export function residentDeposits(workspace: Workspace, owner: string) {
   return workspace.deposits.filter((row) => row.owner === owner).map(({ item }) => item);
@@ -25,7 +26,13 @@ export function residentRewards(workspace: Workspace, owner: string) {
     return { ...claim, name: reward.name, pickup: reward.pickup };
   });
   const activity = [
-    ...deposits.map(({ item, reviewedAt }) => ({ code: item.code, points: item.quantity, description: item.material, date: reviewedAt ?? item.createdAt })),
+    ...deposits.map(({ item, reviewedAt }) => ({
+      code: item.code,
+      points: item.weightGrams === undefined ? (item.quantity ?? 0) : pointsForWeight(item.weightGrams),
+      description: item.weightGrams === undefined ? "Poin setoran lama" : "Setoran " + item.material.toLowerCase(),
+      weightGrams: item.weightGrams,
+      date: reviewedAt ?? item.createdAt,
+    })),
     ...claims.map((claim) => ({ code: claim.code, points: -claim.cost, description: claim.name, date: claim.createdAt })),
   ].sort((a, b) => b.date.localeCompare(a.date));
   return {
@@ -51,9 +58,9 @@ export function adminDepositBuckets(workspace: Workspace): DepositBucket[] {
     const existing = counts.get(key);
     if (existing) {
       existing.count += 1;
-      existing.quantity += item.quantity;
+      if (item.weightGrams !== undefined) existing.weightGrams = (existing.weightGrams ?? 0) + item.weightGrams;
     } else {
-      counts.set(key, { createdAt: new Date(`${day}T00:00:00+07:00`).toISOString(), count: 1, material: item.material, status: item.status, quantity: item.quantity });
+      counts.set(key, { createdAt: new Date(`${day}T00:00:00+07:00`).toISOString(), count: 1, material: item.material, status: item.status, weightGrams: item.weightGrams });
     }
   }
   return [...counts.values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt));

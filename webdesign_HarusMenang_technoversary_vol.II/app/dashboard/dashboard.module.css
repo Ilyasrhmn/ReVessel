@@ -1090,3 +1090,15 @@ details[open] > .row .expand {
   .depositWork { justify-content: start; }
   .depositWork > .detailActions { justify-content: start; }
 }
+
+.depositWeight, .reviewMeta strong { font-size: .875rem; font-variant-numeric: tabular-nums; text-align: end; }
+.depositRow .rowEnd { flex-wrap: wrap; justify-content: end; }
+.reviewMeta { display: flex; justify-content: space-between; gap: .75rem; margin-block: .65rem; }
+.reviewMeta strong { flex-shrink: 0; }
+.reviewMeta .cashoutNote { color: var(--dash-muted); font-size: .875rem; }
+
+@media (max-width: 480px) {
+  .depositRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .depositRow .rowEnd { display: grid; grid-template-columns: minmax(0, 1fr) auto; justify-items: end; gap: .2rem .45rem; }
+  .depositRow .expand { grid-column: 2; grid-row: 1 / 3; }
+}

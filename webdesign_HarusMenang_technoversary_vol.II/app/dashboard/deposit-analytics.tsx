@@ -9,6 +9,7 @@ import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartToo
 import { Progress } from "@/components/ui/progress";
 import { useDashboardPreferences } from "@/lib/browser/preferences";
 import type { DashboardPreferences } from "@/lib/browser/data";
+import { formatGrams } from "@/lib/browser/glass-value";
 import { analyticsPeriods, materials, type AnalyticsPeriod } from "../deposit-options";
 import NavBubble from "../ui/nav-bubble";
 import { statusLabels, type Deposit } from "./deposit-store";
@@ -44,11 +45,11 @@ function subscribeToMotion(onChange: () => void) {
   return () => media.removeEventListener("change", onChange);
 }
 
-export type DepositBucket = Pick<Deposit, "createdAt" | "material" | "quantity" | "status"> & { count: number };
+export type DepositBucket = Pick<Deposit, "createdAt" | "material" | "weightGrams" | "status"> & { count: number };
 type AnalyticsRow = Deposit | DepositBucket;
 
 function counts(deposits: AnalyticsRow[]) {
-  const totals = { total: 0, waiting: 0, pendingApproval: 0, handover: 0, accepted: 0, adjustment: 0, containers: 0 };
+  const totals = { total: 0, waiting: 0, pendingApproval: 0, handover: 0, accepted: 0, adjustment: 0, weightGrams: 0 };
   for (const item of deposits) {
     const count = "count" in item ? item.count : 1;
     totals.total += count;
@@ -58,7 +59,7 @@ function counts(deposits: AnalyticsRow[]) {
     if (item.status === "adjustment") totals.adjustment += count;
     if (item.status === "accepted") {
       totals.accepted += count;
-      totals.containers += item.quantity;
+      totals.weightGrams += item.weightGrams ?? 0;
     }
   }
   return totals;
@@ -69,7 +70,7 @@ const residentMetrics = [
   ["waiting", "Dalam proses"],
   ["accepted", "Diterima"],
   ["adjustment", "Perlu penyesuaian"],
-  ["containers", "Wadah diterima"],
+  ["weightGrams", "Berat ditimbang"],
 ] as const;
 
 const adminMetrics = [
@@ -77,7 +78,7 @@ const adminMetrics = [
   ["pendingApproval", "Menunggu persetujuan"],
   ["handover", "Menunggu serah terima"],
   ["accepted", "Diterima"],
-  ["containers", "Wadah diterima"],
+  ["weightGrams", "Berat ditimbang"],
 ] as const;
 
 const chartConfig = {
@@ -111,11 +112,11 @@ function getPeriodData(deposits: AnalyticsRow[], period: AnalyticsPeriod, materi
 
 function downloadCsv(deposits: AnalyticsRow[], grouped: boolean) {
   const header = grouped
-    ? ["Tanggal", "Jenis kaca", "Status", "Setoran", "Wadah"]
-    : ["Kode", "Tanggal", "Jenis kaca", "Jumlah", "Status", "Alasan"];
+    ? ["Tanggal pengajuan", "Jenis kaca", "Status", "Setoran", "Berat bersih (g)"]
+    : ["Kode", "Tanggal pengajuan", "Jenis kaca", "Perkiraan berat (g)", "Berat bersih (g)", "Status", "Alasan"];
   const rows = [header, ...deposits.map((item) => "count" in item
-    ? [new Date(item.createdAt).toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" }), item.material, statusLabels[item.status], item.count, item.quantity]
-    : [item.code, item.createdAt, item.material, item.quantity, statusLabels[item.status], item.reason ?? ""])];
+    ? [new Date(item.createdAt).toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" }), item.material, statusLabels[item.status], item.count, item.weightGrams ?? ""]
+    : [item.code, item.createdAt, item.material, item.estimatedWeightGrams ?? "", item.weightGrams ?? "", statusLabels[item.status], item.reason ?? ""])];
 
   const csv = rows.map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\r\n");
   const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
@@ -179,9 +180,9 @@ export default function DepositAnalytics({ deposits, buckets }: { deposits: Depo
                 <CardTitle className={styles.metricLabel}>{label}</CardTitle>
               </CardHeader>
               <CardContent className={styles.metricContent}>
-                <p className={styles.metricValue}>{number.format(currentCounts[key])}</p>
+                <p className={styles.metricValue}>{key === "weightGrams" ? formatGrams(currentCounts[key]) : number.format(currentCounts[key])}</p>
                 {compare ? (
-                  <p className={styles.metricHint}><span data-direction={Math.sign(change)}>{change > 0 ? "+" : ""}{number.format(change)}</span> vs periode lalu</p>
+                  <p className={styles.metricHint}><span data-direction={Math.sign(change)}>{change > 0 ? "+" : ""}{key === "weightGrams" ? formatGrams(change) : number.format(change)}</span> vs periode lalu</p>
                 ) : (
                   <p className={styles.metricHint}>{period === 365 ? "12 bulan" : `${period} hari`} terakhir</p>
                 )}

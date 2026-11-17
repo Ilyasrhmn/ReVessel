@@ -11,8 +11,9 @@ import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import CollectionMap from "../ui/collection-map";
 import { bottleChecklist, bottleQuestions } from "../bottle-guide";
-import { maxBottles, type CollectionPoint } from "../deposit-options";
-import { fulfillmentLabels, statusLabels, type Deposit } from "./deposit-store";
+import type { CollectionPoint } from "../deposit-options";
+import { depositWeightLabel, fulfillmentLabels, statusLabels, type Deposit } from "./deposit-store";
+import { maxWeightGrams } from "@/lib/browser/glass-value";
 import { cancelDeposit as cancelStoredDeposit, createDeposit } from "@/lib/browser/deposits";
 import DashboardShell from "./dashboard-shell";
 import { isDepositPhoto } from "@/lib/browser/deposit-photo";
@@ -144,8 +145,8 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
             </select>
           </div>
           <label className={styles.field}>
-            <span>Jumlah wadah</span>
-            <input required name="quantity" type="number" inputMode="numeric" min={1} max={maxBottles} step={1} />
+            <span>Perkiraan berat kaca (g)</span>
+            <input required name="estimatedWeightGrams" type="number" inputMode="numeric" min={1} max={maxWeightGrams} step={1} />
           </label>
           <DepositPhotoField disabled={submitting} />
           <p role="alert" className={styles.feedback}>{formError}</p>
@@ -210,9 +211,10 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
                   {deposits.map((deposit) => (
                     <li key={deposit.code}>
                       <details name="resident-deposits">
-                        <summary className={styles.row}>
-                          <span><strong>{deposit.code}</strong><small>{deposit.material} · {deposit.quantity} wadah</small></span>
+                        <summary className={`${styles.row} ${styles.depositRow}`}>
+                          <span><strong>{deposit.material}</strong><small>{deposit.code}</small></span>
                           <div className={styles.rowEnd}>
+                            <span className={styles.depositWeight}>{depositWeightLabel(deposit)}</span>
                             <Status deposit={deposit} />
                             <span className={styles.expand} aria-hidden="true" />
                           </div>
