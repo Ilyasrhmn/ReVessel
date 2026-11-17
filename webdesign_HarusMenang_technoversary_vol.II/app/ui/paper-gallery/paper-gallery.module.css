@@ -38,7 +38,8 @@
 .card > a { display: block; text-decoration: none; }
 .photo { position: relative; aspect-ratio: 1; overflow: hidden; background: #292c29; }
 .card:nth-child(2) .photo, .card:nth-child(3) .photo { aspect-ratio: 9 / 8; }
-.photo > img { object-fit: cover; }
+.image { position: absolute; inset: 0; }
+.image img { object-fit: cover; }
 .caption, .hoverCaption { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .caption { padding-block: .85rem; overflow: hidden; transition: opacity 450ms ease, transform 700ms cubic-bezier(.16, 1, .3, 1); }
 .caption h4 { font-size: clamp(.9rem, 1.2vw, 1.05rem); font-weight: 480; letter-spacing: -.025em; }
@@ -54,10 +55,10 @@
   .card > a:is(:hover, :focus-visible) .caption { transform: translateY(-5.5rem); opacity: 0; }
 }
 @media (max-width: 760px) {
-  .launch { min-block-size: 60svh; gap: 1rem; }
+  .launch { min-block-size: 100svh; gap: 1rem; padding-block-end: calc(var(--site-scroll-bottom) + 2rem); }
   .launch h2 { font-size: clamp(3rem, 13vw, 5rem); }
   .seed { inline-size: clamp(4rem, 19vw, 7rem); }
-  .heading { align-items: start; gap: 1rem; }
+  .heading { align-items: start; gap: 1rem; flex-wrap: wrap; }
   .heading h3 { font-size: clamp(2.5rem, 9vw, 4rem); }
   .allLink { font-size: .8rem; }
   .grid { grid-template-columns: 1fr; gap: 2rem; }
@@ -65,6 +66,5 @@
   .card:nth-child(n) .photo { aspect-ratio: 4 / 3; max-block-size: 65svh; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .launch { min-block-size: 50svh; }
   .caption, .hoverCaption, .hoverCaption :is(span, svg) { transition: none; }
 }

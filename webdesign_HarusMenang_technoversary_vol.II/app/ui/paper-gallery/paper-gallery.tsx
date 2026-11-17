@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Plus } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -14,9 +14,11 @@ import styles from "./paper-gallery.module.css";
 function PaperPhoto({ item }: { item: (typeof galleryItems)[number] }) {
   return (
     <div className={styles.photo}>
-      <Image src={item.image} alt={item.alt} fill sizes="(max-width: 760px) 90vw, 45vw" />
-      <div className={`${styles.hoverCaption} ${glass.surface}`} data-tone="dark" onPointerMove={moveGlassLight} aria-hidden="true">
-        <span>{item.title}</span><Plus />
+      <div className={styles.image} data-fluid-layer="image">
+        <Image src={item.image} alt={item.alt} fill sizes="(max-width: 760px) 90vw, 45vw" data-gallery-photo={item.id} />
+      </div>
+      <div className={`${styles.hoverCaption} ${glass.surface}`} data-tone="dark" data-fluid-layer="control" onPointerMove={moveGlassLight} aria-hidden="true">
+        <span>{item.title}</span><ArrowUpRight />
       </div>
     </div>
   );
@@ -89,7 +91,7 @@ export default function PaperGallery() {
       void document.fonts.ready.then(fontsReady);
 
       const focusGallery = (event: FocusEvent) => {
-        if (!(event.target instanceof HTMLElement) || !gallery.contains(event.target)) return;
+        if (!(event.target instanceof HTMLElement) || !gallery.contains(event.target) || !event.target.matches(":focus-visible")) return;
         const bounds = event.target.getBoundingClientRect();
         if (bounds.top < 0 || bounds.bottom > innerHeight || window.scrollY < target.y) {
           const contentBounds = gallery.getBoundingClientRect();
@@ -123,26 +125,26 @@ export default function PaperGallery() {
   }, []);
 
   return (
-    <section id="kemungkinan" ref={root} className={styles.section} aria-labelledby="possibilities-title" tabIndex={-1}>
+    <section id="kemungkinan" data-fluid-zone="" ref={root} className={styles.section} aria-labelledby="possibilities-title" tabIndex={-1}>
       <div className={styles.launch}>
-        <div ref={seed} className={styles.seed} aria-hidden="true" />
+        <div ref={seed} className={styles.seed} data-fluid-layer="surface" aria-hidden="true" />
         <h2 id="possibilities-title">Galeri</h2>
       </div>
       <div ref={slot} className={styles.slot} />
-      <div ref={panel} className={styles.window} data-paper-window="">
+      <div ref={panel} className={styles.window} data-paper-window="" data-fluid-zone="">
         <div ref={world} className={styles.world}>
           <div ref={content} className={styles.content}>
             <div className={styles.heading}>
               <h3>Kegiatan ReVessel</h3>
-              <Link href="/galeri" className={styles.allLink}>Lihat galeri<ArrowUpRight aria-hidden="true" /></Link>
+              <Link href="/galeri/" className={styles.allLink}>Lihat semua kegiatan<ArrowUpRight aria-hidden="true" /></Link>
             </div>
             <div className={styles.grid}>
               {galleryItems.slice(0, 6).map((item, index) => (
                 <article key={item.id} data-paper-card={index} className={styles.card}>
-                  <Link href={"/galeri#" + item.id}>
+                  <Link href={"/galeri/" + item.id + "/"} aria-label={"Lihat kegiatan: " + item.title} data-gallery-navigation="" data-gallery-landing="">
                     <PaperPhoto item={item} />
                     <div className={styles.caption}>
-                      <h4>{item.title}</h4><Plus aria-hidden="true" />
+                      <h4>{item.title}</h4><ArrowUpRight aria-hidden="true" />
                     </div>
                   </Link>
                 </article>

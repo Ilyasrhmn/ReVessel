@@ -187,7 +187,7 @@ export function paintFluidScene(context, viewport, zone, repaint) {
   const layers = [...zone.querySelectorAll('[data-fluid-layer="image"], [data-fluid-layer="story"], [data-fluid-layer="shade"]')];
   for (const element of layers) {
     const type = element.dataset.fluidLayer;
-    if (type === "image") paintImage(context, element);
+    if (type === "image" && intersects(element.getBoundingClientRect(), viewport)) paintImage(context, element);
     if (type === "story") paintStory(context, element);
     if (type === "shade") {
       if (window.innerWidth <= 760) {
