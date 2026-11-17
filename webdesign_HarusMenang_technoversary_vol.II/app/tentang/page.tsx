@@ -20,8 +20,8 @@ export default function AboutPage() {
         </p>
         <div className={styles.aboutImage}>
           <Image
-            src="/images/perajin-kaca.webp"
-            alt="Perajin memeriksa botol kaca di meja kerja"
+            src="/images/tentang-bengkel-kaca.webp"
+            alt="Suasana bengkel pakai ulang kaca dengan petugas dan perajin di beberapa meja kerja"
             fill
             priority
             sizes="(max-width: 760px) 90vw, 55vw"

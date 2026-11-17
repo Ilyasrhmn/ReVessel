@@ -1,51 +1,28 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import SiteFrame from "../ui/site-frame";
+import { galleryItems } from "../gallery-content";
 import styles from "../pages.module.css";
 
 export const metadata: Metadata = {
   title: "Galeri | ReVessel",
-  description: "Galeri visual botol dan jar kaca ReVessel.",
+  description: "Penjemputan, pemilahan, dan proses pakai ulang kaca di ReVessel.",
 };
 
 export default function GalleryPage() {
   return (
-    <SiteFrame title="Galeri kaca">
+    <SiteFrame title="Galeri kegiatan">
       <div className={styles.galleryGrid}>
-        <figure id="jar-bening">
-          <div className={styles.galleryPhoto}>
-            <Image
-              src="/images/galeri-kaca-bening.webp"
-              alt="Botol dan jar kaca bening di atas baki perak"
-              fill
-              priority
-              sizes="(max-width:760px) 90vw, 55vw"
-            />
-          </div>
-          <figcaption>
-            Botol & jar bening
-          </figcaption>
-        </figure>
-        <figure id="botol-amber">
-          <div className={styles.galleryPhoto}>
-            <Image
-              src="/images/amber-study.webp"
-              alt="Botol kaca amber dengan pipet"
-              fill
-              sizes="(max-width:760px) 90vw, 35vw"
-            />
-          </div>
-          <figcaption>
-            Botol amber
-          </figcaption>
-        </figure>
+        {galleryItems.map((item, index) => (
+          <figure id={item.id} key={item.id}>
+            <div className={styles.galleryPhoto}>
+              <Image src={item.image} alt={item.alt} fill priority={index === 0} sizes="(max-width:760px) 90vw, 45vw" />
+            </div>
+            <figcaption>{item.title}</figcaption>
+          </figure>
+        ))}
       </div>
-      <div className={styles.credits}>
-        <span>Visual botol bening: ilustrasi ReVessel.</span>
-        <a href="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108">
-          Foto botol amber: Unsplash
-        </a>
-      </div>
+      <p className={styles.credits}>Ilustrasi kegiatan ReVessel.</p>
     </SiteFrame>
   );
 }
