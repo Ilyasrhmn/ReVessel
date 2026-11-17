@@ -1,5 +1,6 @@
 import type { DepositBucket } from "@/app/dashboard/deposit-analytics";
-import { collectionPoints, type BrowserState, type Workspace } from "./data";
+import type { BrowserState, Workspace } from "./data";
+import { isKnownCollectionPointId } from "@/app/collection-directory";
 import type { Deposit } from "@/app/dashboard/deposit-store";
 
 export function residentDeposits(workspace: Workspace, owner: string) {
@@ -64,6 +65,6 @@ export function dashboardResidents(state: BrowserState, mode: "demo" | "account"
 }
 
 export function reviewDetails(workspace: Workspace, code: string) {
-  const row = workspace.deposits.find((entry) => entry.item.code === code && collectionPoints.some(({ slug }) => slug === entry.point));
+  const row = workspace.deposits.find((entry) => entry.item.code === code && isKnownCollectionPointId(entry.point));
   return row ? { deposit: row.item, pickup: row.pickup ?? null } : null;
 }

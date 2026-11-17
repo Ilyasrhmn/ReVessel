@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { collectionPoints, demoAccounts, initialState, type BrowserState, type Mode, type Profile, type Role, type Workspace } from "./data";
 import { createBrowserId } from "./id";
 import { depositPhotoAssets } from "./deposit-photo-assets";
+import { unifyWorkspaces } from "./workspaces";
 
 export const minPasswordLength = 8;
 
@@ -48,6 +49,7 @@ export function readState(): BrowserState {
   } catch {
     state = initialState();
   }
+  unifyWorkspaces(state);
   refreshStoredLabels(state.workspaces.demo);
   refreshStoredLabels(state.workspaces.account);
   cache = { raw, state };
@@ -148,7 +150,7 @@ export async function loginAccount(rawEmail: string, password: string) {
 export function enterDemo(role: Role) {
   const account = demoAccounts.find((sample) => sample.role === role)!;
   return changeState((state) => {
-    state.session = { mode: "demo", id: account.id };
+    state.session = { mode: "account", id: account.id };
   });
 }
 

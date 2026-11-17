@@ -1,4 +1,4 @@
-import { changeState, currentProfile } from "./storage";
+import { changeState, currentProfile, readState } from "./storage";
 
 export async function sendContactMessage(requestId: string, form: FormData) {
   const name = String(form.get("name") ?? "").trim();
@@ -11,9 +11,13 @@ export async function sendContactMessage(requestId: string, form: FormData) {
   if (!subject || subject.length > 120) return { error: "Masukkan subjek hingga 120 karakter." };
   if (body.length < 10 || body.length > 2000) return { error: "Tulis pesan sepanjang 10–2.000 karakter." };
 
+  const submittedBy = currentProfile(readState());
   return changeState((state) => {
     const sender = currentProfile(state);
-    const inbox = state.workspaces[sender?.mode ?? "demo"].messages;
+    if (sender?.id !== submittedBy?.id || sender?.mode !== submittedBy?.mode) {
+      return { error: "Akun berubah sebelum pesan tersimpan. Kirim ulang pesanmu." };
+    }
+    const inbox = state.workspaces[sender?.mode ?? "account"].messages;
     if (!inbox.some(({ id }) => id === requestId)) {
       inbox.unshift({ id: requestId, owner: sender?.id, name, email, subject, body, sentAt: new Date().toISOString() });
     }

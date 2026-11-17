@@ -1,4 +1,5 @@
 import { materials, type AnalyticsPeriod, type CollectionPoint, type Material } from "@/app/deposit-options";
+import { collectionDirectory } from "@/app/collection-directory";
 import type { Deposit, PickupDetails } from "@/app/dashboard/deposit-store";
 import { depositPhotoAssets } from "./deposit-photo-assets";
 
@@ -31,16 +32,19 @@ export type Workspace = { deposits: DepositRecord[]; rewards: Reward[]; claims: 
 export type DashboardPreferences = { dark: boolean; period: AnalyticsPeriod; material: Material | "all"; compare: boolean };
 export type BrowserState = {
   version: 1;
+  workspaceVersion?: 2;
   session: Session | null;
   accounts: Account[];
   preferences?: Record<string, DashboardPreferences>;
   workspaces: Record<Mode, Workspace>;
 };
 
-export const collectionPoints: CollectionPoint[] = [
-  { slug: "contoh-condongcatur", name: "Condongcatur", address: "Condongcatur, Depok, Sleman", materials: [...materials] },
-  { slug: "contoh-kricak", name: "Kricak", address: "Kricak, Tegalrejo, Yogyakarta", materials: ["Botol parfum", "Jar kaca"] },
-];
+export const collectionPoints: CollectionPoint[] = collectionDirectory.map((point) => ({
+  slug: point.id,
+  name: point.name,
+  address: point.area,
+  materials: [...point.materials],
+}));
 
 function seed(now: number): Workspace {
   const ago = (days: number) => new Date(now - days * 86400000).toISOString();
@@ -83,6 +87,7 @@ export function initialState(): BrowserState {
   const now = Date.now();
   return {
     version: 1,
+    workspaceVersion: 2,
     session: null,
     accounts: demoAccounts.map(({ id, name, role, email }) => ({ id, name, role, email, createdAt: new Date(now).toISOString() })),
     workspaces: { demo: seed(now), account: seed(now) },

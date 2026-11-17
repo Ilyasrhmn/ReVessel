@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { Fragment, useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { currentProfile, useBrowserState } from "@/lib/browser/storage";
 import type { BrowserState, Mode, Profile, Role } from "@/lib/browser/data";
@@ -24,5 +24,5 @@ export default function BrowserGate({ role, loginHref, children }: {
 
   if (state === "unavailable") return <p className="p-8" role="alert">Aktifkan penyimpanan browser untuk membuka dashboard.</p>;
   if (!state || !user || target) return <DashboardSkeleton />;
-  return children(state, user);
+  return <Fragment key={`${user.mode}:${user.id}`}>{children(state, user)}</Fragment>;
 }

@@ -9,9 +9,10 @@ const unavailable = "Setoran tidak ditemukan atau statusnya sudah berubah.";
 const uuid = /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i;
 
 export function scopedChange<T>(role: Role, change: (data: Workspace, user: Profile & { mode: Mode }, state: BrowserState) => T) {
+  const actor = currentProfile(readState());
   return changeState((state) => {
     const user = currentProfile(state);
-    if (user?.role !== role) return { error: noAccess };
+    if (actor?.role !== role || user?.role !== role || user.id !== actor.id || user.mode !== actor.mode) return { error: noAccess };
     return change(state.workspaces[user.mode], user, state);
   });
 }
