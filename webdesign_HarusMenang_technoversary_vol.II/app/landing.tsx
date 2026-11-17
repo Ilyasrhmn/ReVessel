@@ -240,8 +240,8 @@ export default function Landing() {
         </div>
       </section>
 
-      <PaperGallery />
       <StickyArticles />
+      <PaperGallery />
 
       <section
         id="panduan"
@@ -316,11 +316,11 @@ export default function Landing() {
           <Link href="/tentang">
             Tentang
           </Link>
-          <Link href="/galeri">
-            Galeri
-          </Link>
           <Link href="/artikel">
             Artikel
+          </Link>
+          <Link href="/galeri">
+            Galeri
           </Link>
           <Link href="/kontak">
             Kontak

@@ -24,8 +24,8 @@ import { bottleChecklist } from "../bottle-guide";
 const menuLinks = [
   { path: "/", label: "Beranda", icon: "home" },
   { path: "/tentang", label: "Tentang", icon: "about" },
-  { path: "/galeri", label: "Galeri", icon: "gallery" },
   { path: "/artikel", label: "Artikel", icon: "article" },
+  { path: "/galeri", label: "Galeri", icon: "gallery" },
   { path: "/kontak", label: "Kontak", icon: "contact" },
 ] as const;
 

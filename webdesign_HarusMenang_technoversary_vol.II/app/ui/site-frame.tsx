@@ -5,8 +5,8 @@ import styles from "../pages.module.css";
 
 const links = [
   { href: "/tentang", label: "Tentang" },
-  { href: "/galeri", label: "Galeri" },
   { href: "/artikel", label: "Artikel" },
+  { href: "/galeri", label: "Galeri" },
   { href: "/kontak", label: "Kontak" },
 ] as const;
 
