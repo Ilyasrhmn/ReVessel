@@ -91,26 +91,32 @@ export function BrandPhilosophy() {
           </li>
         ))}
       </ol>
-      <section className={styles.turn} aria-labelledby="brand-turn-title">
-        <h3 id="brand-turn-title">Dua garis dalam satu putaran</h3>
-        <p>
-          Selama masih layak, satu wadah bisa dipakai berulang kali
-          dan berpindah tangan.
-        </p>
-      </section>
-      <section className={styles.palette} aria-labelledby="brand-palette-title">
-        <h3 id="brand-palette-title">Warna dan maknanya</h3>
-        <dl>
-          <div>
-            <dt>
-              <span className={`${styles.swatch} ${styles.graphite}`} aria-hidden="true" />
-              Hitam grafit
-            </dt>
-            <dd>
-              Melambangkan nilai yang masih dimiliki wadah setelah
-              selesai dipakai.
-            </dd>
-          </div>
+      <div className={styles.summary}>
+        <section className={styles.turn} aria-labelledby="brand-turn-title">
+          <h3 id="brand-turn-title">Dua garis dalam satu putaran</h3>
+          <p>
+            Selama masih layak, satu wadah bisa dipakai berulang kali
+            dan berpindah tangan.
+          </p>
+          <p className={styles.nameMeaning}>
+            <strong>ReVessel</strong> menyatukan <i lang="en">re</i>, yang berarti
+            kembali, dan <i lang="en">vessel</i>, yang berarti wadah.
+            Wadah yang layak digunakan kembali.
+          </p>
+        </section>
+        <section className={styles.palette} aria-labelledby="brand-palette-title">
+          <h3 id="brand-palette-title">Warna dan maknanya</h3>
+          <dl>
+            <div>
+              <dt>
+                <span className={`${styles.swatch} ${styles.graphite}`} aria-hidden="true" />
+                Hitam grafit
+              </dt>
+              <dd>
+                Melambangkan nilai yang masih dimiliki wadah setelah
+                selesai dipakai.
+              </dd>
+            </div>
           <div>
             <dt>
               <span className={`${styles.swatch} ${styles.softWhite}`} aria-hidden="true" />
@@ -123,11 +129,7 @@ export function BrandPhilosophy() {
           </div>
         </dl>
       </section>
-      <p className={styles.nameMeaning}>
-        <strong>ReVessel</strong> menyatukan <i lang="en">re</i>, yang berarti
-        kembali, dan <i lang="en">vessel</i>, yang berarti wadah.
-        Wadah yang layak digunakan kembali.
-      </p>
+      </div>
     </section>
   );
 }
