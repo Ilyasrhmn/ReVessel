@@ -885,6 +885,9 @@ details[open] > .row .expand {
   .summary > :first-child { grid-column: 1 / -1; }
   .analyticsGrid, .columns, .review, .guideGrid { grid-template-columns: minmax(0, 1fr); }
   .toolbar { align-items: start; }
+  .filters, .segment { min-inline-size: 0; max-inline-size: 100%; }
+  .segment { flex-wrap: wrap; }
+  .dashboard .segment button { min-block-size: 2.75rem; }
   .toolbarActions { width: 100%; justify-content: space-between; }
 }
 
