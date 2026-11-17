@@ -29,36 +29,29 @@ function paintImage(context, element) {
   context.restore();
 }
 
-function paintCopy(context, element, bounds, alpha, isControl) {
-  const style = getComputedStyle(element);
-  if (style.visibility !== "visible" || alpha === 0) return;
 
+function intersects(rect, viewport) {
+  return rect.width && rect.height && rect.right > viewport.left && rect.left < viewport.right &&
+    rect.bottom > viewport.top && rect.top < viewport.bottom;
+}
+
+function paintText(context, node, style, viewport) {
   const range = document.createRange();
-  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  range.selectNodeContents(node);
+  if (!intersects(range.getBoundingClientRect(), viewport) || !node.textContent.trim()) return;
+
   const lines = new Map();
-  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-    for (const word of node.textContent.matchAll(/\S+/g)) {
-      range.setStart(node, word.index);
-      range.setEnd(node, word.index + word[0].length);
-      const rect = range.getBoundingClientRect();
-      const line = lines.get(rect.top);
-      if (line) line.text += " " + word[0];
-      else lines.set(rect.top, { rect, text: word[0] });
-    }
+  for (const word of node.textContent.matchAll(/\S+/g)) {
+    range.setStart(node, word.index);
+    range.setEnd(node, word.index + word[0].length);
+    const rect = range.getBoundingClientRect();
+    if (!rect.width) continue;
+    const line = lines.get(rect.top);
+    if (line) line.text += " " + word[0];
+    else lines.set(rect.top, { rect, text: word[0] });
   }
 
-  context.save();
-  context.globalAlpha = alpha;
-  if (isControl) {
-    context.beginPath();
-    context.roundRect(bounds.left, bounds.top, bounds.width, bounds.height, parseFloat(style.borderRadius));
-    context.fillStyle = style.backgroundColor;
-    context.fill();
-    context.strokeStyle = style.borderTopColor;
-    context.lineWidth = 1;
-    context.stroke();
-  }
-  context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  context.font = [style.fontStyle, style.fontWeight, style.fontSize, style.fontFamily].join(" ");
   context.letterSpacing = style.letterSpacing === "normal" ? "0px" : style.letterSpacing;
   context.fillStyle = style.color;
   const metrics = context.measureText("Hg");
@@ -66,23 +59,91 @@ function paintCopy(context, element, bounds, alpha, isControl) {
     const baseline = rect.top + (rect.height + metrics.fontBoundingBoxAscent - metrics.fontBoundingBoxDescent) / 2;
     context.fillText(text, rect.left, baseline);
   }
-  if (isControl) {
-    const icon = element.querySelector("svg");
-    if (icon?.viewBox.baseVal.width) {
-      const box = icon.getBoundingClientRect();
-      const viewBox = icon.viewBox.baseVal;
-      context.translate(box.left, box.top);
-      context.scale(box.width / viewBox.width, box.height / viewBox.height);
-      context.strokeStyle = style.color;
-      context.lineWidth = Number(icon.getAttribute("stroke-width")) || 1.5;
-      context.lineCap = "round";
-      context.lineJoin = "round";
-      for (const path of icon.querySelectorAll("path[d]")) {
-        context.stroke(new Path2D(path.getAttribute("d")));
+}
+
+const symbolPaths = new Map();
+
+function referencedPath(use, repaint) {
+  const href = use.getAttribute("href");
+  if (!href?.startsWith("/brand/")) return null;
+  if (!symbolPaths.has(href)) {
+    const [url, id] = href.split("#");
+    symbolPaths.set(href, null);
+    fetch(url).then(response => response.ok ? response.text() : "").then(source => {
+      const document = new DOMParser().parseFromString(source, "image/svg+xml");
+      const data = document.getElementById(id)?.getAttribute("d");
+      if (data) {
+        symbolPaths.set(href, new Path2D(data));
+        repaint();
       }
+    }).catch(() => {});
+  }
+  return symbolPaths.get(href);
+}
+
+function paintSvg(context, svg, bounds, repaint) {
+  const viewBox = svg.viewBox.baseVal;
+  if (!viewBox.width || !viewBox.height) return;
+  const scale = Math.min(bounds.width / viewBox.width, bounds.height / viewBox.height);
+  context.translate(bounds.left + (bounds.width - viewBox.width * scale) / 2, bounds.top + (bounds.height - viewBox.height * scale) / 2);
+  context.scale(scale, scale);
+  context.translate(-viewBox.x, -viewBox.y);
+  for (const node of svg.querySelectorAll("path[d], use")) {
+    const isUse = node.localName === "use";
+    const path = isUse ? referencedPath(node, repaint) : new Path2D(node.getAttribute("d"));
+    if (!path) continue;
+    const style = getComputedStyle(node);
+    const fill = isUse ? style.color : style.fill;
+    if (fill !== "none") {
+      context.fillStyle = fill;
+      context.fill(path, style.fillRule);
+    }
+    if (style.stroke !== "none") {
+      context.strokeStyle = style.stroke;
+      context.lineWidth = parseFloat(style.strokeWidth) || 1;
+      context.lineCap = style.strokeLinecap;
+      context.lineJoin = style.strokeLinejoin;
+      context.stroke(path);
     }
   }
-  context.restore();
+}
+
+function paintContent(context, root, viewport, repaint) {
+  function visit(element, parentOpacity) {
+    const layer = element.dataset?.fluidLayer;
+    if (["image", "story", "shade"].includes(layer)) return;
+
+    const bounds = element.getBoundingClientRect();
+    if (!intersects(bounds, viewport)) return;
+    const style = getComputedStyle(element);
+    const opacity = parentOpacity * Number(style.opacity);
+    if (style.visibility !== "visible" || opacity === 0) return;
+
+    context.save();
+    context.globalAlpha = opacity;
+    if (element instanceof SVGSVGElement) {
+      paintSvg(context, element, bounds, repaint);
+    } else {
+      if (layer === "control" || layer === "surface") {
+        context.beginPath();
+        context.roundRect(bounds.left, bounds.top, bounds.width, bounds.height, parseFloat(style.borderRadius) || 0);
+        context.fillStyle = style.backgroundColor;
+        context.fill();
+        if (layer === "control") {
+          context.strokeStyle = style.borderTopColor;
+          context.lineWidth = 1;
+          context.stroke();
+        }
+      }
+      for (const node of element.childNodes) {
+        if (node.nodeType === Node.TEXT_NODE) paintText(context, node, style, viewport);
+        if (node instanceof Element) visit(node, opacity);
+      }
+    }
+    context.restore();
+  }
+
+  visit(root, 1);
 }
 
 function paintStory(context, element) {
@@ -112,7 +173,7 @@ function paintStory(context, element) {
   context.restore();
 }
 
-export function paintFluidScene(context, viewport, zone) {
+export function paintFluidScene(context, viewport, zone, repaint) {
   const bounds = zone.getBoundingClientRect();
   const backdrop = zone.dataset.fluidZone === "story" ? zone.parentElement : zone;
   context.save();
@@ -123,7 +184,7 @@ export function paintFluidScene(context, viewport, zone) {
   context.fillStyle = getComputedStyle(backdrop).backgroundColor;
   context.fillRect(viewport.left, viewport.top, viewport.width, viewport.height);
 
-  const layers = [...zone.querySelectorAll("[data-fluid-layer]")];
+  const layers = [...zone.querySelectorAll('[data-fluid-layer="image"], [data-fluid-layer="story"], [data-fluid-layer="shade"]')];
   for (const element of layers) {
     const type = element.dataset.fluidLayer;
     if (type === "image") paintImage(context, element);
@@ -137,13 +198,8 @@ export function paintFluidScene(context, viewport, zone) {
       }
     }
   }
-  for (const element of layers) {
-    const type = element.dataset.fluidLayer;
-    if (type !== "text" && type !== "control") continue;
-    const rect = element.getBoundingClientRect();
-    if (rect.right < viewport.left || rect.left > viewport.right ||
-        rect.bottom < viewport.top || rect.top > viewport.bottom) continue;
-    paintCopy(context, element, rect, Number(getComputedStyle(element.parentElement).opacity), type === "control");
-  }
+  paintContent(context, zone, viewport, repaint);
+  const brand = zone.id === "beranda" ? document.querySelector("[data-fluid-hero-brand]") : null;
+  if (brand) paintContent(context, brand, viewport, repaint);
   context.restore();
 }

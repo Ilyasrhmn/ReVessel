@@ -1,0 +1,70 @@
+
+.section {
+  --paper-ink: #fcfaf5;
+  position: relative;
+  background: #fcfaf5;
+  color: #101110;
+}
+.launch {
+  min-block-size: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.25rem, 3vw, 3rem);
+  padding: clamp(2rem, 5vw, 5rem) var(--page-gutter);
+}
+.launch h2 {
+  font-size: clamp(5rem, 12.15vw, 11rem);
+  font-weight: 500;
+  line-height: .9;
+  letter-spacing: -.065em;
+}
+.seed { inline-size: clamp(7.5rem, 12.5vw, 11.25rem); aspect-ratio: 18 / 13; background: #101110; flex: none; }
+.seed[data-placeholder="true"] { background: transparent; }
+.slot { inline-size: 100%; }
+.window { position: relative; color: var(--paper-ink); background: #101110; }
+.window[data-expanding="true"] { position: fixed; inset: 0 auto auto 0; z-index: 1; overflow: hidden; will-change: transform, width, height; }
+.world { inline-size: 100%; }
+.window[data-expanding="true"] .world { position: absolute; inset: 0 auto auto 0; will-change: transform; }
+.content { padding: clamp(3rem, 8vw, 8rem) var(--page-gutter) clamp(4rem, 10vw, 10rem); }
+.heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-block-end: clamp(2.5rem, 7vw, 7rem); }
+.heading h3 { max-inline-size: 12ch; font-size: clamp(2.5rem, 6vw, 6rem); font-weight: 450; line-height: .95; letter-spacing: -.065em; }
+.allLink { display: inline-flex; align-items: center; gap: .6rem; flex: none; min-block-size: 44px; font-size: .875rem; text-decoration: none; }
+.allLink svg { inline-size: 1.1rem; block-size: 1.1rem; }
+.grid { display: grid; grid-template-columns: 1fr .85fr; gap: clamp(3rem, 10vw, 10rem) clamp(2rem, 7vw, 7rem); align-items: start; }
+.card { min-inline-size: 0; }
+.card:nth-child(3) { inline-size: 85%; }
+.card:nth-child(4) { margin-inline-start: -17.65%; }
+.card > a { display: block; text-decoration: none; }
+.photo { position: relative; aspect-ratio: 1; overflow: hidden; background: #292c29; }
+.card:nth-child(2) .photo, .card:nth-child(3) .photo { aspect-ratio: 9 / 8; }
+.photo > img { object-fit: cover; }
+.caption, .hoverCaption { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.caption { padding-block: .85rem; overflow: hidden; transition: opacity 450ms ease, transform 700ms cubic-bezier(.16, 1, .3, 1); }
+.caption h4 { font-size: clamp(.9rem, 1.2vw, 1.05rem); font-weight: 480; letter-spacing: -.025em; }
+.caption svg, .hoverCaption svg { flex: none; inline-size: 20px; block-size: 20px; }
+.caption svg { color: inherit; }
+.hoverCaption { position: absolute; inset: auto 0 0; padding: 1rem 1.25rem; border-radius: var(--radius-control); font-size: .95rem; font-weight: 500; letter-spacing: -.025em; transform: translateY(100%); transition: transform 700ms cubic-bezier(.16, 1, .3, 1), inset 700ms cubic-bezier(.16, 1, .3, 1); }
+.hoverCaption span { transform: translateX(-3rem); transition: transform 700ms cubic-bezier(.16, 1, .3, 1); }
+.hoverCaption svg { color: inherit; transform: translateX(2.5rem); transition: transform 700ms cubic-bezier(.16, 1, .3, 1); }
+.card > a:focus-visible { outline: 2px solid #fcfaf5; outline-offset: 6px; }
+@media (hover: hover) and (pointer: fine) {
+  .card > a:is(:hover, :focus-visible) .hoverCaption { transform: translateY(0); inset: auto 1rem 1rem; }
+  .card > a:is(:hover, :focus-visible) .hoverCaption :is(span, svg) { transform: translateX(0); }
+  .card > a:is(:hover, :focus-visible) .caption { transform: translateY(-5.5rem); opacity: 0; }
+}
+@media (max-width: 760px) {
+  .launch { min-block-size: 60svh; gap: 1rem; }
+  .launch h2 { font-size: clamp(3rem, 13vw, 5rem); }
+  .seed { inline-size: clamp(4rem, 19vw, 7rem); }
+  .heading { align-items: start; gap: 1rem; }
+  .heading h3 { font-size: clamp(2.5rem, 9vw, 4rem); }
+  .allLink { font-size: .8rem; }
+  .grid { grid-template-columns: 1fr; gap: 2rem; }
+  .card:nth-child(n) { inline-size: 100%; margin: 0; }
+  .card:nth-child(n) .photo { aspect-ratio: 4 / 3; max-block-size: 65svh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launch { min-block-size: 50svh; }
+  .caption, .hoverCaption, .hoverCaption :is(span, svg) { transition: none; }
+}

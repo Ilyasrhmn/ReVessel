@@ -31,7 +31,9 @@ export default function FluidGlassLayer() {
   const zoneRef = useRef(null);
   const backdropFrameRef = useRef(null);
   const paintBackdrop = useCallback((context, viewport) => {
-    if (zoneRef.current) paintFluidScene(context, viewport, zoneRef.current);
+    if (zoneRef.current) {
+      paintFluidScene(context, viewport, zoneRef.current, () => backdropFrameRef.current?.());
+    }
   }, []);
 
   useEffect(() => {
@@ -52,7 +54,8 @@ export default function FluidGlassLayer() {
     function update() {
       frame = 0;
       const hit = insideWindow ? document.elementFromPoint(pointerX, pointerY) : null;
-      const zone = hit?.closest("[data-fluid-zone]");
+      const zone = hit?.closest("[data-fluid-zone]") ??
+        (hit?.closest("[data-fluid-hero-brand]") ? document.querySelector("#beranda[data-fluid-zone]") : null);
       const shouldShow = Boolean(zone);
       if (zone) zoneRef.current = zone;
       if (shouldShow !== visible) {

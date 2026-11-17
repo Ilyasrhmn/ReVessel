@@ -99,7 +99,9 @@ function PublicNavigation({ children, pathname }: { children: ReactNode; pathnam
       const story = document.getElementById("perjalanan")?.getBoundingClientRect();
       if (!nav) return;
       const center = nav.top + nav.height / 2;
-      const overStory = story && story.top <= center && story.bottom > center;
+      const gallery = document.querySelector("[data-paper-window]")?.getBoundingClientRect();
+      const overStory = (story && story.top <= center && story.bottom > center) ||
+        (gallery && gallery.top <= center && gallery.bottom > center);
       const overHero =
         hero && hero.top <= center && hero.bottom > Math.max(center, hero.height * 0.25);
       setNavTone(overStory || (overHero && window.innerWidth > 760) ? "dark" : "light");
@@ -191,6 +193,7 @@ function PublicNavigation({ children, pathname }: { children: ReactNode; pathnam
           onSectionNavigate={onSectionNavigate}
           className={styles.brand}
           aria-label="ReVessel, beranda"
+          data-fluid-hero-brand={home ? "" : undefined}
         >
           <BrandLogo />
         </SectionLink>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import styles from "./landing.module.css";
 import glass from "./ui/liquid-glass.module.css";
 import { moveGlassLight } from "./ui/glass-light";
@@ -13,7 +13,8 @@ import NewTabLink from "./ui/new-tab-link";
 import { BrandPreview } from "./ui/brand-story";
 import { useBottleGuide } from "./ui/site-navigation";
 import Link from "next/link";
-import { articles } from "./content";
+import PaperGallery from "./ui/paper-gallery/paper-gallery";
+import StickyArticles from "./ui/sticky-articles";
 import { bottleQuestions } from "./bottle-guide";
 import CollectionMap from "./ui/collection-map";
 
@@ -43,7 +44,7 @@ const chapters = [
   },
 ];
 
-export default function Landing({ points }: { points: ReactNode }) {
+export default function Landing() {
   const pageRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const storyRef = useRef<HTMLElement>(null);
@@ -101,7 +102,7 @@ export default function Landing({ points }: { points: ReactNode }) {
         </div>
         <div className={styles.heroShade} data-fluid-layer="shade" />
         <div className={styles.heroCopy} data-hero-copy="">
-          <h1 id="hero-title" data-fluid-layer="text">
+          <h1 id="hero-title">
             Pakai ulang
             <br />
             botol kacamu.
@@ -116,7 +117,7 @@ export default function Landing({ points }: { points: ReactNode }) {
             Cek botolmu
           </button>
         </div>
-        <div className={styles.wordmark} data-hero-wordmark="" data-fluid-layer="text" aria-hidden="true">
+        <div className={styles.wordmark} data-hero-wordmark="" aria-hidden="true">
           ReVessel
         </div>
       </section>
@@ -159,7 +160,7 @@ export default function Landing({ points }: { points: ReactNode }) {
       >
         <div ref={storyViewportRef} className={styles.storySticky} data-fluid-zone="story">
           <div className={styles.storyTop}>
-            <h2 id="story-title" data-fluid-layer="text">Perjalanan botol</h2>
+            <h2 id="story-title">Perjalanan botol</h2>
           </div>
           <div className={styles.storyVisual} data-fluid-layer="story">
             {chapters.map((item, index) => (
@@ -187,8 +188,8 @@ export default function Landing({ points }: { points: ReactNode }) {
                 key={item.detail}
                 className={`${styles.chapter} ${chapter === index ? styles.chapterActive : ""}`}
               >
-                <h3 data-fluid-layer="text">{item.title}</h3>
-                <p data-fluid-layer="text">{item.text}</p>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
                 {index === 0 && (
                   <button
                     className={`glass-button ${glass.surface} ${styles.storyButton}`}
@@ -215,9 +216,10 @@ export default function Landing({ points }: { points: ReactNode }) {
                 aria-current={index === chapter ? "step" : undefined}
                 onClick={() => jumpToChapter(index)}
               >
-                <span>0{index + 1}</span>
-                <span className={styles.track}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <span className={styles.track} data-fluid-layer="surface">
                   <span
+                    data-fluid-layer="surface"
                     style={
                       {
                         "--fill":
@@ -238,79 +240,8 @@ export default function Landing({ points }: { points: ReactNode }) {
         </div>
       </section>
 
-      <section
-        id="kemungkinan"
-        className={styles.possibilities}
-        aria-labelledby="possibilities-title"
-        tabIndex={-1}
-      >
-        <div className={`${styles.galleryHeading} page-shell`}>
-          <h2 id="possibilities-title">Botol & jar kaca</h2>
-          <NewTabLink
-            href="/galeri"
-            label="Lihat galeri"
-            className={`${styles.sectionLink} link-reveal`}
-          />
-        </div>
-        <div
-          className={styles.gallery}
-          data-glass-scroll=""
-          data-lenis-prevent-horizontal=""
-          tabIndex={0}
-          role="region"
-          aria-label="Galeri material kaca, geser untuk melihat foto berikutnya"
-        >
-          <figure className={styles.galleryPrimary}>
-            <Link href="/galeri#botol-amber" className={styles.galleryLink}>
-              <div className={styles.galleryImage} data-scroll-image="">
-                <Image
-                  src="/images/amber-study.webp"
-                  alt=""
-                  fill
-                  sizes="(max-width: 760px) 86vw, 54vw"
-                />
-              </div>
-              <span>Botol amber</span>
-            </Link>
-          </figure>
-          <figure className={styles.gallerySecondary}>
-            <Link href="/galeri#jar-bening" className={styles.galleryLink}>
-              <div className={styles.galleryImage} data-scroll-image="">
-                <Image
-                  src="/images/galeri-kaca-bening.webp"
-                  alt=""
-                  fill
-                  sizes="(max-width: 760px) 86vw, 38vw"
-                />
-              </div>
-              <span>Botol & jar bening</span>
-            </Link>
-          </figure>
-        </div>
-      </section>
-
-      <section
-        id="artikel"
-        className={`${styles.articles} page-shell`}
-        aria-labelledby="articles-title"
-        tabIndex={-1}
-      >
-        <div className={styles.sectionHeading}>
-          <h2 id="articles-title">Artikel</h2>
-          <NewTabLink
-            href="/artikel"
-            label="Semua artikel"
-            className={styles.sectionLink}
-          />
-        </div>
-        <div className={styles.articleRows}>
-          {articles.map((article) => (
-            <Link key={article.slug} href={`/artikel/${article.slug}`}>
-              <h3>{article.title}</h3>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <PaperGallery />
+      <StickyArticles />
 
       <section
         id="panduan"
@@ -354,28 +285,11 @@ export default function Landing({ points }: { points: ReactNode }) {
         tabIndex={-1}
       >
         <h2 id="collection-title">Titik kumpul</h2>
-        <div className={styles.collectionList}>
-          <h3>Titik setoran ReVessel · Data contoh</h3>
-          {points}
-        </div>
-        <div className={styles.collectionMap}><CollectionMap /></div>
+        <CollectionMap />
       </section>
 
       <BrandPreview />
 
-      <section
-        id="kontak"
-        className={`${styles.contactSection} page-shell`}
-        aria-labelledby="contact-title"
-        tabIndex={-1}
-      >
-        <h2 id="contact-title">Kontak</h2>
-        <NewTabLink
-          href="/kontak"
-          label="Kirim masukan"
-          className={`${styles.sectionLink} link-reveal`}
-        />
-      </section>
 
       <footer className={styles.footer} data-fluid-zone="">
         <div className={styles.footerTop}>
@@ -384,7 +298,7 @@ export default function Landing({ points }: { points: ReactNode }) {
             <Icon kind="down" />
           </a>
         </div>
-        <h2 data-fluid-layer="text">
+        <h2>
           Cek botol
           <br />
           sebelum disetor

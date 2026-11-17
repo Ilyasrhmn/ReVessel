@@ -22,6 +22,8 @@
 }
 .header[data-home="true"] {
   position: absolute;
+  z-index: auto;
+  pointer-events: none;
   inset: 0 0 auto;
   padding-block: 2rem;
 }
@@ -31,6 +33,17 @@
   letter-spacing: -0.095em;
   text-decoration: none;
   line-height: 1;
+}
+.header[data-home="true"] .brand,
+.header[data-home="true"] .navigation {
+  pointer-events: auto;
+}
+.header[data-home="true"] .brand {
+  position: relative;
+  z-index: 14;
+}
+.header[data-home="true"] .navigation {
+  z-index: 20;
 }
 .navigation {
   position: fixed;

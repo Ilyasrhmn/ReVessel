@@ -1,0 +1,27 @@
+.section { position: relative; padding: clamp(4rem, 9vw, 9rem) var(--page-gutter) clamp(5rem, 12vw, 12rem); }
+.layout { --pin-top: clamp(6rem, 14svh, 10rem); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 7vw, 8rem); align-items: start; }
+.track { display: flex; flex-direction: column; gap: 1.25rem; padding-block-end: 5rem; }
+.card { position: sticky; top: var(--pin-top); display: block; block-size: clamp(17rem, 40svh, 24rem); background: #efefeb; border: 1px solid #d3d5d2; border-radius: var(--radius-panel); transform-origin: center top; text-decoration: none; }
+.face { position: relative; display: grid; grid-template-rows: auto 1fr; gap: 1.5rem; block-size: 100%; padding: clamp(1.25rem, 2.5vw, 2rem); overflow: hidden; border-radius: inherit; }
+.face h3 { max-inline-size: 20ch; padding-inline-end: 1.5rem; font-size: clamp(1.2rem, 1.8vw, 1.65rem); font-weight: 520; letter-spacing: -.035em; line-height: 1.2; }
+.photo { position: relative; min-block-size: 0; margin-inline-end: 3rem; border-radius: .5rem; overflow: hidden; }
+.photo img { object-fit: cover; }
+.arrow { position: absolute; inset: auto 1.5rem 1.5rem auto; inline-size: 1.5rem; block-size: 1.5rem; }
+.card:last-child { color: #f7f7f5; background: #202124; border-color: #202124; }
+.moreArrow { justify-self: end; align-self: end; inline-size: clamp(3rem, 7vw, 6rem); block-size: clamp(3rem, 7vw, 6rem); stroke-width: 1; }
+.heading { position: sticky; top: calc(var(--pin-top) + 4svh); display: flex; flex-direction: column; align-items: end; gap: 1.5rem; text-align: right; }
+.heading h2 { font-size: clamp(2.5rem, 4.8vw, 5rem); font-weight: 450; line-height: 1.03; letter-spacing: -.06em; }
+.label { order: -1; font-size: .875rem; color: var(--color-muted); }
+.card:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 5px; z-index: 5; transform: none !important; }
+.card:focus-visible .face { opacity: 1 !important; }
+@media (max-width: 760px) {
+  .layout { --pin-top: 1.5rem; grid-template-columns: 1fr; gap: 2rem; }
+  .heading { order: -1; position: relative; top: auto; align-items: start; gap: .75rem; text-align: left; }
+  .heading h2 { font-size: clamp(2.5rem, 10vw, 4rem); }
+  .card { block-size: clamp(17rem, 42svh, 22rem); }
+  .track { padding-block-end: 1rem; }
+}
+@media (prefers-reduced-motion: reduce), (max-height: 550px) {
+  .card, .heading { position: relative; top: auto; }
+  .track { padding-block-end: 0; }
+}
