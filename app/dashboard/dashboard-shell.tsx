@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { BrandSymbol } from "../ui/brand-logo";
 import NavBubble from "../ui/nav-bubble";
 import SessionSubmit from "../ui/session-submit";
-import { logout } from "../session-actions";
+import { logoutAccount } from "@/lib/browser/storage";
 import styles from "./dashboard.module.css";
 
 export type DashboardLink = {
@@ -21,7 +21,7 @@ export type DashboardLink = {
 };
 
 export default function DashboardShell({
-  view, title, homeHref, profile, items, shortcuts, activity, primaryAction, dockAction, overlay, children,
+  view, title, homeHref, profile, items, shortcuts, activity, primaryAction, dockAction, overlay, demo, children,
 }: {
   view: string;
   title: string;
@@ -33,9 +33,11 @@ export default function DashboardShell({
   primaryAction?: ReactNode;
   dockAction?: ReactNode;
   overlay?: ReactNode;
+  demo?: boolean;
   children: ReactNode;
 }) {
   const [dark, setDark] = useState(false);
+  const [logoutError, setLogoutError] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const accountRef = useRef<HTMLDetailsElement>(null);
@@ -101,9 +103,14 @@ export default function DashboardShell({
             <summary className={styles.avatar} aria-label="Akun"><UserRound aria-hidden="true" /></summary>
             <div className={styles.accountMenu}>
               <p>{profile.name}</p>
-              <form action={logout}>
+              <form action={async () => {
+                setLogoutError(false);
+                try { await logoutAccount(); }
+                catch { setLogoutError(true); }
+              }}>
                 <SessionSubmit idle="Keluar" pending="Sedang keluar…" icon={<LogOut aria-hidden="true" />} />
               </form>
+              {logoutError && <p role="alert">Sesi gagal diakhiri. Coba lagi.</p>}
             </div>
           </details>
         </div>
@@ -134,7 +141,7 @@ export default function DashboardShell({
       <main id="main" className={styles.main} tabIndex={-1}>
         <header className={styles.header}>
           <h1 ref={titleRef} tabIndex={-1}>{title}</h1>
-          <Badge className={styles.roleBadge} variant="outline">{profile.role}</Badge>
+          <Badge className={styles.roleBadge} variant="outline">{profile.role}{demo ? " · Data contoh" : ""}</Badge>
         </header>
         <div key={view} className={styles.appear}>{children}</div>
       </main>

@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { MapPin, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { chooseFulfillment } from "./deposit-actions";
+import { chooseFulfillment } from "@/lib/browser/deposits";
 import type { FulfillmentMethod } from "./deposit-store";
 import styles from "./dashboard.module.css";
 
@@ -43,15 +43,15 @@ export default function DepositFulfillment({ code }: { code: string }) {
       </fieldset>
       {method === "pickup" && (
         <div className={`${styles.fields} ${styles.appear}`}>
-          <label className={styles.field}>Alamat penjemputan
+          <label className={styles.field}>Alamat penjemputan contoh
             <textarea name="address" required minLength={10} maxLength={400} rows={2} autoComplete="street-address" />
           </label>
-          <label className={styles.field}>Nomor HP
+          <label className={styles.field}>Nomor HP contoh
             <input name="phone" type="tel" required maxLength={24} autoComplete="tel" />
           </label>
           <label className={styles.check}>
             <input type="checkbox" name="share" required />
-            <span>Bagikan alamat dan nomor HP ke operator untuk penjemputan ini.</span>
+            <span>Gunakan data contoh untuk simulasi penjemputan.</span>
           </label>
         </div>
       )}

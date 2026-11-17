@@ -1,8 +1,9 @@
 "use client";
 
+import { createBrowserId } from "@/lib/browser/id";
 import { useActionState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { addReward, handOverReward, type RewardActionState } from "../reward-actions";
+import { addReward, handOverReward, type RewardActionState } from "@/lib/browser/rewards";
 import styles from "../dashboard.module.css";
 
 const empty: RewardActionState = {};
@@ -15,7 +16,7 @@ function Feedback({ state }: { state: RewardActionState }) {
 export function PublishRewardForm() {
   const request = useRef("");
   const [state, submit, pending] = useActionState(async (_: RewardActionState, form: FormData) => {
-    request.current ||= crypto.randomUUID();
+    request.current ||= createBrowserId();
     try {
       const result = await addReward(request.current, form);
       if (result.message) request.current = "";

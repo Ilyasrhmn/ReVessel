@@ -1,4 +1,4 @@
-const sectionIds = ["ringkasan", "setoran", "poin", "titik-kumpul", "panduan", "pemeriksaan"] as const;
+const sectionIds = ["ringkasan", "setoran", "poin", "titik-kumpul", "panduan"] as const;
 export type DashboardSection = (typeof sectionIds)[number];
 
 export function dashboardSection(value: unknown): DashboardSection {

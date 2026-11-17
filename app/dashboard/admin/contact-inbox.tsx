@@ -1,10 +1,9 @@
-import { readContactMessages } from "@/lib/server/contact";
+import type { ContactMessage } from "@/lib/browser/data";
 import styles from "../dashboard.module.css";
 
 const date = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" });
 
-export default async function ContactInbox() {
-  const messages = await readContactMessages();
+export default function ContactInbox({ messages }: { messages: ContactMessage[] }) {
   return (
     <section className={styles.panel} aria-labelledby="inbox-title">
       <h2 id="inbox-title">Pesan terbaru</h2>
@@ -14,7 +13,7 @@ export default async function ContactInbox() {
             <li key={message.id}>
               <details>
                 <summary className={styles.row}>
-                  <span><strong>{message.name}</strong><small>{date.format(message.sentAt)}</small></span>
+                  <span><strong>{message.name}</strong><small>{date.format(new Date(message.sentAt))}</small></span>
                   <span className={styles.expand} aria-hidden="true" />
                 </summary>
                 <div className={styles.detail}>

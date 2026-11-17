@@ -32,9 +32,8 @@ yarn-error.log*
 .pnpm-debug.log*
 *.log
 
-# env files (can opt-in for committing if needed)
+# local environment files
 .env*
-!.env.example
 
 # vercel
 .vercel
@@ -60,6 +59,3 @@ next-env.d.ts
 [Ss][Yy][Ss][Tt][Ee][Mm].md
 *[Pp][Rr][Oo][Mm][Pp][Tt]*.md
 *[Pp][Rr][Oo][Mm][Pp][Tt]*.txt
-
-# generated Prisma client
-/apps/web/server/generated/

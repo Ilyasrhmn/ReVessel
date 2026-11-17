@@ -1,9 +1,10 @@
 "use client";
 
+import { createBrowserId } from "@/lib/browser/id";
 import { useRef, useState, type FormEvent } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { sendContactMessage } from "./contact-action";
+import { sendContactMessage } from "@/lib/browser/contact";
 import styles from "./contact.module.css";
 
 export default function ContactForm() {
@@ -15,7 +16,7 @@ export default function ContactForm() {
     event.preventDefault();
     if (pending) return;
     const form = event.currentTarget;
-    request.current ||= crypto.randomUUID();
+    request.current ||= createBrowserId();
     setFeedback({});
     setPending(true);
     try {
@@ -26,7 +27,7 @@ export default function ContactForm() {
         request.current = "";
       }
     } catch {
-      setFeedback({ error: "Koneksi terputus. Coba kirim lagi." });
+      setFeedback({ error: "Pesan gagal disimpan. Coba lagi." });
     } finally {
       setPending(false);
     }
@@ -40,7 +41,7 @@ export default function ContactForm() {
       <label hidden>Situs web<input name="website" tabIndex={-1} autoComplete="off" /></label>
       <Button type="submit" disabled={pending}><Send aria-hidden="true" />{pending ? "Mengirim…" : "Kirim pesan"}</Button>
       {feedback.error && <p role="alert">{feedback.error}</p>}
-      {feedback.success && <p role="status">Pesanmu sudah terkirim ke tim ReVessel.</p>}
+      {feedback.success && <p role="status">Pesan tersimpan di kotak masuk demo pada browser ini.</p>}
     </form>
   );
 }

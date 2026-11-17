@@ -1,9 +1,11 @@
 "use client";
 
+import { createBrowserId } from "@/lib/browser/id";
 import Link from "next/link";
+import { demoResident } from "@/lib/browser/data";
 import { useSearchParams } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
-import { BookOpen, Boxes, CircleHelp, ClipboardCheck, Gift, History, MapPin, Plus, Search, X } from "lucide-react";
+import { BookOpen, Boxes, CircleHelp, Gift, History, MapPin, Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,9 +14,8 @@ import CollectionMap from "../ui/collection-map";
 import { bottleChecklist, bottleQuestions } from "../bottle-guide";
 import { maxBottles, type CollectionPoint } from "../deposit-options";
 import { fulfillmentLabels, statusLabels, type Deposit } from "./deposit-store";
-import { cancelDeposit as cancelOnServer, createDeposit } from "./deposit-actions";
+import { cancelDeposit as cancelOnServer, createDeposit } from "@/lib/browser/deposits";
 import DashboardShell from "./dashboard-shell";
-import DepositReview from "./deposit-review";
 import DepositFulfillment from "./deposit-fulfillment";
 import ResidentRewards, { type ResidentRewardData } from "./resident-rewards";
 import styles from "./dashboard.module.css";
@@ -33,7 +34,6 @@ const sections = {
   "titik-kumpul": { label: "Titik kumpul", title: "Titik kumpul", icon: MapPin },
   poin: { label: "Poin & reward", title: "Poin & reward", icon: Gift },
   panduan: { label: "Panduan", title: "Panduan botol", icon: BookOpen },
-  pemeriksaan: { label: "Pemeriksaan", title: "Pemeriksaan setoran", icon: ClipboardCheck },
 } as const;
 
 const sectionKeys = Object.keys(sections) as DashboardSection[];
@@ -42,9 +42,8 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
   rewards: ResidentRewardData | null;
   deposits: Deposit[];
   points: CollectionPoint[];
-  profile: { name: string; role: "resident" | "reviewer" };
+  profile: { name: string; mode: "demo" | "account"; id: string };
 }) {
-  const isReviewer = profile.role === "reviewer";
   const requested = useSearchParams().get("bagian");
   const view = dashboardSection(requested);
   const [period, setPeriod] = useState<Period>(30);
@@ -59,11 +58,11 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
   const requestId = useRef("");
   const dialogRef = useRef<HTMLDialogElement>(null);
   function openDeposit() {
-    if (isReviewer || !points.length) return;
+    if (!points.length) return;
     setFormError("");
     setNewDeposit(null);
     setPointSlug(points.length === 1 ? points[0].slug : "");
-    requestId.current = crypto.randomUUID();
+    requestId.current = createBrowserId();
     dialogRef.current?.showModal();
   }
 
@@ -76,8 +75,8 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
     setSubmitting(true);
     try {
       const result = await createDeposit(form);
-      if (result.deposit) setNewDeposit(result.deposit);
-      else setFormError(result.error);
+      if ("deposit" in result && result.deposit) setNewDeposit(result.deposit);
+      else setFormError(result.error ?? "Pengajuan belum tersimpan.");
     } catch {
       setFormError("Setoran belum tersimpan. Coba lagi.");
     } finally {
@@ -103,20 +102,18 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
     }
   }
 
-  const items = sectionKeys.filter((section) => isReviewer ? !["ringkasan", "setoran", "poin"].includes(section) : section !== "pemeriksaan").map((section) => {
+  const items = sectionKeys.map((section) => {
     const { label, icon: Icon } = sections[section];
     return { id: section, href: dashboardHref(section), label, icon: <Icon aria-hidden="true" />, count: section === "setoran" ? deposits.length : undefined };
   });
   const shortcuts = [
-    isReviewer
-      ? { id: "pemeriksaan", href: dashboardHref("pemeriksaan"), label: "Cari kode setoran", icon: <Search aria-hidden="true" /> }
-      : { id: "ringkasan", href: dashboardHref("ringkasan"), label: "Ringkasan", icon: <Boxes aria-hidden="true" /> },
+    { id: "ringkasan", href: dashboardHref("ringkasan"), label: "Ringkasan", icon: <Boxes aria-hidden="true" /> },
     { id: "titik-kumpul", href: dashboardHref("titik-kumpul"), label: "Titik kumpul", icon: <MapPin aria-hidden="true" /> },
     { id: "panduan", href: dashboardHref("panduan"), label: "Panduan botol", icon: <CircleHelp aria-hidden="true" /> },
   ];
-  const canDeposit = !isReviewer && points.length > 0;
+  const canDeposit = points.length > 0;
 
-  const depositDialog = !isReviewer && (
+  const depositDialog = (
     <dialog ref={dialogRef} className={styles.dialog} aria-labelledby="create-title" onClose={() => setNotice("")}
       onCancel={(event) => { if (submitting) event.preventDefault(); }}>
       <button type="button" className={styles.close} aria-label="Tutup setoran" disabled={submitting} onClick={() => dialogRef.current?.close()}>
@@ -161,13 +158,14 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
 
   return (
     <DashboardShell
+      demo={profile.mode === "demo" || profile.id === demoResident.id}
       view={view}
       title={sections[view].title}
-      homeHref={dashboardHref(isReviewer ? "pemeriksaan" : "ringkasan")}
-      profile={{ name: profile.name, role: isReviewer ? "Petugas" : "Warga" }}
+      homeHref={dashboardHref("ringkasan")}
+      profile={{ name: profile.name, role: "Warga" }}
       items={items}
       shortcuts={shortcuts}
-      activity={isReviewer ? undefined : { href: dashboardHref("setoran"), label: "Lihat aktivitas setoran" }}
+      activity={{ href: dashboardHref("setoran"), label: "Lihat aktivitas setoran" }}
       primaryAction={canDeposit && <button type="button" onClick={openDeposit}><Plus aria-hidden="true" /> Buat setoran</button>}
       dockAction={canDeposit && (
         <Tooltip>
@@ -201,8 +199,6 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
             </div>
           </Card>
         </div>
-      ) : view === "pemeriksaan" && isReviewer ? (
-        points.length ? <DepositReview /> : <p className={styles.panel}>Akun ini belum ditugaskan ke titik kumpul yang aktif.</p>
       ) : (
         <>
           {view === "ringkasan" && <DepositAnalytics deposits={deposits} period={period} material={material} compare={compare} setPeriod={setPeriod} setMaterial={setMaterial} setCompare={setCompare} />}
@@ -228,7 +224,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
                           {deposit.reason && <p className={styles.reason}>{deposit.reason} Buat setoran baru setelah botol siap.</p>}
                           {deposit.approvalNote && <p className={styles.reason}>{deposit.approvalNote}</p>}
                           {deposit.method && <p>{fulfillmentLabels[deposit.method]}</p>}
-                          {deposit.status === "waiting" && deposit.method === "pickup" && <p>Operator akan menghubungimu untuk mengatur penjemputan.</p>}
+                          {deposit.status === "waiting" && deposit.method === "pickup" && <p>Permintaan penjemputan tersimpan di demo ini.</p>}
                           {deposit.status === "approved" && <DepositFulfillment code={deposit.code} />}
                           {["pending_approval", "approved", "waiting"].includes(deposit.status) && (
                             <div className={styles.detailActions}>
@@ -258,7 +254,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
                   <p>{point.address}</p>
                   <ul>{point.materials.map((material) => <li key={material}>{material}</li>)}</ul>
                 </div>
-              )) : <p className={styles.secondary}>{isReviewer ? "Belum ada titik kumpul aktif yang ditugaskan padamu." : "Belum ada titik kumpul aktif."}</p>}
+              )) : <p className={styles.secondary}>{"Belum ada titik kumpul aktif."}</p>}
               <Link href={dashboardHref("panduan")} className={`${styles.guideLink} link-reveal`}>
                 <BookOpen aria-hidden="true" />
                 <span>Panduan menyiapkan botol</span>

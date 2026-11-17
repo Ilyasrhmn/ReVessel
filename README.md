@@ -4,21 +4,14 @@ Platform penyetoran botol kaca agar dapat dipakai ulang atau didaur ulang.
 
 ## Pengembangan lokal
 
-Gunakan Node.js 22 LTS, npm, dan PostgreSQL. Buat `.env.local` dari `.env.example`, isi koneksi PostgreSQL dan secret autentikasi, lalu jalankan:
+Gunakan Node.js 22 LTS dan npm.
 
 ```sh
 npm ci
-npm run db:migrate
 npm run dev
 ```
 
-Buka [localhost:3000](http://localhost:3000).
-
-## Operasional
-
-- Daftarkan akun operator terpisah, lalu jalankan `npm run db:admin -- <email-operator>`.
-- Tambahkan titik setoran resmi dengan `npm run db:point -- <slug> "<nama>" "<alamat>" "<jenis kaca>"`.
-- Untuk produksi, gunakan PostgreSQL yang dapat diakses server, terapkan migrasi pada database tersebut, dan set `DATABASE_URL`, `BETTER_AUTH_SECRET`, serta `BETTER_AUTH_URL` sesuai domain deployment.
+Buka [localhost:3000](http://localhost:3000). Build menghasilkan situs statis di folder `out/`. Untuk membuat akun atau masuk dengan akun baru, buka situs melalui HTTPS atau localhost.
 
 ## Pemeriksaan
 

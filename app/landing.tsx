@@ -355,7 +355,7 @@ export default function Landing({ points }: { points: ReactNode }) {
       >
         <h2 id="collection-title">Titik kumpul</h2>
         <div className={styles.collectionList}>
-          <h3>Titik setoran ReVessel</h3>
+          <h3>Titik setoran ReVessel · Data contoh</h3>
           {points}
         </div>
         <div className={styles.collectionMap}><CollectionMap /></div>

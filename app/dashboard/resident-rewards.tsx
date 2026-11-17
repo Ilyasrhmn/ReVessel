@@ -1,12 +1,13 @@
 "use client";
 
+import { createBrowserId } from "@/lib/browser/id";
 import { useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import type { readResidentRewards } from "@/lib/server/rewards";
-import { redeemReward } from "./reward-actions";
+import type { residentRewards } from "@/lib/browser/selectors";
+import { redeemReward } from "@/lib/browser/rewards";
 import styles from "./dashboard.module.css";
 
-export type ResidentRewardData = Awaited<ReturnType<typeof readResidentRewards>>;
+export type ResidentRewardData = Awaited<ReturnType<typeof residentRewards>>;
 
 const format = new Intl.NumberFormat("id-ID");
 const dateFormat = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" });
@@ -20,7 +21,7 @@ export default function ResidentRewards({ data }: { data: ResidentRewardData }) 
   const [receipt, setReceipt] = useState("");
 
   function open(reward: NonNullable<typeof selected>) {
-    request.current = crypto.randomUUID();
+    request.current = createBrowserId();
     setSelected(reward);
     setError("");
     setReceipt("");

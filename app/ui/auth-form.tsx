@@ -1,22 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
-import { createAuthClient } from "better-auth/react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { currentProfile, enterDemo, loginAccount, registerAccount, useBrowserState } from "@/lib/browser/storage";
+import type { Role } from "@/lib/browser/data";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { dashboardHref, type DashboardSection } from "../dashboard/sections";
+import { dashboardHref, dashboardSection } from "../dashboard/sections";
 import styles from "../dashboard/dashboard.module.css";
 
-const client = createAuthClient();
-
-export default function AuthForm({ mode, section }: { mode: "login" | "register"; section: DashboardSection }) {
+export default function AuthForm({ mode }: { mode: "login" | "register" }) {
+  const section = dashboardSection(useSearchParams().get("bagian"));
+  const router = useRouter();
+  const state = useBrowserState();
+  const user = state && state !== "unavailable" ? currentProfile(state) : null;
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [visible, setVisible] = useState(false);
   const registering = mode === "register";
   const destination = dashboardHref(section);
   const query = section === "ringkasan" ? "" : `?bagian=${section}`;
+
+  useEffect(() => {
+    if (user?.role) router.replace(user.role === "admin" ? "/dashboard/admin" : destination);
+  }, [destination, router, user?.role]);
+
+  async function demo(role: Role) {
+    if (pending) return;
+    setPending(true);
+    setError("");
+    try {
+      await enterDemo(role);
+    } catch {
+      setError("Izinkan penyimpanan browser untuk memulai demo.");
+      setPending(false);
+    }
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,25 +52,28 @@ export default function AuthForm({ mode, section }: { mode: "login" | "register"
     setError("");
     setPending(true);
     try {
-      const result = registering
-        ? await client.signUp.email({ name, email, password })
-        : await client.signIn.email({ email, password });
-      if (!result.error) {
-        window.location.replace(destination);
-        return;
-      }
-      if (result.error.status === 429) setError("Terlalu banyak percobaan. Tunggu sebentar sebelum mencoba lagi.");
-      else if (result.error.status >= 500) setError("Layanan akun sedang tidak tersedia. Coba lagi nanti.");
-      else if (registering) setError("Akun belum bisa dibuat. Periksa email dan kata sandi, atau masuk jika sudah terdaftar.");
-      else setError("Email atau kata sandi salah. Periksa lagi dan coba masuk.");
+      const result = registering ? await registerAccount(name, email, password) : await loginAccount(email, password);
+      if ("role" in result) return;
+      setError(result.error ?? "Akun belum bisa dibuka.");
     } catch {
-      setError("Koneksi terputus. Coba lagi saat internet tersedia.");
+      setError("Akun gagal dibuka. Periksa penyimpanan browser dan coba lagi.");
     }
     setPending(false);
   }
 
   return (
     <>
+      {!registering && (
+        <section className={styles.demoLogin} aria-labelledby="demo-login-title">
+          <h2 id="demo-login-title">Coba Demo</h2>
+          <div className={styles.detailActions}>
+            <Button type="button" variant="outline" disabled={pending} onClick={() => demo("admin")}>Demo sebagai Admin</Button>
+            <Button type="button" variant="outline" disabled={pending} onClick={() => demo("resident")}>Demo sebagai Warga</Button>
+          </div>
+        </section>
+      )}
+      {!registering && <h2>Masuk dengan akun</h2>}
+      <p className={styles.secondary}>Gunakan email dan kata sandi contoh.</p>
       <form className={styles.authForm} onSubmit={submit}>
         {registering && (
           <label className={styles.field}>

@@ -68,7 +68,7 @@ export function useBottleGuide() {
 }
 
 export default function SiteNavigation({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
+  const pathname = usePathname().replace(/\/$/, "") || "/";
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/") || pathname === "/masuk" || pathname === "/daftar") return children;
   return <PublicNavigation pathname={pathname}>{children}</PublicNavigation>;
 }

@@ -4,37 +4,37 @@ import { useState, type FormEvent } from "react";
 import { Check, Search, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { adjustmentReasons, fulfillmentLabels, statusLabels, type Deposit, type PickupDetails } from "./deposit-store";
-import { decideApproval, lookupDeposit, submitReview } from "./deposit-actions";
+import { adjustmentReasons, fulfillmentLabels, statusLabels, type Deposit } from "./deposit-store";
+import type { Workspace } from "@/lib/browser/data";
+import { reviewDetails } from "@/lib/browser/selectors";
+import { decideApproval, lookupDeposit, submitReview } from "@/lib/browser/deposits";
 import styles from "./dashboard.module.css";
 
 
-export default function DepositReview({ initial, compact }: {
-  initial?: { deposit: Deposit; pickup: PickupDetails | null } | null;
+export default function DepositReview({ initialCode, workspace, compact }: {
+  initialCode?: string | null;
+  workspace: Workspace;
   compact?: boolean;
 }) {
-  const [code, setCode] = useState(initial?.deposit.code ?? "");
-  const [deposit, setDeposit] = useState<Deposit | null>(initial?.deposit ?? null);
-  const [pickup, setPickup] = useState<PickupDetails | null>(initial?.pickup ?? null);
+  const [code, setCode] = useState(initialCode ?? "");
+  const [selectedCode, setSelectedCode] = useState(initialCode ?? null);
+  const result = selectedCode ? reviewDetails(workspace, selectedCode) : null;
+  const deposit = result?.deposit;
+  const pickup = result?.pickup;
   const [notice, setNotice] = useState("");
   const [pending, setPending] = useState(false);
 
-  async function search(event: FormEvent<HTMLFormElement>) {
+  function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pending) return;
     setNotice("");
-    setDeposit(null);
-    setPickup(null);
-    setPending(true);
+    setSelectedCode(null);
     try {
-      const result = await lookupDeposit(code.trim().toUpperCase());
-      if ("deposit" in result) {
-        setDeposit(result.deposit);
-        setPickup(result.pickup);
-      } else setNotice(result.error);
+      const result = lookupDeposit(code.trim().toUpperCase());
+      if ("deposit" in result) setSelectedCode(result.deposit.code);
+      else setNotice(result.error);
     } catch {
       setNotice("Pencarian belum selesai. Coba lagi.");
-    } finally {
-      setPending(false);
     }
   }
 
@@ -47,10 +47,9 @@ export default function DepositReview({ initial, compact }: {
     setPending(true);
     try {
       const result = await decideApproval(item.code, form);
-      if (result.deposit) {
-        setDeposit(result.deposit);
+      if ("deposit" in result && result.deposit) {
         setNotice("Keputusan tersimpan.");
-      } else setNotice(result.error);
+      } else setNotice(result.error ?? "Setoran belum dapat diproses.");
     } catch {
       setNotice("Keputusan belum dapat dikonfirmasi. Coba lagi.");
     } finally {
@@ -65,11 +64,9 @@ export default function DepositReview({ initial, compact }: {
     setPending(true);
     try {
       const result = await submitReview(item.code, form);
-      if (result.deposit) {
-        setDeposit(result.deposit);
-        setPickup(null);
+      if ("deposit" in result && result.deposit) {
         setNotice("Hasil pemeriksaan tersimpan.");
-      } else setNotice(result.error);
+      } else setNotice(result.error ?? "Setoran belum dapat diproses.");
     } catch {
       setNotice("Pemeriksaan belum tersimpan. Coba lagi.");
     } finally {
@@ -88,7 +85,7 @@ export default function DepositReview({ initial, compact }: {
               <Search aria-hidden="true" />
               <input required maxLength={11} autoComplete="off" spellCheck={false}
                 placeholder="RV-XXXXXXXX" value={code} disabled={pending}
-                onChange={(event) => { setCode(event.target.value); setDeposit(null); setNotice(""); }} />
+                onChange={(event) => { setCode(event.target.value); setSelectedCode(null); setNotice(""); }} />
             </span>
           </label>
           <Button type="submit" className={styles.action} disabled={pending}>Cari setoran</Button>
