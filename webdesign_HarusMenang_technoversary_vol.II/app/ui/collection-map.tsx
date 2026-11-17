@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { LatLngTuple, Map as LeafletMap } from "leaflet";
 import { collectionDirectory } from "../collection-directory";
 import "leaflet/dist/leaflet.css";
@@ -16,27 +16,21 @@ function popupContent(point: DirectoryEntry) {
   content.className = styles.popupContent;
   const name = document.createElement("strong");
   const area = document.createElement("p");
-  const contact = document.createElement("p");
   name.textContent = point.name;
   area.textContent = point.area;
-  contact.textContent = point.contact;
 
   const email = document.createElement("a");
-  email.href = `mailto:${point.email}`;
-  email.textContent = point.email;
-  const source = document.createElement("a");
-  source.href = point.source;
-  source.textContent = "Sumber lokasi ↗";
-  source.target = "_blank";
-  source.rel = "noopener";
-  source.setAttribute("aria-label", "Sumber lokasi (buka di tab baru)");
-  content.append(name, area, contact, email, source);
+  email.href = "mailto:" + point.email;
+  email.className = "link-reveal";
+  const label = document.createElement("span");
+  label.textContent = "Hubungi kelurahan";
+  email.append(label);
+  email.setAttribute("aria-label", "Hubungi " + point.contact + " lewat email");
+  content.append(name, area, email);
   return content;
 }
 
 export default function CollectionMap() {
-  const titleId = useId();
-  const captionId = useId();
   const mapContainer = useRef<HTMLDivElement>(null);
   const [mapState, setMapState] = useState<MapState>("loading");
 
@@ -129,21 +123,22 @@ export default function CollectionMap() {
   }, []);
 
   return (
-    <section className={styles.directory} aria-labelledby={titleId}>
-      <h3 id={titleId}>Rujukan bank sampah</h3>
-      <div className={styles.mapFrame}>
-        <div
-          ref={mapContainer}
-          className={styles.map}
-          role="region"
-          aria-label="Peta bank sampah Jogja dan Sleman"
-          aria-describedby={captionId}
-        />
-        {mapState === "unavailable" && (
-          <p className={styles.mapNotice} role="status">Peta dasar belum termuat.</p>
-        )}
-      </div>
-      <p id={captionId}>Pin menunjukkan area. Hubungi kelurahan untuk memastikan lokasi dan penerimaan kaca.</p>
-    </section>
+    <div className={styles.mapBlock}>
+    <div className={styles.mapFrame}>
+      <div
+        ref={mapContainer}
+        className={styles.map}
+        role="region"
+        aria-label="Peta bank sampah Jogja dan Sleman, lokasi perkiraan"
+      />
+      {mapState === "unavailable" && (
+        <p className={styles.mapNotice} role="status">Peta dasar belum termuat.</p>
+      )}
+    </div>
+    <div className={styles.mapInfo}>
+      <h3>Lihat lokasi sebelum setor</h3>
+      <p>Pilih pin pada peta untuk melihat alamat dan kontak titik kumpul.</p>
+    </div>
+    </div>
   );
 }
