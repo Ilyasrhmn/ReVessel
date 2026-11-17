@@ -154,7 +154,7 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
 
         {!registering && (
           <section className={styles.demo} aria-labelledby="demo-login-title">
-            <h2 id="demo-login-title">Akses lokal</h2>
+            <h2 id="demo-login-title">Masuk cepat</h2>
             <div className={styles.demoActions}>
               <Button type="button" variant="outline" onClick={() => demo("admin")}>
                 Lanjut sebagai Admin

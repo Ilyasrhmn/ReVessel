@@ -30,6 +30,7 @@ function refreshStoredLabels(workspace: Workspace) {
   }
   const message = workspace.messages.find(({ id }) => id === "pesan-contoh");
   if (message?.name === "Warga Contoh") message.name = "Warga ReVessel";
+  if (message?.email === "warga@example.test") message.email = "user@revessel.com";
 }
 
 export function readState(): BrowserState {

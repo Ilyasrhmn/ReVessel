@@ -74,7 +74,7 @@ function seed(now: number): Workspace {
       { code: "RW-A00000000002", owner: demoResident.id, rewardId: rewards[1].id, cost: 8, createdAt: ago(5), fulfilled: true },
     ],
     messages: [
-      { id: "pesan-contoh", name: "Warga ReVessel", email: "warga@example.test", body: "Apakah tutup logam perlu dipisahkan sebelum botol disetor?", sentAt: ago(2) },
+      { id: "pesan-contoh", name: "Warga ReVessel", email: "user@revessel.com", body: "Apakah tutup logam perlu dipisahkan sebelum botol disetor?", sentAt: ago(2) },
     ],
   };
 }

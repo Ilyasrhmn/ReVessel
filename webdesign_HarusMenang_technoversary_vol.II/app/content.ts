@@ -101,7 +101,7 @@ export const articles = [
       },
       {
         "title": "Bersihkan sebelum digunakan",
-        "text": "Kosongkan sisa isi, cuci, dan keringkan jar serta tutupnya. Untuk contoh penggunaan di artikel ini, jar dimanfaatkan sebagai tempat barang nonpangan. Kelompokkan isi berdasarkan fungsi agar mudah ditemukan."
+        "text": "Kosongkan sisa isi, cuci, dan keringkan jar serta tutupnya. Gunakan jar sebagai tempat barang nonpangan. Kelompokkan isi berdasarkan fungsi agar mudah ditemukan."
       },
       {
         "title": "Salurkan wadah yang belum terpakai",
