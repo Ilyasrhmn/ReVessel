@@ -13,14 +13,18 @@ const links = [
 export default function SiteFrame({
   title,
   children,
+  mainClassName = "",
+  titleClassName = "",
 }: {
   title: string;
   children: ReactNode;
+  mainClassName?: string;
+  titleClassName?: string;
 }) {
   return (
     <>
-      <main id="main" tabIndex={-1} className={`${styles.main} page-shell`}>
-        <h1 className={styles.title}>{title}</h1>
+      <main id="main" tabIndex={-1} className={`${styles.main} page-shell ${mainClassName}`}>
+        <h1 className={`${styles.title} ${titleClassName}`}>{title}</h1>
         {children}
       </main>
       <footer className={`${styles.footer} page-shell`}>

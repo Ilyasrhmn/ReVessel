@@ -11,12 +11,13 @@ export default function ContactInbox({ messages }: { messages: ContactMessage[] 
         <ul className={styles.history}>
           {messages.map((message) => (
             <li key={message.id}>
-              <details>
+              <details name="contact-messages">
                 <summary className={styles.row}>
                   <span><strong>{message.name}</strong><small>{date.format(new Date(message.sentAt))}</small></span>
                   <span className={styles.expand} aria-hidden="true" />
                 </summary>
                 <div className={styles.detail}>
+                  {message.subject && <strong>{message.subject}</strong>}
                   <p className={styles.contactMessage}>{message.body}</p>
                   <a href={`mailto:${encodeURIComponent(message.email).replace("%40", "@")}`} className="link-reveal">
                     <span>Balas lewat email</span>

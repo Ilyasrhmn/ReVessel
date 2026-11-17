@@ -2,7 +2,6 @@
 
 import { createBrowserId } from "@/lib/browser/id";
 import { useRef, useState, type FormEvent } from "react";
-import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { sendContactMessage } from "@/lib/browser/contact";
 import styles from "./contact.module.css";
@@ -35,13 +34,16 @@ export default function ContactForm() {
 
   return (
     <form className={styles.form} onSubmit={submit}>
-      <label>Nama<input name="name" required maxLength={80} autoComplete="name" /></label>
-      <label>Email<input name="email" type="email" required maxLength={254} autoComplete="email" /></label>
+      <div className={styles.row}>
+        <label>Nama<input name="name" required maxLength={80} autoComplete="name" /></label>
+        <label>Email<input name="email" type="email" required maxLength={254} autoComplete="email" /></label>
+      </div>
+      <label>Subjek<input name="subject" required maxLength={120} /></label>
       <label>Pesan<textarea name="message" required minLength={10} maxLength={2000} rows={5} /></label>
       <label hidden>Situs web<input name="website" tabIndex={-1} autoComplete="off" /></label>
-      <Button type="submit" disabled={pending}><Send aria-hidden="true" />{pending ? "Mengirim…" : "Kirim pesan"}</Button>
+      <Button type="submit" className={styles.submit} disabled={pending}>{pending ? "Mengirim…" : "Kirim pesan"}</Button>
       {feedback.error && <p role="alert">{feedback.error}</p>}
-      {feedback.success && <p role="status">Pesan tersimpan di kotak masuk demo pada browser ini.</p>}
+      {feedback.success && <p role="status">Pesan tersimpan di browser ini.</p>}
     </form>
   );
 }

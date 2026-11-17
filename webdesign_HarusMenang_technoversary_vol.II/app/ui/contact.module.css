@@ -1,0 +1,79 @@
+.page.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-block-size: calc(100svh - 12rem);
+  gap: clamp(1.75rem, 5vh, 3rem);
+  padding-block: clamp(2.5rem, 7vh, 5rem);
+}
+
+.page .title {
+  max-inline-size: none;
+  margin: 0;
+  font-size: clamp(3rem, 6vw, 4rem);
+  font-weight: 720;
+  line-height: 1;
+  text-align: center;
+}
+
+@media (max-width: 36rem) {
+  .page.page { min-block-size: auto; }
+}
+
+.form {
+  display: grid;
+  gap: clamp(1rem, 2.5vh, 1.5rem);
+  inline-size: min(100%, 36rem);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: inherit;
+}
+
+.form label:not([hidden]) {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  font-size: .75rem;
+  font-weight: 680;
+  letter-spacing: .085em;
+  text-transform: uppercase;
+}
+
+.form :is(input, textarea) {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 3rem;
+  padding: .7rem var(--space-4);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.form :is(input, textarea):is(:hover, :focus-visible) { border-color: var(--color-muted); }
+.form textarea { resize: vertical; }
+
+.form .submit {
+  inline-size: 100%;
+  min-block-size: 3.25rem;
+  border-radius: var(--radius-control);
+  font-weight: 650;
+  letter-spacing: .035em;
+}
+
+.form p { margin: 0; color: var(--color-muted); font-size: var(--type-caption); }
+.form [role="alert"] { color: var(--color-error); }
+
+@media (max-width: 36rem) {
+  .row { grid-template-columns: minmax(0, 1fr); }
+}
