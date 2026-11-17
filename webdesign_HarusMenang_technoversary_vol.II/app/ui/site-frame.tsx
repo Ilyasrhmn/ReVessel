@@ -27,18 +27,24 @@ export default function SiteFrame({
         <h1 className={`${styles.title} ${titleClassName}`}>{title}</h1>
         {children}
       </main>
-      <footer className={`${styles.footer} page-shell`}>
-        <Link href="/" className={styles.brand}>
-          <BrandLogo />
-        </Link>
-        <nav aria-label="Halaman situs">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href}>
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-      </footer>
+      <SiteFooter />
     </>
+  );
+}
+
+export function SiteFooter() {
+  return (
+    <footer className={`${styles.footer} page-shell`}>
+      <Link href="/" className={styles.brand}>
+        <BrandLogo />
+      </Link>
+      <nav aria-label="Halaman situs">
+        {links.map((link) => (
+          <Link key={link.href} href={link.href}>
+            {link.label}
+          </Link>
+        ))}
+      </nav>
+    </footer>
   );
 }

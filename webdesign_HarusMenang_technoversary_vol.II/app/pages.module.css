@@ -95,25 +95,13 @@
 .galleryGrid figure:nth-child(2) img {
   object-position: 50% 57%;
 }
-.galleryGrid figcaption {
+.galleryCaption {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: space-between;
   padding-top: 1rem;
   font-size: 0.85rem;
-}
-.credits {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 3rem;
-  font-size: 0.75rem;
-  color: var(--color-muted);
-}
-.credits a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 .articleList {
   display: grid;
@@ -272,3 +260,6 @@
     transform: none;
   }
 }
+
+.galleryLink { display: block; text-decoration: none; }
+.galleryLink:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 6px; }
