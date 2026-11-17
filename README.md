@@ -19,9 +19,9 @@ Bank sampah digital untuk menyalurkan botol dan jar kaca bekas agar bisa dipakai
 
 ## Masalah, solusi, dan pengguna
 
-Warga yang ingin menyetor botol kaca perlu tahu cara menyiapkan wadah, lokasi tujuan, dan kapan setoran bisa diserahkan. Saat botol utuh tercampur dengan kaca retak atau pecah, peluang pakai ulang berkurang. Di sisi lain, pengelola titik kumpul memerlukan informasi tentang jenis, jumlah, dan kondisi wadah sebelum menerimanya.
+Warga yang ingin menyetor botol kaca perlu tahu cara menyiapkan wadah, lokasi tujuan, dan kapan setoran bisa diserahkan. Saat botol utuh tercampur dengan kaca retak atau pecah, peluang pakai ulang berkurang. Pengelola titik kumpul memerlukan informasi tentang jenis, perkiraan berat, dan kondisi kaca sebelum menerimanya.
 
-Kami membuat ReVessel untuk menghubungkan panduan pemilahan, titik kumpul, dan pengajuan setoran dalam satu alur. Warga mengirim foto, jenis kaca, dan jumlah wadah. Admin meninjau foto dan memutuskan apakah pengajuan bisa dilanjutkan. Setelah disetujui, warga memilih antar sendiri atau penjemputan. Poin diberikan setelah admin memeriksa dan mencatat penerimaan setoran.
+Kami membuat ReVessel untuk menghubungkan panduan pemilahan, titik kumpul, dan pengajuan setoran dalam satu alur. Warga mengirim foto, jenis kaca, dan perkiraan berat dalam gram. Admin meninjau foto dan memutuskan apakah pengajuan bisa dilanjutkan. Setelah disetujui, warga memilih antar sendiri atau penjemputan. Poin diberikan berdasarkan berat bersih yang dicatat admin saat menerima setoran.
 
 ## Fitur yang diimplementasikan
 
@@ -29,7 +29,7 @@ Kami membuat ReVessel untuk menghubungkan panduan pemilahan, titik kumpul, dan p
 | --- | --- |
 | Panduan dan titik kumpul | Menjelaskan cara menyiapkan kaca dan menampilkan lokasi serta kontak pada pin peta. |
 | Artikel dan galeri | Menyediakan bacaan tentang pakai ulang dan daur ulang, serta halaman detail foto kegiatan. |
-| Pengajuan setoran | Warga memilih lokasi dan jenis kaca, memasukkan jumlah wadah, mengunggah foto, dan menerima kode untuk melacak setoran. |
+| Pengajuan setoran | Warga memilih lokasi dan jenis kaca, memasukkan perkiraan berat dalam gram, mengunggah foto, dan menerima kode untuk melacak setoran. |
 | Pemeriksaan admin | Admin mencari setoran berdasarkan kode, meninjau foto, menyetujui atau menolak pengajuan, lalu mencatat hasil pemeriksaan. |
 | Serah terima dan reward | Warga memilih cara serah terima setelah disetujui. Setoran yang diterima menambah poin yang bisa ditukar dengan reward. |
 | Kontak | Pengunjung mengisi form, lalu admin dapat membacanya di kotak masuk browser yang sama. |
@@ -43,11 +43,23 @@ Buka [halaman Masuk](https://revessel-ten.vercel.app/masuk/), lalu pilih **Lanju
 | Warga | `user@revessel.com` | `user123` |
 | Admin | `admin@revessel.com` | `admin123` |
 
-1. Sebagai warga, buat setoran, pilih titik kumpul dan jenis kaca, masukkan jumlah wadah, lalu unggah foto. Simpan kode setoran yang muncul.
+1. Sebagai warga, buat setoran, pilih titik kumpul dan jenis kaca, masukkan perkiraan berat dalam gram, lalu unggah foto. Simpan kode setoran yang muncul.
 2. Keluar dan masuk sebagai admin. Cari kode setoran, periksa foto, lalu setujui pengajuan.
 3. Kembali sebagai warga dan pilih antar sendiri atau penjemputan.
-4. Sebagai admin, buka kembali setoran dan catat penerimaannya setelah pemeriksaan.
+4. Sebagai admin, buka kembali setoran, masukkan berat bersih kaca dalam gram, lalu catat penerimaannya.
 5. Sebagai warga, buka **Poin & reward**. Jika saldo cukup, tukar poin dan berikan kode penukaran kepada admin untuk mencatat serah terima reward.
+
+## Nilai kaca dan pencairan
+
+Setoran kaca yang diterima dan ditimbang menghasilkan 1 poin per 100 gram. Warga bisa menukar 1.250 poin dengan Rp50.000, setara 125 kg kaca dengan acuan Rp400/kg. Dana bisa disimpan di saldo atau langsung diajukan pencairan bersama seluruh saldo yang tersedia. Minimum pencairan Rp50.000. Dana yang ditahan kembali ke saldo jika pengajuan ditolak atau dibatalkan. [Sumber tarif](https://trustation.id/index.php)
+
+Poin juga bisa ditukar dengan bibit cabai siap tanam (25 poin) atau stoples kaca rekondisi 250 ml (125 poin).
+
+Warga mengajukan pencairan di **Poin & reward**, lalu admin mencatat pencairan atau menolak pengajuan di **Reward**. Catatan tersimpan di browser. Transfer dana ditangani di luar aplikasi.
+
+Untuk mencoba alurnya, buka halaman **Masuk** dan pilih **Lanjut sebagai Warga**. Pada akun bawaan, tujuh penukaran senilai Rp350.000 dan tiga pencairan senilai Rp200.000 menyisakan saldo Rp150.000. Dengan 1.537 poin tersisa, warga bisa menukar 1.250 poin menjadi Rp50.000 dan menyimpannya atau mengajukan pencairan seluruh Rp200.000. Riwayat penukaran juga mencakup bibit dan stoples.
+
+Pada **Ringkasan**, rentang 30 hari menampilkan 21 setoran dengan berat bersih 297.200 g. Periode pembanding memuat 10 setoran dengan berat bersih 308.000 g. Gunakan filter jenis kaca atau ganti rentang tanggal untuk melihat perbandingan lain.
 
 ## Stack teknologi
 
