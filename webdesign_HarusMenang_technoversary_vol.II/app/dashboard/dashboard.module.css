@@ -952,6 +952,18 @@ details[open] > .row .expand {
   overflow-wrap: anywhere;
 }
 
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: end;
+  gap: .25rem .5rem;
+  border-block-start: 1px solid var(--dash-line);
+  padding-block-start: .75rem;
+}
+
+.pagination button { min-block-size: 44px; padding-inline: .625rem; }
+.pagination span { color: var(--dash-muted); font-size: .8125rem; font-variant-numeric: tabular-nums; }
 
 .rewardItem {
   display: flex;

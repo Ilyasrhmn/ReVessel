@@ -9,6 +9,7 @@ import { cashoutStatus, redeemCash, requestCashout, reviewCashout } from "@/lib/
 import { cashoutTotals } from "@/lib/browser/selectors";
 import { cashReward, minimumCashout, rupiah } from "@/lib/browser/glass-value";
 import styles from "./dashboard.module.css";
+import PaginatedList from "./paginated-list";
 
 const date = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" });
 
@@ -33,7 +34,7 @@ function CashoutList({ entries, isAdmin = false }: { entries: Cashout[]; isAdmin
   if (!entries.length) return <p className={styles.secondary}>Belum ada pengajuan pencairan.</p>;
   return (
     <>
-      <ul className={styles.activity}>
+      <PaginatedList className={styles.activity} label="riwayat pencairan">
         {entries.map((entry) => (
           <li className={styles.cashoutItem} key={entry.code}>
             <div className={styles.cashoutLine}>
@@ -58,7 +59,7 @@ function CashoutList({ entries, isAdmin = false }: { entries: Cashout[]; isAdmin
             )}
           </li>
         ))}
-      </ul>
+      </PaginatedList>
       {feedback && <p role="alert" className={styles.feedback}>{feedback}</p>}
     </>
   );
@@ -191,7 +192,7 @@ export function CashRewardRow({ points, balance, pending }: { points: number; ba
 export function AdminCashouts({ entries }: { entries: Cashout[] }) {
   const pending = entries.filter(({ status }) => status === "pending");
   const totals = cashoutTotals(entries);
-  const history = entries.filter(({ status }) => status !== "pending").slice(0, 25);
+  const history = entries.filter(({ status }) => status !== "pending");
   return (
     <section className={styles.panel} aria-labelledby="admin-cashouts">
       <div className={styles.cashoutHeading}>

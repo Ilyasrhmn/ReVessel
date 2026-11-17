@@ -23,6 +23,7 @@ import ResidentRewards, { type ResidentRewardData } from "./resident-rewards";
 import styles from "./dashboard.module.css";
 import DepositAnalytics from "./deposit-analytics";
 import BalanceSummary from "./balance-summary";
+import PaginatedList from "./paginated-list";
 import { dashboardHref, dashboardSection, type DashboardSection } from "./sections";
 
 const dateFormat = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" });
@@ -219,7 +220,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
             {view !== "titik-kumpul" && <Card role="region" className={styles.panel} aria-labelledby="history-title">
               <h2 id="history-title">Riwayat setoran</h2>
               {deposits.length ? (
-                <ul className={styles.history}>
+                <PaginatedList className={styles.history} label="riwayat setoran">
                   {deposits.map((deposit) => (
                     <li key={deposit.code}>
                       <details name="resident-deposits">
@@ -255,7 +256,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
                       </details>
                     </li>
                   ))}
-                </ul>
+                </PaginatedList>
               ) : (
                 <div className={styles.empty}>
                   <h3>Belum ada setoran</h3>

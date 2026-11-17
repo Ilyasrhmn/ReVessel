@@ -1,5 +1,6 @@
 import type { ContactMessage } from "@/lib/browser/data";
 import styles from "../dashboard.module.css";
+import PaginatedList from "../paginated-list";
 
 const date = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" });
 
@@ -8,7 +9,7 @@ export default function ContactInbox({ messages }: { messages: ContactMessage[] 
     <section className={styles.panel} aria-labelledby="inbox-title">
       <h2 id="inbox-title">Pesan terbaru</h2>
       {messages.length ? (
-        <ul className={styles.history}>
+        <PaginatedList className={styles.history} label="pesan masuk">
           {messages.map((message) => (
             <li key={message.id}>
               <details name="contact-messages">
@@ -26,7 +27,7 @@ export default function ContactInbox({ messages }: { messages: ContactMessage[] 
               </details>
             </li>
           ))}
-        </ul>
+        </PaginatedList>
       ) : <p className={styles.secondary}>Belum ada pesan masuk.</p>}
     </section>
   );

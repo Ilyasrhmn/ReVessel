@@ -13,7 +13,7 @@ export function rewardCatalog(workspace: Workspace) {
 }
 
 export function pendingRedemptions(workspace: Workspace) {
-  return workspace.claims.filter((claim) => !claim.fulfilled).slice(0, 25).map((claim) => {
+  return workspace.claims.filter((claim) => !claim.fulfilled).map((claim) => {
     const reward = workspace.rewards.find(({ id }) => id === claim.rewardId)!;
     return { code: claim.code, name: claim.rewardName ?? reward.name };
   });
@@ -62,16 +62,16 @@ export function residentRewards(workspace: Workspace, owner: string) {
   return {
     rewards: rewardCatalog(workspace),
     cashBalance: Math.max(0, walletCredits - committedCash),
-    cashouts: cashouts.slice(0, 25),
+    cashouts,
     paidCash: cashTotals.paid,
     pendingCash: cashTotals.pending,
     balance,
-    activity: activity.slice(0, 25),
-    redemptions: [...claims, ...cashClaims].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 25),
+    activity,
+    redemptions: [...claims, ...cashClaims].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   };
 }
 
-export function adminDeposits(workspace: Workspace, status: Deposit["status"] | null, limit: number) {
+export function adminDeposits(workspace: Workspace, status: Deposit["status"] | null, limit?: number) {
   return workspace.deposits.map(({ item }) => item)
     .filter((deposit) => !status || deposit.status === status)
     .sort((a, b) => Number(b.status === "pending_approval") - Number(a.status === "pending_approval") || b.createdAt.localeCompare(a.createdAt))
@@ -96,7 +96,7 @@ export function adminDepositBuckets(workspace: Workspace): DepositBucket[] {
 
 export function dashboardResidents(state: BrowserState, mode: "demo" | "account") {
   const accounts = state.accounts.filter(({ role, password }) => role === "resident" && (mode === "account" || !password));
-  return { total: accounts.length, entries: accounts.slice(-25).reverse() };
+  return { total: accounts.length, entries: accounts.reverse() };
 }
 
 export function reviewDetails(workspace: Workspace, code: string) {

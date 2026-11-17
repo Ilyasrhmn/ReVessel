@@ -8,6 +8,7 @@ import type { residentRewards } from "@/lib/browser/selectors";
 import { redeemReward } from "@/lib/browser/rewards";
 import styles from "./dashboard.module.css";
 import { CashRewardRow, ResidentCashout } from "./cashout-panels";
+import PaginatedList from "./paginated-list";
 import { formatGrams, gramsPerPoint } from "@/lib/browser/glass-value";
 
 export type ResidentRewardData = Awaited<ReturnType<typeof residentRewards>>;
@@ -57,7 +58,7 @@ export default function ResidentRewards({ data }: { data: ResidentRewardData }) 
         <p className={styles.secondary}>Setoran baru menghasilkan 1 poin per {gramsPerPoint} gram kaca yang diterima.</p>
         <h3 className={styles.subheading}>Riwayat poin terbaru</h3>
         {data.activity.length ? (
-          <ul className={styles.activity}>
+          <PaginatedList className={styles.activity} label="riwayat poin">
             {data.activity.map((item) => (
               <li key={item.code} className={styles.cashoutItem}>
                 <div className={styles.cashoutLine}>
@@ -72,14 +73,14 @@ export default function ResidentRewards({ data }: { data: ResidentRewardData }) 
                 </div>
               </li>
             ))}
-          </ul>
+          </PaginatedList>
         ) : <p className={styles.secondary}>Belum ada transaksi poin.</p>}
       </section>
 
       <div className={styles.rewardColumn}>
         <section className={styles.panel} aria-labelledby="rewards-title">
           <h2 id="rewards-title" className={styles.cashoutTitle}><Gift aria-hidden="true" size={18} /> Tukar poin</h2>
-          <ul className={styles.activity}>
+          <PaginatedList className={styles.activity} label="katalog reward">
             <CashRewardRow points={data.balance} balance={data.cashBalance} pending={data.pendingCash > 0} />
             {data.rewards.map((reward) => (
               <li key={reward.id} className={styles.rewardItem}>
@@ -92,13 +93,13 @@ export default function ResidentRewards({ data }: { data: ResidentRewardData }) 
                 </Button>
               </li>
             ))}
-          </ul>
+          </PaginatedList>
         </section>
 
         <section className={styles.panel} aria-labelledby="redemption-history">
           <h2 id="redemption-history" className={styles.cashoutTitle}><History aria-hidden="true" size={18} /> Penukaran terbaru</h2>
           {data.redemptions.length ? (
-            <ul className={styles.activity}>
+            <PaginatedList className={styles.activity} label="riwayat penukaran">
               {data.redemptions.map((item) => (
                 <li key={item.code} className={styles.cashoutItem}>
                   <div className={styles.cashoutLine}>
@@ -115,7 +116,7 @@ export default function ResidentRewards({ data }: { data: ResidentRewardData }) 
                   {item.kind === "item" && !item.fulfilled && <p className={styles.cashoutNote}>{item.pickup}</p>}
                 </li>
               ))}
-            </ul>
+            </PaginatedList>
           ) : <p className={styles.secondary}>Belum ada penukaran.</p>}
         </section>
       </div>

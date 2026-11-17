@@ -18,6 +18,7 @@ import { HandOverForm, PublishRewardForm } from "./reward-forms";
 import ContactInbox from "./contact-inbox";
 import { AdminCashouts } from "../cashout-panels";
 import BalanceSummary from "../balance-summary";
+import PaginatedList from "../paginated-list";
 
 const tabs = [
   { id: "ringkasan", label: "Ringkasan", title: "Ringkasan", icon: Boxes },
@@ -66,7 +67,7 @@ function AdminWorkspace({ query, state, mode, name }: { query: Pick<URLSearchPar
       primaryAction={<Link href={`${depositsHref}#pemeriksaan`}><Search aria-hidden="true" /> Cari kode</Link>}
     >
       {tab.id === "ringkasan" ? <AdminOverview workspace={workspace} /> : tab.id === "pengguna" ? <AdminResidents data={dashboardResidents(state, mode)} />
-        : tab.id === "reward" ? <AdminRewards workspace={workspace} /> : tab.id === "pesan" ? <ContactInbox messages={workspace.messages.slice(0, 25)} />
+        : tab.id === "reward" ? <AdminRewards workspace={workspace} /> : tab.id === "pesan" ? <ContactInbox messages={workspace.messages} />
         : <AdminDeposits workspace={workspace} filter={filter} code={code} />}
     </DashboardShell>
   );
@@ -94,7 +95,7 @@ function AdminOverview({ workspace }: { workspace: Workspace }) {
 }
 
 function AdminDeposits({ workspace, filter, code }: { workspace: Workspace; filter: (typeof filters)[number]; code: string | null }) {
-  const entries = adminDeposits(workspace, filter === "semua" ? null : filter, 25);
+  const entries = adminDeposits(workspace, filter === "semua" ? null : filter);
   return (
     <div className={styles.columns}>
       <AdminDepositList entries={entries} filter={filter} />
@@ -128,7 +129,7 @@ function AdminDepositList({ entries, filter, overview }: {
         </nav>
       )}
       {entries.length ? (
-        <ul className={styles.history}>
+        <PaginatedList key={filter} className={styles.history} label="setoran masuk">
           {entries.map((entry) => (
             <li key={entry.code}>
               <details name="admin-deposits">
@@ -151,7 +152,7 @@ function AdminDepositList({ entries, filter, overview }: {
               </details>
             </li>
           ))}
-        </ul>
+        </PaginatedList>
       ) : <div className={styles.empty}><h3>{filter === "semua" ? "Belum ada setoran" : "Belum ada setoran dengan status ini"}</h3></div>}
     </Card>
   );
@@ -162,11 +163,11 @@ function AdminResidents({ data: { total, entries } }: { data: ReturnType<typeof 
     <section className={styles.panel} aria-labelledby="residents-title">
       <h2 id="residents-title">Pengguna terbaru <span className={styles.secondary}>· {number.format(total)} terdaftar</span></h2>
       {entries.length ? (
-        <ul className={styles.activity}>
+        <PaginatedList className={styles.activity} label="pengguna">
           {entries.map((entry) => (
             <li className={styles.row} key={entry.id}><strong>{entry.name}</strong><span>{date.format(new Date(entry.createdAt))}</span></li>
           ))}
-        </ul>
+        </PaginatedList>
       ) : <p className={styles.secondary}>Belum ada warga yang terdaftar.</p>}
     </section>
   );
@@ -180,14 +181,14 @@ function AdminRewards({ workspace }: { workspace: Workspace }) {
       <section className={styles.panel} aria-labelledby="manage-rewards">
         <h2 id="manage-rewards">Katalog reward</h2>
         {rewards.length ? (
-          <ul className={styles.activity}>
+          <PaginatedList className={styles.activity} label="katalog reward">
             {rewards.map((reward) => (
               <li key={reward.id} className={styles.row}>
                 <strong>{reward.name}</strong>
                 <span>{number.format(reward.cost)} poin · Stok {number.format(reward.stock)}</span>
               </li>
             ))}
-          </ul>
+          </PaginatedList>
         ) : <p className={styles.secondary}>Katalog masih kosong.</p>}
         <h3 className={styles.subheading}>Tambah reward</h3>
         <PublishRewardForm />
@@ -195,11 +196,11 @@ function AdminRewards({ workspace }: { workspace: Workspace }) {
       <section className={styles.panel} aria-labelledby="pending-rewards">
         <h2 id="pending-rewards">Menunggu diambil</h2>
         {pending.length ? (
-          <ul className={styles.activity}>
+          <PaginatedList className={styles.activity} label="reward menunggu diambil">
             {pending.map((reward) => (
               <li key={reward.code} className={styles.row}><strong>{reward.name}</strong><code>…{reward.code.slice(-4)}</code></li>
             ))}
-          </ul>
+          </PaginatedList>
         ) : <p className={styles.secondary}>Belum ada reward yang perlu diserahkan.</p>}
         <h3 className={styles.subheading}>Verifikasi pengambilan</h3>
         <HandOverForm />
