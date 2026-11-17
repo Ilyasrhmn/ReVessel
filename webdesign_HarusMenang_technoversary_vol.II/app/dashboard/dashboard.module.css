@@ -986,3 +986,32 @@ details[open] > .row .expand {
 }
 
 .loginCard h2 { font-size: 1rem; font-weight: 600; }
+
+.skeletonNav {
+  inline-size: min(100%, 38rem);
+  min-block-size: 2.75rem;
+  gap: clamp(.4rem, 1.4vw, 1.1rem);
+  justify-content: space-evenly;
+}
+
+.skeletonNav > span { inline-size: clamp(1.75rem, 5vw, 4.25rem); block-size: .75rem; }
+
+.skeletonDock { --skeleton-color: #39413b; }
+.skeletonDock > span {
+  inline-size: clamp(2.1rem, 3.2vw, 2.8rem);
+  block-size: clamp(2.1rem, 3.15vw, 2.75rem);
+  border-radius: 50%;
+}
+
+.skeletonMain .metric[data-primary="true"] { --skeleton-color: #39413b; }
+.skeletonTitle { inline-size: min(55%, 14rem); block-size: clamp(1.65rem, 2.5vw, 2.5rem); }
+.skeletonBadge { inline-size: 4rem; block-size: 1.55rem; }
+.skeletonLabel { inline-size: min(70%, 7rem); block-size: .85rem; }
+.skeletonValue { inline-size: min(90%, 5rem); block-size: 1.65rem; margin-block-start: .75rem; }
+.skeletonChart { block-size: clamp(13rem, 23vw, 21rem); margin-block-start: .9rem; }
+
+@media (max-width: 700px) {
+  .skeletonNav { inline-size: 100%; min-block-size: 3.25rem; }
+  .skeletonDock > span { inline-size: 2.75rem; block-size: 2.75rem; }
+}
+

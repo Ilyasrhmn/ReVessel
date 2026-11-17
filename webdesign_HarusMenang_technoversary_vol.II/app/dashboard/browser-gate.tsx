@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { currentProfile, useBrowserState } from "@/lib/browser/storage";
 import type { BrowserState, Mode, Profile, Role } from "@/lib/browser/data";
+import DashboardSkeleton from "./dashboard-skeleton";
 
 export default function BrowserGate({ role, loginHref, children }: {
   role: Role;
@@ -22,6 +23,6 @@ export default function BrowserGate({ role, loginHref, children }: {
   }, [pathname, router, target]);
 
   if (state === "unavailable") return <p className="p-8" role="alert">Aktifkan penyimpanan browser untuk membuka dashboard.</p>;
-  if (!state || !user || target) return <p className="p-8 text-sm text-muted" role="status">Memuat dashboard…</p>;
+  if (!state || !user || target) return <DashboardSkeleton />;
   return children(state, user);
 }

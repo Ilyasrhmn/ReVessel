@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import AdminDashboard from "./admin-dashboard";
+import DashboardSkeleton from "../dashboard-skeleton";
 
 export const metadata: Metadata = { title: "Dashboard admin | ReVessel" };
 
 export default function AdminPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-sm text-muted" role="status">Memuat dashboard…</p>}>
+    <Suspense fallback={<DashboardSkeleton />}>
       <AdminDashboard />
     </Suspense>
   );

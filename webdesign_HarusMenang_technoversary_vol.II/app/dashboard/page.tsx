@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import ResidentPage from "./resident-page";
+import DashboardSkeleton from "./dashboard-skeleton";
 
 export const metadata: Metadata = {
   title: "Dashboard Setoran | ReVessel",
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-sm text-muted" role="status">Memuat dashboard…</p>}>
+    <Suspense fallback={<DashboardSkeleton />}>
       <ResidentPage />
     </Suspense>
   );

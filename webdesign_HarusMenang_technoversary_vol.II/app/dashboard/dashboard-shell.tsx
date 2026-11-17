@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { BrandSymbol } from "../ui/brand-logo";
 import NavBubble from "../ui/nav-bubble";
 import SessionSubmit from "../ui/session-submit";
+import { useDashboardPreferences } from "@/lib/browser/preferences";
 import { logoutAccount } from "@/lib/browser/storage";
 import styles from "./dashboard.module.css";
 
@@ -21,7 +22,7 @@ export type DashboardLink = {
 };
 
 export default function DashboardShell({
-  view, title, homeHref, profile, items, shortcuts, activity, primaryAction, dockAction, overlay, demo, children,
+  view, title, homeHref, profile, items, shortcuts, activity, primaryAction, dockAction, overlay, children,
 }: {
   view: string;
   title: string;
@@ -33,10 +34,9 @@ export default function DashboardShell({
   primaryAction?: ReactNode;
   dockAction?: ReactNode;
   overlay?: ReactNode;
-  demo?: boolean;
   children: ReactNode;
 }) {
-  const [dark, setDark] = useState(false);
+  const { preferences: { dark }, setPreferences } = useDashboardPreferences();
   const [logoutError, setLogoutError] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -129,7 +129,7 @@ export default function DashboardShell({
           {dockAction}
           <Tooltip>
             <TooltipTrigger asChild>
-              <button type="button" aria-label="Tema gelap" aria-pressed={dark} onClick={() => setDark(!dark)}>
+              <button type="button" aria-label="Tema gelap" aria-pressed={dark} onClick={() => setPreferences({ dark: !dark })}>
                 {dark ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
               </button>
             </TooltipTrigger>
@@ -141,7 +141,7 @@ export default function DashboardShell({
       <main id="main" className={styles.main} tabIndex={-1}>
         <header className={styles.header}>
           <h1 ref={titleRef} tabIndex={-1}>{title}</h1>
-          <Badge className={styles.roleBadge} variant="outline">{profile.role}{demo ? " · Data contoh" : ""}</Badge>
+          <Badge className={styles.roleBadge} variant="outline">{profile.role}</Badge>
         </header>
         <div key={view} className={styles.appear}>{children}</div>
       </main>

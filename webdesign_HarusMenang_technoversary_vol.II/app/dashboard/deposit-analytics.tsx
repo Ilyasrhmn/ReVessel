@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Progress } from "@/components/ui/progress";
-import { materials, type Material } from "../deposit-options";
+import { useDashboardPreferences } from "@/lib/browser/preferences";
+import type { DashboardPreferences } from "@/lib/browser/data";
+import { analyticsPeriods, materials, type AnalyticsPeriod } from "../deposit-options";
 import NavBubble from "../ui/nav-bubble";
 import { statusLabels, type Deposit } from "./deposit-store";
 import styles from "./dashboard.module.css";
 
-export const periods = [[7, "7H"], [30, "30H"], [90, "90H"], [365, "12B"]] as const;
-export type Period = (typeof periods)[number][0];
-export type MaterialFilter = Material | "all";
+type MaterialFilter = DashboardPreferences["material"];
 const materialLabels: Record<MaterialFilter, string> = {
   all: "Semua", "Botol parfum": "Parfum", "Botol kosmetik": "Kosmetik", "Jar kaca": "Jar kaca",
 };
@@ -84,7 +84,7 @@ const chartConfig = {
   previous: { label: "Periode lalu", color: "var(--ui-muted-foreground)" },
 } satisfies ChartConfig;
 
-function getPeriodData(deposits: AnalyticsRow[], period: Period, material: MaterialFilter, today: number) {
+function getPeriodData(deposits: AnalyticsRow[], period: AnalyticsPeriod, material: MaterialFilter, today: number) {
   const end = today + day;
   const start = end - period * day;
   const prior = start - period * day;
@@ -125,16 +125,8 @@ function downloadCsv(deposits: AnalyticsRow[], grouped: boolean) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export default function DepositAnalytics({
-  deposits, buckets, period, material, compare, setPeriod, setMaterial, setCompare,
-}: ({ deposits: Deposit[]; buckets?: never } | { deposits?: never; buckets: DepositBucket[] }) & {
-  period: Period;
-  material: MaterialFilter;
-  compare: boolean;
-  setPeriod: (period: Period) => void;
-  setMaterial: (material: MaterialFilter) => void;
-  setCompare: (compare: boolean) => void;
-}) {
+export default function DepositAnalytics({ deposits, buckets }: { deposits: Deposit[]; buckets?: never } | { deposits?: never; buckets: DepositBucket[] }) {
+  const { preferences: { period, material, compare }, setPreferences } = useDashboardPreferences();
   const today = useSyncExternalStore(subscribeToDay, currentDay, unknownDay);
   const allowMotion = useSyncExternalStore(subscribeToMotion, motionAllowed, motionOff);
   const rows = deposits ?? buckets;
@@ -154,21 +146,21 @@ export default function DepositAnalytics({
         <div className={styles.filters}>
           <div className={styles.segment} aria-label="Rentang tanggal" role="group">
             <NavBubble active={String(period)} />
-            {periods.map(([days, label]) => (
-              <Button type="button" variant="ghost" size="sm" data-nav-item={String(days)} aria-label={days === 365 ? "12 bulan" : `${days} hari`} aria-pressed={period === days} key={days} onClick={() => setPeriod(days)}>{label}</Button>
+            {analyticsPeriods.map(([days, label]) => (
+              <Button type="button" variant="ghost" size="sm" data-nav-item={String(days)} aria-label={days === 365 ? "12 bulan" : `${days} hari`} aria-pressed={period === days} key={days} onClick={() => setPreferences({ period: days })}>{label}</Button>
             ))}
           </div>
           <div className={styles.segment} aria-label="Jenis kaca" role="group">
             <NavBubble active={material} />
             {(["all", ...materials] as const).map((kind) => (
-              <Button type="button" variant="ghost" size="sm" data-nav-item={kind} aria-pressed={material === kind} key={kind} onClick={() => setMaterial(kind)}>
+              <Button type="button" variant="ghost" size="sm" data-nav-item={kind} aria-pressed={material === kind} key={kind} onClick={() => setPreferences({ material: kind })}>
                 {materialLabels[kind]}
               </Button>
             ))}
           </div>
         </div>
         <div className={styles.toolbarActions}>
-          <button type="button" role="switch" aria-checked={compare} className={styles.compare} onClick={() => setCompare(!compare)}>
+          <button type="button" role="switch" aria-checked={compare} className={styles.compare} onClick={() => setPreferences({ compare: !compare })}>
             <span className={styles.switchTrack} aria-hidden="true" /> vs periode lalu
           </button>
           <Button size="sm" variant="outline" type="button" className={styles.export} disabled={!today} onClick={() => downloadCsv(current, Boolean(buckets))}>

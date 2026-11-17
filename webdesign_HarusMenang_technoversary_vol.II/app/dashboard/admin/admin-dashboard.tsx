@@ -12,7 +12,7 @@ import DashboardShell from "../dashboard-shell";
 import DepositReview from "../deposit-review";
 import { statusLabels } from "../deposit-store";
 import styles from "../dashboard.module.css";
-import AdminAnalytics from "./admin-analytics";
+import DepositAnalytics from "../deposit-analytics";
 import { HandOverForm, PublishRewardForm } from "./reward-forms";
 import ContactInbox from "./contact-inbox";
 
@@ -57,7 +57,6 @@ function AdminWorkspace({ query, state, mode, name }: { query: Pick<URLSearchPar
       title={tab.title}
       homeHref={base}
       profile={{ name, role: "Admin" }}
-      demo
       items={items}
       shortcuts={items.filter(({ id }) => id !== "reward")}
       activity={{ href: `${depositsHref}&status=pending_approval`, label: "Lihat pengajuan yang menunggu persetujuan" }}
@@ -75,7 +74,7 @@ function AdminOverview({ workspace }: { workspace: Workspace }) {
   const entries = adminDeposits(workspace, null, 5);
   return (
     <>
-      <AdminAnalytics buckets={buckets} />
+      <DepositAnalytics buckets={buckets} />
       <div className={styles.columns}>
         <AdminDepositList entries={entries} filter="semua" overview />
         <DepositReview workspace={workspace} compact />
@@ -122,7 +121,7 @@ function AdminDepositList({ entries, filter, overview }: {
         <ul className={styles.history}>
           {entries.map((entry) => (
             <li key={entry.code}>
-              <details>
+              <details name="admin-deposits">
                 <summary className={styles.row}>
                   <span><strong>{entry.code}</strong><small>{entry.material} · {number.format(entry.quantity)} wadah</small></span>
                   <div className={styles.rowEnd}>

@@ -2,7 +2,6 @@
 
 import { createBrowserId } from "@/lib/browser/id";
 import Link from "next/link";
-import { demoResident } from "@/lib/browser/data";
 import { useSearchParams } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 import { BookOpen, Boxes, CircleHelp, Gift, History, MapPin, Plus, X } from "lucide-react";
@@ -19,7 +18,7 @@ import DashboardShell from "./dashboard-shell";
 import DepositFulfillment from "./deposit-fulfillment";
 import ResidentRewards, { type ResidentRewardData } from "./resident-rewards";
 import styles from "./dashboard.module.css";
-import DepositAnalytics, { type MaterialFilter, type Period } from "./deposit-analytics";
+import DepositAnalytics from "./deposit-analytics";
 import { dashboardHref, dashboardSection, type DashboardSection } from "./sections";
 
 const dateFormat = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" });
@@ -46,9 +45,6 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
 }) {
   const requested = useSearchParams().get("bagian");
   const view = dashboardSection(requested);
-  const [period, setPeriod] = useState<Period>(30);
-  const [material, setMaterial] = useState<MaterialFilter>("all");
-  const [compare, setCompare] = useState(true);
   const [newDeposit, setNewDeposit] = useState<Deposit | null>(null);
   const [formError, setFormError] = useState("");
   const [notice, setNotice] = useState("");
@@ -158,7 +154,6 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
 
   return (
     <DashboardShell
-      demo={profile.mode === "demo" || profile.id === demoResident.id}
       view={view}
       title={sections[view].title}
       homeHref={dashboardHref("ringkasan")}
@@ -201,7 +196,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
         </div>
       ) : (
         <>
-          {view === "ringkasan" && <DepositAnalytics deposits={deposits} period={period} material={material} compare={compare} setPeriod={setPeriod} setMaterial={setMaterial} setCompare={setCompare} />}
+          {view === "ringkasan" && <DepositAnalytics deposits={deposits} />}
 
           <div className={styles.columns} data-wide={view !== "ringkasan"}>
             {view === "titik-kumpul" && <CollectionMap />}
