@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
-import { demoAccounts, initialState, type BrowserState, type Mode, type Profile, type Role, type Workspace } from "./data";
-
+import { collectionPoints, demoAccounts, initialState, type BrowserState, type Mode, type Profile, type Role, type Workspace } from "./data";
 import { createBrowserId } from "./id";
+
+export const minPasswordLength = 8;
 
 const key = "revessel.browser.v1";
 const update = "revessel:updated";
@@ -10,6 +11,21 @@ let cache: { raw: string | null; state: BrowserState } | undefined;
 function completeWorkspace(workspace: Partial<Workspace> | undefined) {
   return workspace != null && Array.isArray(workspace.deposits) && Array.isArray(workspace.rewards)
     && Array.isArray(workspace.claims) && Array.isArray(workspace.messages);
+}
+
+function refreshStoredLabels(workspace: Workspace) {
+  for (const row of workspace.deposits) {
+    const point = collectionPoints.find(({ slug }) => slug === row.point);
+    if (point && row.item.pointName === "Titik Contoh " + point.name) row.item.pointName = point.name;
+  }
+  for (const reward of workspace.rewards) {
+    if ((reward.id === "b0d2be6d-f0a3-4151-9e26-92abaa8d9ce1" && reward.pickup === "Tunjukkan kode di titik contoh Condongcatur.")
+      || (reward.id === "74f658ef-68c0-4ff8-a31f-d927cb29db03" && reward.pickup === "Tunjukkan kode di titik contoh Kricak.")) {
+      reward.pickup = "Tunjukkan kode saat serah terima.";
+    }
+  }
+  const message = workspace.messages.find(({ id }) => id === "pesan-contoh");
+  if (message?.name === "Warga Contoh") message.name = "Warga ReVessel";
 }
 
 export function readState(): BrowserState {
@@ -27,6 +43,8 @@ export function readState(): BrowserState {
   } catch {
     state = initialState();
   }
+  refreshStoredLabels(state.workspaces.demo);
+  refreshStoredLabels(state.workspaces.account);
   cache = { raw, state };
   return state;
 }
@@ -88,8 +106,10 @@ async function passwordVerifier(password: string, salt: string) {
   return Array.from(new Uint8Array(hash), (value) => value.toString(16).padStart(2, "0")).join("");
 }
 
-export async function registerAccount(name: string, email: string, password: string) {
-  if (!name || name.length > 80 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || password.length < 12 || password.length > 128) {
+export async function registerAccount(rawName: string, rawEmail: string, password: string) {
+  const name = rawName.trim();
+  const email = rawEmail.trim().toLowerCase();
+  if (!name || name.length > 80 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || password.length < minPasswordLength || password.length > 128) {
     return { error: "Periksa nama, email, dan panjang kata sandi." };
   }
   if (!crypto.subtle) return { error: "Buka ReVessel lewat HTTPS atau localhost untuk membuat akun." };
@@ -104,7 +124,8 @@ export async function registerAccount(name: string, email: string, password: str
   });
 }
 
-export async function loginAccount(email: string, password: string) {
+export async function loginAccount(rawEmail: string, password: string) {
+  const email = rawEmail.trim().toLowerCase();
   const account = readState().accounts.find((entry) => entry.email === email);
   if (!account) return { error: "Email atau kata sandi salah." };
   if (account.password && !crypto.subtle) return { error: "Buka ReVessel lewat HTTPS atau localhost untuk masuk ke akun ini." };

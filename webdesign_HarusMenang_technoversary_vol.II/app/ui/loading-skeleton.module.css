@@ -1,0 +1,23 @@
+.block,
+.button > span {
+  display: block;
+  border-radius: var(--radius-control);
+  background: var(--skeleton-color, var(--ui-secondary, var(--color-line)));
+  animation: loading-pulse 1.4s ease-in-out infinite alternate;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.button > :first-child { inline-size: 1rem; block-size: 1rem; }
+.button > :last-child { inline-size: 3rem; block-size: .75rem; }
+
+@keyframes loading-pulse { to { opacity: .48; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .block,
+  .button > span { animation: none; }
+}

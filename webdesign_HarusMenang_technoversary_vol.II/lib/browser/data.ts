@@ -1,4 +1,4 @@
-import { materials, type CollectionPoint } from "@/app/deposit-options";
+import { materials, type AnalyticsPeriod, type CollectionPoint, type Material } from "@/app/deposit-options";
 import type { Deposit, PickupDetails } from "@/app/dashboard/deposit-store";
 
 export const demoResident = { id: "resident-demo", name: "Warga ReVessel", email: "user@revessel.com", role: "resident" } as const;
@@ -25,18 +25,20 @@ export type Reward = { id: string; name: string; pickup: string; cost: number; s
 export type Claim = {
   code: string; owner: string; rewardId: string; requestId?: string; cost: number; createdAt: string; fulfilled: boolean;
 };
-export type ContactMessage = { id: string; name: string; email: string; body: string; sentAt: string };
+export type ContactMessage = { id: string; owner?: string; name: string; email: string; subject?: string; body: string; sentAt: string };
 export type Workspace = { deposits: DepositRecord[]; rewards: Reward[]; claims: Claim[]; messages: ContactMessage[] };
+export type DashboardPreferences = { dark: boolean; period: AnalyticsPeriod; material: Material | "all"; compare: boolean };
 export type BrowserState = {
   version: 1;
   session: Session | null;
   accounts: Account[];
+  preferences?: Record<string, DashboardPreferences>;
   workspaces: Record<Mode, Workspace>;
 };
 
 export const collectionPoints: CollectionPoint[] = [
-  { slug: "contoh-condongcatur", name: "Titik Contoh Condongcatur", address: "Condongcatur, Depok, Sleman", materials: [...materials] },
-  { slug: "contoh-kricak", name: "Titik Contoh Kricak", address: "Kricak, Tegalrejo, Yogyakarta", materials: ["Botol parfum", "Jar kaca"] },
+  { slug: "contoh-condongcatur", name: "Condongcatur", address: "Condongcatur, Depok, Sleman", materials: [...materials] },
+  { slug: "contoh-kricak", name: "Kricak", address: "Kricak, Tegalrejo, Yogyakarta", materials: ["Botol parfum", "Jar kaca"] },
 ];
 
 function seed(now: number): Workspace {
@@ -59,8 +61,8 @@ function seed(now: number): Workspace {
     return { item, owner: demoResident.id, point: point.slug, reviewedAt: status === "accepted" ? ago(index * 3) : undefined };
   });
   const rewards = [
-    { id: "b0d2be6d-f0a3-4151-9e26-92abaa8d9ce1", name: "Wadah kaca pakai ulang", cost: 12, stock: 6, pickup: "Tunjukkan kode di titik contoh Condongcatur." },
-    { id: "74f658ef-68c0-4ff8-a31f-d927cb29db03", name: "Bibit tanaman", cost: 8, stock: 10, pickup: "Tunjukkan kode di titik contoh Kricak." },
+    { id: "b0d2be6d-f0a3-4151-9e26-92abaa8d9ce1", name: "Wadah kaca pakai ulang", cost: 12, stock: 6, pickup: "Tunjukkan kode saat serah terima." },
+    { id: "74f658ef-68c0-4ff8-a31f-d927cb29db03", name: "Bibit tanaman", cost: 8, stock: 10, pickup: "Tunjukkan kode saat serah terima." },
   ];
   return {
     deposits,
@@ -70,7 +72,7 @@ function seed(now: number): Workspace {
       { code: "RW-A00000000002", owner: demoResident.id, rewardId: rewards[1].id, cost: 8, createdAt: ago(5), fulfilled: true },
     ],
     messages: [
-      { id: "pesan-contoh", name: "Warga Contoh", email: "warga@example.test", body: "Apakah tutup logam perlu dipisahkan sebelum botol disetor?", sentAt: ago(2) },
+      { id: "pesan-contoh", name: "Warga ReVessel", email: "warga@example.test", body: "Apakah tutup logam perlu dipisahkan sebelum botol disetor?", sentAt: ago(2) },
     ],
   };
 }
