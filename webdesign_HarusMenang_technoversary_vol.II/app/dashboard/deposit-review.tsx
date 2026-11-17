@@ -8,6 +8,8 @@ import { adjustmentReasons, fulfillmentLabels, statusLabels, type Deposit } from
 import type { Workspace } from "@/lib/browser/data";
 import { reviewDetails } from "@/lib/browser/selectors";
 import { decideApproval, lookupDeposit, submitReview } from "@/lib/browser/deposits";
+import { isDepositPhoto } from "@/lib/browser/deposit-photo";
+import { DepositPhoto } from "./deposit-photo";
 import styles from "./dashboard.module.css";
 
 
@@ -21,6 +23,7 @@ export default function DepositReview({ initialCode, workspace, compact }: {
   const result = selectedCode ? reviewDetails(workspace, selectedCode) : null;
   const deposit = result?.deposit;
   const pickup = result?.pickup;
+  const photo = deposit?.photo;
   const [notice, setNotice] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -100,6 +103,7 @@ export default function DepositReview({ initialCode, workspace, compact }: {
             <Badge className={styles.status} variant="secondary" data-state={deposit.status}>{statusLabels[deposit.status]}</Badge>
           </div>
           <p className={styles.secondary}>{deposit.quantity} wadah · {deposit.material} · {deposit.pointName}</p>
+          {isDepositPhoto(photo) ? <DepositPhoto src={photo} /> : deposit.status === "pending_approval" && <p className={styles.secondary}>Foto setoran belum diunggah.</p>}
           {deposit.reason && <p className={styles.reason}>{deposit.reason}</p>}
           {deposit.approvalNote && <p className={styles.reason}>{deposit.approvalNote}</p>}
           {deposit.method && <p>{fulfillmentLabels[deposit.method]}</p>}
@@ -115,7 +119,7 @@ export default function DepositReview({ initialCode, workspace, compact }: {
                 <textarea name="note" rows={2} maxLength={240} />
               </label>
               <div className={styles.detailActions}>
-                <Button name="decision" value="approve" type="submit" disabled={pending}><Check aria-hidden="true" />Setujui pengajuan</Button>
+                <Button name="decision" value="approve" type="submit" disabled={pending || !isDepositPhoto(photo)}><Check aria-hidden="true" />Setujui pengajuan</Button>
                 <Button name="decision" value="reject" type="submit" variant="outline" disabled={pending}><X aria-hidden="true" />Tolak pengajuan</Button>
               </div>
             </form>

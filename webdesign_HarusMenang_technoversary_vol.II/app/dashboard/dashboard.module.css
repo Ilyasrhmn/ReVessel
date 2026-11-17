@@ -523,19 +523,6 @@
 .loginCard [role="alert"] { color: var(--color-error); }
 .loginCard button { width: 100%; gap: .55rem; }
 .loginCard button svg { width: 1rem; height: 1rem; }
-.authForm { display: grid; gap: .9rem; }
-.authLink { text-decoration: underline; text-underline-offset: .2em; }
-.passwordField { position: relative; }
-.passwordField input { padding-inline-end: 3rem; }
-.passwordField .passwordToggle {
-  position: absolute;
-  inset: 0 .08rem 0 auto;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  border-radius: .5rem;
-}
-.passwordToggle:hover { background: #eef0ed; }
 
 .action {
   min-height: 44px;
@@ -570,6 +557,8 @@
   max-width: 38ch;
   margin-top: .35rem;
 }
+
+.pointDisclosure > summary { padding-block: .25rem; min-block-size: 44px; }
 
 .pointDetails {
   display: grid;
@@ -688,7 +677,8 @@ details[open] > .row .expand {
 }
 
 @supports (interpolate-size: allow-keywords) and selector(details::details-content) {
-  .history details::details-content {
+  .history details::details-content,
+  .pointDisclosure::details-content {
     interpolate-size: allow-keywords;
     block-size: 0;
     opacity: 0;
@@ -699,7 +689,8 @@ details[open] > .row .expand {
       content-visibility var(--dash-panel) allow-discrete;
   }
 
-  .history details[open]::details-content { block-size: auto; opacity: 1; }
+  .history details[open]::details-content,
+  .pointDisclosure[open]::details-content { block-size: auto; opacity: 1; }
   .account::details-content { transition: content-visibility var(--dash-panel) allow-discrete; }
 }
 
@@ -978,14 +969,17 @@ details[open] > .row .expand {
   gap: .65rem;
 }
 
-.demoLogin {
-  display: grid;
-  gap: .45rem;
-  padding-block-end: 1rem;
-  border-bottom: 1px solid var(--dash-line, var(--color-line));
+.depositPhoto {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 32rem;
+  block-size: auto;
+  max-block-size: min(20rem, 45svh);
+  object-fit: contain;
+  border-radius: var(--radius-control);
+  background: var(--ui-muted);
 }
 
-.loginCard h2 { font-size: 1rem; font-weight: 600; }
 
 .skeletonNav {
   inline-size: min(100%, 38rem);
@@ -1015,3 +1009,81 @@ details[open] > .row .expand {
   .skeletonDock > span { inline-size: 2.75rem; block-size: 2.75rem; }
 }
 
+.photoThumbnail {
+  display: block;
+  flex: none;
+  inline-size: 5.5rem;
+  block-size: 5.5rem;
+  overflow: hidden;
+  border-radius: var(--radius-control);
+  background: var(--ui-muted);
+}
+
+.photoThumbnail img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+.photoThumbnail:hover img { opacity: .85; }
+.photoThumbnail img { transition: opacity var(--dash-fast) var(--ease-out); }
+.photoDialog { inline-size: min(46rem, calc(100vw - 2rem)); }
+.photoDialog .depositPhoto { max-inline-size: none; max-block-size: 70svh; margin-block-start: 1rem; }
+
+.depositOverview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-block: .25rem .5rem;
+}
+
+.depositMetadata { display: grid; gap: .35rem; min-inline-size: 0; }
+.depositMetadata p { margin: 0; overflow-wrap: anywhere; }
+.detail { gap: .75rem; }
+.detail .fields { margin-block-start: 0; }
+.detail > .detailActions { padding-block-start: .25rem; }
+.photoForm, .fulfillment { inline-size: min(100%, 32rem); }
+.fulfillmentOptions { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; }
+.fulfillmentOptions legend { margin-block: 0 .5rem; font-size: .875rem; }
+.fulfillment .check { margin: 0; }
+.fulfillment .fields { inline-size: 100%; }
+.fulfillment .check:has(input[type="checkbox"]) { align-items: start; }
+.fulfillment input[type="checkbox"] { margin-block-start: .15rem; }
+.row > span:first-child { min-inline-size: 0; }
+.row strong, .row small { overflow-wrap: anywhere; }
+.rowEnd { flex-shrink: 0; }
+@media (max-width: 420px) {
+  .depositOverview { align-items: start; gap: .75rem; }
+  .photoThumbnail { inline-size: 4.5rem; block-size: 4.5rem; }
+  .depositMetadata p { font-size: .8125rem; }
+}
+
+.photoChoose { justify-self: start; min-block-size: 44px; gap: .5rem; }
+.photoChoose svg { inline-size: 1rem; block-size: 1rem; }
+.photoPreview { position: relative; justify-self: start; padding: .5rem; }
+.removePhoto {
+  position: absolute;
+  inset: 0 0 auto auto;
+  display: grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border: 1px solid var(--ui-border);
+  border-radius: 50%;
+  background: var(--ui-primary);
+  color: var(--ui-primary-foreground);
+}
+.removePhoto svg { inline-size: 1rem; block-size: 1rem; }
+.removePhoto::before { content: ""; position: absolute; inset: -.375rem; }
+.removePhoto:disabled { opacity: .5; }
+
+.depositDetail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  column-gap: clamp(1.25rem, 4vw, 4rem);
+}
+.depositOverview { min-inline-size: 0; }
+.depositWork { min-inline-size: 0; display: flex; flex-wrap: wrap; align-items: start; justify-content: end; gap: .75rem; }
+.depositWork .fulfillment { inline-size: 100%; }
+.depositWork > .detailActions { justify-content: end; }
+@media (max-width: 700px) {
+  .depositDetail { grid-template-columns: minmax(0, 1fr); }
+  .depositWork { justify-content: start; }
+  .depositWork > .detailActions { justify-content: start; }
+}

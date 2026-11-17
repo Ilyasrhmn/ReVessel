@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { collectionPoints, demoAccounts, initialState, type BrowserState, type Mode, type Profile, type Role, type Workspace } from "./data";
 import { createBrowserId } from "./id";
+import { depositPhotoAssets } from "./deposit-photo-assets";
 
 export const minPasswordLength = 8;
 
@@ -15,6 +16,9 @@ function completeWorkspace(workspace: Partial<Workspace> | undefined) {
 
 function refreshStoredLabels(workspace: Workspace) {
   for (const row of workspace.deposits) {
+    if (!row.item.photo && row.owner === demoAccounts[0].id && !row.requestId && /^RV-A000000[1-8]$/.test(row.item.code)) {
+      row.item.photo = depositPhotoAssets[row.item.material];
+    }
     const point = collectionPoints.find(({ slug }) => slug === row.point);
     if (point && row.item.pointName === "Titik Contoh " + point.name) row.item.pointName = point.name;
   }

@@ -1,5 +1,6 @@
 import { materials, type AnalyticsPeriod, type CollectionPoint, type Material } from "@/app/deposit-options";
 import type { Deposit, PickupDetails } from "@/app/dashboard/deposit-store";
+import { depositPhotoAssets } from "./deposit-photo-assets";
 
 export const demoResident = { id: "resident-demo", name: "Warga ReVessel", email: "user@revessel.com", role: "resident" } as const;
 export const demoAdmin = { id: "admin-demo", name: "Admin ReVessel", email: "admin@revessel.com", role: "admin" } as const;
@@ -49,6 +50,7 @@ function seed(now: number): Workspace {
     const base = {
       code: `RV-A000000${index + 1}`,
       material: materials[index % materials.length],
+      photo: depositPhotoAssets[materials[index % materials.length]],
       quantity: [7, 5, 9, 24, 6, 3, 4, 13][index],
       createdAt: ago(index * 3 + 1),
       pointName: point.name,

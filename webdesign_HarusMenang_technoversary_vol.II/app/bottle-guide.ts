@@ -7,7 +7,7 @@ export const bottleChecklist = [
 export const bottleQuestions = [
   [
     "Kaca seperti apa yang bisa disiapkan?",
-    "Siapkan botol parfum, botol kosmetik, dan jar kaca. Pisahkan keramik, cermin, bohlam, dan kaca jendela. Cek jenis kaca yang diterima oleh titik kumpul.",
+    "Siapkan botol sirup, botol minuman, botol parfum, botol kosmetik, dan jar kaca. Pisahkan keramik, cermin, bohlam, dan kaca jendela. Cek jenis kaca yang diterima oleh titik kumpul.",
   ],
   [
     "Bagaimana kalau botol retak atau pecah?",

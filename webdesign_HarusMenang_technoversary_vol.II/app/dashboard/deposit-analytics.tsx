@@ -17,6 +17,7 @@ import styles from "./dashboard.module.css";
 type MaterialFilter = DashboardPreferences["material"];
 const materialLabels: Record<MaterialFilter, string> = {
   all: "Semua", "Botol parfum": "Parfum", "Botol kosmetik": "Kosmetik", "Jar kaca": "Jar kaca",
+  "Botol sirup": "Sirup", "Botol minuman": "Minuman",
 };
 const number = new Intl.NumberFormat("id-ID");
 const date = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "Asia/Jakarta" });

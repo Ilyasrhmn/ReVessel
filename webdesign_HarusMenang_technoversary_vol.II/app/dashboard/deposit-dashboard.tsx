@@ -13,8 +13,10 @@ import CollectionMap from "../ui/collection-map";
 import { bottleChecklist, bottleQuestions } from "../bottle-guide";
 import { maxBottles, type CollectionPoint } from "../deposit-options";
 import { fulfillmentLabels, statusLabels, type Deposit } from "./deposit-store";
-import { cancelDeposit as cancelOnServer, createDeposit } from "@/lib/browser/deposits";
+import { cancelDeposit as cancelStoredDeposit, createDeposit } from "@/lib/browser/deposits";
 import DashboardShell from "./dashboard-shell";
+import { isDepositPhoto } from "@/lib/browser/deposit-photo";
+import { DepositPhoto, DepositPhotoField, PendingDepositPhoto } from "./deposit-photo";
 import DepositFulfillment from "./deposit-fulfillment";
 import ResidentRewards, { type ResidentRewardData } from "./resident-rewards";
 import styles from "./dashboard.module.css";
@@ -41,7 +43,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
   rewards: ResidentRewardData | null;
   deposits: Deposit[];
   points: CollectionPoint[];
-  profile: { name: string; mode: "demo" | "account"; id: string };
+  profile: { name: string };
 }) {
   const requested = useSearchParams().get("bagian");
   const view = dashboardSection(requested);
@@ -51,14 +53,14 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
   const [submitting, setSubmitting] = useState(false);
   const [pointSlug, setPointSlug] = useState("");
   const selectedPoint = points.find((point) => point.slug === pointSlug);
-  const requestId = useRef("");
+  const [requestId, setRequestId] = useState("");
   const dialogRef = useRef<HTMLDialogElement>(null);
   function openDeposit() {
     if (!points.length) return;
     setFormError("");
     setNewDeposit(null);
     setPointSlug(points.length === 1 ? points[0].slug : "");
-    requestId.current = createBrowserId();
+    setRequestId(createBrowserId());
     dialogRef.current?.showModal();
   }
 
@@ -66,7 +68,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
     event.preventDefault();
     if (submitting) return;
     const form = new FormData(event.currentTarget);
-    form.set("requestId", requestId.current);
+    form.set("requestId", requestId);
     setFormError("");
     setSubmitting(true);
     try {
@@ -91,7 +93,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
 
   async function cancelDeposit(code: string) {
     try {
-      const result = await cancelOnServer(code);
+      const result = await cancelStoredDeposit(code);
       setNotice(result.error ?? "Setoran dibatalkan.");
     } catch {
       setNotice("Setoran belum bisa dibatalkan.");
@@ -119,14 +121,14 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
       {newDeposit ? (
         <div className={`${styles.fields} ${styles.appear}`}>
           <output className={styles.code}>{newDeposit.code}</output>
-          <p className={styles.secondary}>Pilih cara serah terima setelah operator menyetujui setoran.</p>
+          <p className={styles.secondary}>Pilih cara serah terima setelah admin menyetujui setoran.</p>
           <Button asChild className={styles.action}>
             <Link href={dashboardHref("setoran")} onClick={() => dialogRef.current?.close()}>Lihat pengajuan</Link>
           </Button>
           <p role="status" className={styles.feedback}>{notice}</p>
         </div>
       ) : (
-        <form className={styles.fields} onSubmit={saveDeposit}>
+        <form key={requestId} className={styles.fields} onSubmit={saveDeposit}>
           <div className={styles.field}>
             <label htmlFor="deposit-point">Titik kumpul</label>
             <select id="deposit-point" name="point" required value={pointSlug} onChange={(event) => setPointSlug(event.target.value)}>
@@ -145,6 +147,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
             <span>Jumlah wadah</span>
             <input required name="quantity" type="number" inputMode="numeric" min={1} max={maxBottles} step={1} />
           </label>
+          <DepositPhotoField disabled={submitting} />
           <p role="alert" className={styles.feedback}>{formError}</p>
           <Button type="submit" className={styles.action} disabled={submitting}>{submitting ? "Mengirim pengajuan…" : "Ajukan setoran"}</Button>
         </form>
@@ -206,7 +209,7 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
                 <ul className={styles.history}>
                   {deposits.map((deposit) => (
                     <li key={deposit.code}>
-                      <details>
+                      <details name="resident-deposits">
                         <summary className={styles.row}>
                           <span><strong>{deposit.code}</strong><small>{deposit.material} · {deposit.quantity} wadah</small></span>
                           <div className={styles.rowEnd}>
@@ -214,19 +217,26 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
                             <span className={styles.expand} aria-hidden="true" />
                           </div>
                         </summary>
-                        <div className={styles.detail}>
-                          <p>{deposit.pointName} · {dateFormat.format(new Date(deposit.createdAt))}</p>
-                          {deposit.reason && <p className={styles.reason}>{deposit.reason} Buat setoran baru setelah botol siap.</p>}
-                          {deposit.approvalNote && <p className={styles.reason}>{deposit.approvalNote}</p>}
-                          {deposit.method && <p>{fulfillmentLabels[deposit.method]}</p>}
-                          {deposit.status === "waiting" && deposit.method === "pickup" && <p>Permintaan penjemputan tersimpan di demo ini.</p>}
-                          {deposit.status === "approved" && <DepositFulfillment code={deposit.code} />}
-                          {["pending_approval", "approved", "waiting"].includes(deposit.status) && (
-                            <div className={styles.detailActions}>
-                              {deposit.status === "waiting" && <button type="button" className={styles.subtle} onClick={() => copyCode(deposit.code)}>Salin kode</button>}
-                              <button type="button" className={styles.subtle} onClick={() => cancelDeposit(deposit.code)}>Batalkan setoran</button>
+                        <div className={`${styles.detail} ${styles.depositDetail}`}>
+                          <div className={styles.depositOverview}>
+                            {isDepositPhoto(deposit.photo) && <DepositPhoto src={deposit.photo} />}
+                            <div className={styles.depositMetadata}>
+                              <p>{deposit.pointName} <span aria-hidden="true">·</span> <time dateTime={deposit.createdAt}>{dateFormat.format(new Date(deposit.createdAt))}</time></p>
+                              {deposit.method && <p>{fulfillmentLabels[deposit.method]}</p>}
+                              {deposit.reason && <p className={styles.reason}>{deposit.reason}</p>}
+                              {deposit.approvalNote && <p className={styles.reason}>{deposit.approvalNote}</p>}
                             </div>
-                          )}
+                          </div>
+                          <div className={styles.depositWork}>
+                            {deposit.status === "pending_approval" && <PendingDepositPhoto code={deposit.code} hasPhoto={isDepositPhoto(deposit.photo)} />}
+                            {deposit.status === "approved" && <DepositFulfillment code={deposit.code} onCancel={() => cancelDeposit(deposit.code)} />}
+                            {["pending_approval", "waiting"].includes(deposit.status) && (
+                              <div className={styles.detailActions}>
+                                {deposit.status === "waiting" && <button type="button" className={styles.subtle} onClick={() => copyCode(deposit.code)}>Salin kode</button>}
+                                <button type="button" className={styles.subtle} onClick={() => cancelDeposit(deposit.code)}>Batalkan setoran</button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </details>
                     </li>
@@ -235,25 +245,30 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
               ) : (
                 <div className={styles.empty}>
                   <h3>Belum ada setoran</h3>
-                  <p>{points.length ? "Ajukan setoran untuk diperiksa operator." : "Setoran bisa dibuat setelah titik kumpul aktif tersedia."}</p>
+                  <p>{points.length ? "Ajukan setoran untuk diperiksa admin." : "Setoran bisa dibuat setelah titik kumpul aktif tersedia."}</p>
                 </div>
               )}
               <p role="status" className={styles.feedback}>{notice}</p>
             </Card>}
 
-            {view !== "setoran" && <Card role="region" className={styles.panel} aria-labelledby="point-title">
-              <h2 id="point-title">Titik setoran ReVessel</h2>
-              {points.length ? points.map((point) => (
-                <div className={styles.pointDetails} key={point.slug}>
-                  <h3>{point.name}</h3>
-                  <p>{point.address}</p>
-                  <ul>{point.materials.map((material) => <li key={material}>{material}</li>)}</ul>
-                </div>
-              )) : <p className={styles.secondary}>{"Belum ada titik kumpul aktif."}</p>}
-              <Link href={dashboardHref("panduan")} className={`${styles.guideLink} link-reveal`}>
-                <BookOpen aria-hidden="true" />
-                <span>Panduan menyiapkan botol</span>
-              </Link>
+            {view === "ringkasan" && <Card role="region" className={styles.panel} aria-label="Titik setoran">
+              <details className={styles.pointDisclosure}>
+                <summary className={styles.row}>
+                  <strong>Titik setoran</strong>
+                  <span className={styles.expand} aria-hidden="true" />
+                </summary>
+                {points.length ? points.map((point) => (
+                  <div className={styles.pointDetails} key={point.slug}>
+                    <h3>{point.name}</h3>
+                    <p>{point.address}</p>
+                    <ul>{point.materials.map((material) => <li key={material}>{material}</li>)}</ul>
+                  </div>
+                )) : <p className={styles.secondary}>Belum ada titik kumpul aktif.</p>}
+                <Link href={dashboardHref("panduan")} className={`${styles.guideLink} link-reveal`}>
+                  <BookOpen aria-hidden="true" />
+                  <span>Panduan menyiapkan botol</span>
+                </Link>
+              </details>
             </Card>}
           </div>
         </>

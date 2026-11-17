@@ -33,6 +33,7 @@ export type Deposit = {
   pointName: string;
   method: FulfillmentMethod | null;
   approvalNote: string | null;
+  photo?: string;
 } & (
   | { status: Exclude<keyof typeof statusLabels, "adjustment">; reason?: never }
   | { status: "adjustment"; reason: ReviewReason }

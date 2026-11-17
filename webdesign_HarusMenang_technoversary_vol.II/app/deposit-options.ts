@@ -1,4 +1,4 @@
-export const materials = ["Botol parfum", "Botol kosmetik", "Jar kaca"] as const;
+export const materials = ["Botol parfum", "Botol kosmetik", "Jar kaca", "Botol sirup", "Botol minuman"] as const;
 
 export const maxBottles = 100;
 export const analyticsPeriods = [[7, "7H"], [30, "30H"], [90, "90H"], [365, "12B"]] as const;

@@ -7,7 +7,7 @@ import { chooseFulfillment } from "@/lib/browser/deposits";
 import type { FulfillmentMethod } from "./deposit-store";
 import styles from "./dashboard.module.css";
 
-export default function DepositFulfillment({ code }: { code: string }) {
+export default function DepositFulfillment({ code, onCancel }: { code: string; onCancel: () => void }) {
   const [method, setMethod] = useState<FulfillmentMethod>("dropoff");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -29,8 +29,8 @@ export default function DepositFulfillment({ code }: { code: string }) {
   }
 
   return (
-    <form className={styles.fields} onSubmit={submit}>
-      <fieldset className={styles.fields}>
+    <form className={`${styles.fields} ${styles.fulfillment}`} onSubmit={submit}>
+      <fieldset className={styles.fulfillmentOptions}>
         <legend className={styles.subheading}>Cara serah terima</legend>
         <label className={styles.check}>
           <input type="radio" name="method" value="dropoff" checked={method === "dropoff"} onChange={() => setMethod("dropoff")} />
@@ -43,22 +43,25 @@ export default function DepositFulfillment({ code }: { code: string }) {
       </fieldset>
       {method === "pickup" && (
         <div className={`${styles.fields} ${styles.appear}`}>
-          <label className={styles.field}>Alamat penjemputan contoh
+          <label className={styles.field}>Alamat penjemputan
             <textarea name="address" required minLength={10} maxLength={400} rows={2} autoComplete="street-address" />
           </label>
-          <label className={styles.field}>Nomor HP contoh
+          <label className={styles.field}>Nomor HP
             <input name="phone" type="tel" required maxLength={24} autoComplete="tel" />
           </label>
           <label className={styles.check}>
             <input type="checkbox" name="share" required />
-            <span>Gunakan data contoh untuk simulasi penjemputan.</span>
+            <span>Simpan alamat dan nomor HP di perangkat ini.</span>
           </label>
         </div>
       )}
       {error && <p className={styles.feedback} role="alert">{error}</p>}
-      <Button type="submit" className={styles.action} disabled={pending}>
-        {pending ? "Menyimpan…" : method === "pickup" ? "Minta penjemputan" : "Konfirmasi antar sendiri"}
-      </Button>
+      <div className={styles.detailActions}>
+        <Button type="submit" className={styles.action} disabled={pending}>
+          {pending ? "Menyimpan…" : method === "pickup" ? "Minta penjemputan" : "Konfirmasi"}
+        </Button>
+        <button type="button" className={styles.subtle} disabled={pending} onClick={onCancel}>Batalkan setoran</button>
+      </div>
     </form>
   );
 }
