@@ -15,7 +15,7 @@ export function redeemReward(rewardId: string, requestId: string): Promise<Rewar
     const code = nextCode("RW", data.claims, 6);
     reward.stock -= 1;
     data.claims.unshift({
-      owner: user.id, rewardId, requestId, code, cost: reward.cost, createdAt: new Date().toISOString(), fulfilled: false,
+      owner: user.id, rewardId, rewardName: reward.name, requestId, code, cost: reward.cost, createdAt: new Date().toISOString(), fulfilled: false,
     });
     return { code };
   });

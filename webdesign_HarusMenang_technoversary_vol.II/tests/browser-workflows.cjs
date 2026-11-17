@@ -87,7 +87,7 @@ test('photo requirement, approval, owner denial, dropoff, receive, points, redem
   await actor('ayu');
   let workspace = storage.readState().workspaces.account;
   assert.equal(selectors.residentRewards(workspace, 'ayu').balance, 30);
-  const reward = workspace.rewards[0]; const id = request();
+  const reward = workspace.rewards.find(({ cost }) => cost === 25); const id = request();
   const claim = await rewards.redeemReward(reward.id, id);
   assert.ok(claim.code);
   assert.equal((await rewards.redeemReward(reward.id, id)).code, claim.code);
@@ -132,6 +132,14 @@ test('queued mutation cannot execute as another resident after account switch', 
 
 test('simultaneous redemption cannot overspend points or duplicate a request', async () => {
   await actor('resident-demo');
+  await storage.changeState((state) => {
+    const entries = state.workspaces.account.deposits;
+    const weighted = entries.find((row) => row.item.weightGrams > 10_000);
+    weighted.item.weightGrams = 26_500;
+    state.workspaces.account.deposits = entries.filter((row) => row === weighted || !row.item.weightGrams || row.item.weightGrams < 10_000);
+    delete state.workspaces.account.cashouts;
+    delete state.workspaces.account.cashRedemptions;
+  });
   const initial = storage.readState().workspaces.account;
   const reward = initial.rewards[0];
   const balance = selectors.residentRewards(initial, 'resident-demo').balance;
@@ -209,8 +217,8 @@ test('active legacy ledger wins collisions, keeps the other record archived, and
   assert.equal(loaded.session.mode, 'account');
   assert.equal(loaded.workspaces.account.deposits.find((row) => row.item.code === 'RV-A0000001').item.quantity, 17);
   assert.equal(loaded.workspaces.demo.deposits.find((row) => row.item.code === 'RV-A0000001').item.quantity, 23);
-  assert.equal(loaded.workspaces.account.deposits.length, 8);
-  assert.equal(loaded.workspaces.account.claims.length, 2);
+  assert.equal(loaded.workspaces.account.deposits.length, state.workspaces.demo.deposits.length);
+  assert.equal(loaded.workspaces.account.claims.length, state.workspaces.demo.claims.length);
   assert.equal(loaded.workspaces.account.rewards[0].stock, stock);
 });
 
@@ -242,4 +250,228 @@ test('queued contact cannot acquire another account identity after session switc
   execute();
   assert.ok((await pending).error);
   assert.ok(!storage.readState().workspaces.account.messages.some((entry) => entry.id === id));
+});
+
+test('withdraw all reserves the wallet once and leaves points intact', async () => {
+  const { requestCashout, reviewCashout } = require('../lib/browser/cashouts.ts');
+  await actor('resident-demo');
+  const workspace = () => storage.readState().workspaces.account;
+  const totals = () => selectors.residentRewards(workspace(), 'resident-demo');
+  assert.equal(totals().balance, 1537);
+  assert.equal(totals().cashBalance, 150000);
+  assert.equal(totals().paidCash, 200000);
+  assert.equal(totals().pendingCash, 0);
+  assert.deepEqual(totals().cashouts.map(({ amount }) => amount), [100000, 50000, 50000]);
+  assert.ok(totals().activity.some(({ weightGrams, points }) => weightGrams === 2400 && points === 24));
+  assert.ok((await requestCashout(request(), 150001)).error);
+  assert.ok((await requestCashout(request(), 50000)).error);
+  assert.ok(workspace().deposits.every(({ item }) => /^RV-[A-F0-9]{8}$/.test(item.code)));
+  assert.ok((await requestCashout(request(), 49999)).error);
+  assert.ok((await requestCashout(request(), 50000.5)).error);
+  const id = request();
+  const results = await Promise.all([requestCashout(id, 150000), requestCashout(id, 150000), requestCashout(request(), 150000)]);
+  const code = results[0].code;
+  assert.ok(code);
+  assert.equal(results[1].code, code);
+  assert.ok(results[2].error);
+  assert.equal(workspace().cashouts.length, 4);
+  assert.equal(totals().balance, 1537);
+  assert.equal(totals().cashBalance, 0);
+  assert.equal(totals().pendingCash, 150000);
+  assert.equal(totals().paidCash, 200000);
+  assert.ok((await reviewCashout(code, 'paid')).error);
+  await actor('someone-else');
+  assert.ok((await reviewCashout(code, 'cancelled')).error);
+  assert.deepEqual(selectors.residentRewards(workspace(), 'someone-else').cashouts, []);
+  await actor('admin', 'admin');
+  assert.equal((await reviewCashout(code, 'paid')).success, true);
+  assert.equal((await reviewCashout(code, 'paid')).success, true);
+  assert.ok((await reviewCashout(code, 'rejected')).error);
+  assert.equal(totals().paidCash, 350000);
+  assert.equal(totals().pendingCash, 0);
+  assert.equal(totals().balance, 1537);
+  assert.equal(totals().cashBalance, 0);
+  await actor('resident-demo');
+  assert.ok((await reviewCashout(code, 'cancelled')).error);
+});
+
+test('default dashboard data has distinct activity across comparison periods', () => {
+  const workspace = initialState().workspaces.account;
+  const now = Date.now();
+  const records = (start, end) => workspace.deposits.filter(({ item }) => {
+    const age = (now - Date.parse(item.createdAt)) / 86400000;
+    return age >= start && age < end;
+  });
+  const weighed = (rows) => rows.reduce((total, { item }) => total + (item.weightGrams ?? 0), 0);
+  const current = records(0, 30);
+  const previous = records(30, 60);
+  assert.equal(current.length, 21);
+  assert.equal(previous.length, 10);
+  assert.equal(weighed(current), 297200);
+  assert.equal(weighed(previous), 308000);
+  assert.equal(new Set(previous.map(({ item }) => item.material)).size, 5);
+  for (const range of [7, 90, 365]) {
+    assert.ok(records(0, range).length > 0);
+    assert.ok(records(range, range * 2).length > 0);
+    assert.notEqual(weighed(records(0, range)), weighed(records(range, range * 2)));
+  }
+});
+
+test('older browsers receive the built-in wallet once and a later zero balance stays zero', async () => {
+  const { requestCashout, reviewCashout } = require('../lib/browser/cashouts.ts');
+  const state = initialState();
+  const account = state.workspaces.account;
+  const personal = { ...account.deposits[0], owner: 'resident-personal', requestId: request() };
+  personal.item = { ...personal.item, code: 'RV-CAFE1234' };
+  delete personal.reviewedAt;
+  account.deposits = [...account.deposits.filter(({ item }) => /^RV-A000000[1-8]$/.test(item.code)), personal];
+  delete account.demoWalletSeeded;
+  delete account.cashRedemptions;
+  for (const entry of account.cashouts) {
+    delete entry.fromWallet;
+    entry.cost = entry.amount === 50000 ? 1250 : 2500;
+  }
+  stored.set(key, JSON.stringify(state));
+  const workspace = () => storage.readState().workspaces.account;
+  const totals = () => selectors.residentRewards(workspace(), 'resident-demo');
+  assert.equal(totals().cashBalance, 150000);
+  assert.equal(totals().balance, 1537);
+  assert.equal(workspace().cashouts.length, 3);
+  assert.equal(workspace().cashRedemptions.length, 7);
+  assert.deepEqual(workspace().deposits.find(({ owner }) => owner === personal.owner), personal);
+  assert.equal(selectors.residentRewards(workspace(), personal.owner).cashBalance, 0);
+
+  await storage.enterDemo('resident');
+  const { code } = await requestCashout(request(), 150000);
+  assert.ok(code);
+  await storage.enterDemo('admin');
+  assert.equal((await reviewCashout(code, 'paid')).success, true);
+  const raw = stored.get(key);
+  stored.delete(key);
+  storage.readState();
+  stored.set(key, raw);
+  assert.equal(totals().cashBalance, 0);
+  assert.equal(workspace().cashRedemptions.length, 7);
+});
+
+test('previous built-in history separates paid cash without altering the available balance', async () => {
+  const state = initialState();
+  const workspace = state.workspaces.account;
+  workspace.cashRedemptions = workspace.cashRedemptions.filter(({ requestId }) => requestId !== 'seed-cash-6');
+  workspace.cashouts = workspace.cashouts.filter(({ code }) => code !== 'CU-A00000000003');
+  workspace.deposits = workspace.deposits.filter(({ item }) => !['RV-A0000042', 'RV-A0000043'].includes(item.code));
+  const prior = selectors.residentRewards(workspace, 'resident-demo');
+  stored.set(key, JSON.stringify(state));
+  await storage.enterDemo('resident');
+  const upgraded = selectors.residentRewards(storage.readState().workspaces.account, 'resident-demo');
+  assert.equal(upgraded.balance, prior.balance);
+  assert.equal(upgraded.cashBalance, prior.cashBalance);
+  assert.equal(upgraded.paidCash, 200000);
+  await storage.enterDemo('resident');
+  assert.equal(storage.readState().workspaces.account.cashouts.length, 3);
+  assert.equal(storage.readState().workspaces.account.cashRedemptions.length, 7);
+});
+
+test('rejected and cancelled cashouts restore cash once and leave legacy balances unchanged', async () => {
+  const { requestCashout, reviewCashout } = require('../lib/browser/cashouts.ts');
+  await actor('resident-demo');
+  const workspace = () => storage.readState().workspaces.account;
+  const points = () => selectors.residentRewards(workspace(), 'resident-demo');
+  const first = await requestCashout(request(), 150000);
+  assert.equal(points().cashBalance, 0);
+  await actor('admin', 'admin');
+  assert.equal((await reviewCashout(first.code, 'rejected')).success, true);
+  assert.equal((await reviewCashout(first.code, 'rejected')).success, true);
+  assert.equal(points().balance, 1537);
+  await actor('resident-demo');
+  assert.equal(points().cashBalance, 150000);
+  const second = await requestCashout(request(), 150000);
+  assert.equal(points().pendingCash, 150000);
+  assert.equal((await reviewCashout(second.code, 'cancelled')).success, true);
+  assert.equal(points().cashBalance, 150000);
+  assert.equal(points().pendingCash, 0);
+  assert.equal(points().paidCash, 200000);
+  assert.equal(points().activity.filter(({ points }) => points === 1250).length, 0);
+  assert.equal(points().activity.filter(({ points }) => points === -1250).length, 7);
+  await storage.changeState((state) => {
+    const account = state.workspaces.account;
+    delete account.cashRedemptions;
+    const prior = account.cashouts.find(({ status, amount }) => status === 'paid' && amount === 50000);
+    account.cashouts = [{ ...prior, fromWallet: undefined, cost: 1250 }];
+  });
+  assert.equal(points().balance, 9037);
+  assert.equal(points().cashBalance, 0);
+  assert.equal(points().paidCash, 50000);
+  assert.ok((await requestCashout(request(), 50000)).error);
+});
+
+
+test('updated reward prices preserve saved claims and catalogue stock', async () => {
+  const state = initialState();
+  state.session = { id: 'resident-demo', mode: 'account' };
+  const workspace = state.workspaces.account;
+  const jar = workspace.rewards.find(({ cost }) => cost === 125);
+  const seedling = workspace.rewards.find(({ cost }) => cost === 25);
+  jar.name = 'Wadah kaca pakai ulang';
+  jar.cost = 12;
+  jar.stock = 3;
+  seedling.name = 'Bibit tanaman';
+  seedling.cost = 8;
+  for (const claim of workspace.claims.filter(({ rewardId }) => rewardId === seedling.id)) {
+    delete claim.rewardName;
+    claim.cost = 8;
+  }
+  stored.set(key, JSON.stringify(state));
+
+  const catalogue = storage.readState().workspaces.account.rewards;
+  assert.equal(catalogue.find(({ id }) => id === jar.id).name, 'Stoples kaca rekondisi 250 ml');
+  assert.equal(catalogue.find(({ id }) => id === jar.id).cost, 125);
+  assert.equal(catalogue.find(({ id }) => id === jar.id).stock, 3);
+  assert.equal(catalogue.find(({ id }) => id === seedling.id).cost, 25);
+
+  assert.ok((await rewards.redeemReward(seedling.id, request())).code);
+  const updated = storage.readState().workspaces.account;
+  const history = selectors.residentRewards(updated, 'resident-demo').redemptions;
+  assert.equal(history.find(({ requestId, cost }) => requestId && cost === 25).name, 'Bibit cabai siap tanam (1 polybag)');
+  assert.equal(history.filter(({ kind }) => kind === 'cash').length, 7);
+  assert.ok(history.some(({ name, cost, fulfilled }) => name === 'Stoples kaca rekondisi 250 ml' && cost === 125 && fulfilled));
+  assert.equal(history.filter(({ name, cost }) => name === 'Bibit tanaman' && cost === 8).length, 2);
+  const totals = selectors.residentRewards(updated, 'resident-demo');
+  assert.equal(totals.balance, 1546);
+  assert.equal(totals.cashBalance, 150000);
+});
+
+
+test('cash reward can be saved and withdrawn later or exchanged and withdrawn atomically', async () => {
+  const { redeemCash, requestCashout, reviewCashout } = require('../lib/browser/cashouts.ts');
+  await actor('resident-demo');
+  const get = () => selectors.residentRewards(storage.readState().workspaces.account, 'resident-demo');
+  const initial = storage.readState();
+  const hold = await requestCashout(request(), 150000);
+  assert.ok((await redeemCash(request(), 50000)).error);
+  assert.equal(get().balance, 1537);
+  await reviewCashout(hold.code, 'cancelled');
+  assert.ok((await redeemCash(request(), 50000)).error);
+  const id = request();
+  assert.equal((await redeemCash(id)).success, true);
+  assert.equal((await redeemCash(id)).success, true);
+  assert.ok((await redeemCash(id, 250000)).error);
+  assert.ok((await redeemCash(request())).error);
+  assert.equal(get().balance, 287);
+  assert.equal(get().cashBalance, 200000);
+  assert.equal(get().cashouts.filter(({ status }) => status === 'pending').length, 0);
+  assert.ok((await requestCashout(request(), 200000)).code);
+
+  stored.set(key, JSON.stringify(initial));
+  const immediate = request();
+  assert.equal((await redeemCash(immediate, 200000)).success, true);
+  assert.equal((await redeemCash(immediate, 200000)).success, true);
+  assert.equal(get().cashBalance, 0);
+  assert.equal(get().balance, 287);
+  const pending = get().cashouts.filter(({ status }) => status === 'pending');
+  assert.equal(pending.length, 1);
+  assert.equal(pending[0].amount, 200000);
+  await actor('admin', 'admin');
+  assert.equal((await reviewCashout(pending[0].code, 'paid')).success, true);
+  assert.equal(get().paidCash, 400000);
 });

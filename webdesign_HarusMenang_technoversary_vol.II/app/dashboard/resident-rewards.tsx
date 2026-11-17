@@ -2,11 +2,13 @@
 
 import { createBrowserId } from "@/lib/browser/id";
 import { useRef, useState, type FormEvent } from "react";
+import { Gift, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { residentRewards } from "@/lib/browser/selectors";
 import { redeemReward } from "@/lib/browser/rewards";
-import { formatGrams, gramsPerPoint } from "@/lib/browser/glass-value";
 import styles from "./dashboard.module.css";
+import { CashRewardRow, ResidentCashout } from "./cashout-panels";
+import { formatGrams, gramsPerPoint } from "@/lib/browser/glass-value";
 
 export type ResidentRewardData = Awaited<ReturnType<typeof residentRewards>>;
 
@@ -47,6 +49,8 @@ export default function ResidentRewards({ data }: { data: ResidentRewardData }) 
 
   return (
     <div className={styles.guideGrid}>
+      <ResidentCashout balance={data.cashBalance} paidCash={data.paidCash} pendingCash={data.pendingCash} entries={data.cashouts} />
+
       <section className={styles.panel} aria-labelledby="points-balance">
         <h2 id="points-balance">Saldo poin</h2>
         <p className={styles.balance}>{format.format(data.balance)} <small>poin</small></p>
@@ -55,48 +59,66 @@ export default function ResidentRewards({ data }: { data: ResidentRewardData }) 
         {data.activity.length ? (
           <ul className={styles.activity}>
             {data.activity.map((item) => (
-              <li key={item.code} className={styles.row}>
-                <span><strong>{item.description}</strong>{item.date && <small>{dateFormat.format(new Date(item.date))}{"weightGrams" in item && typeof item.weightGrams === "number" ? " · " + formatGrams(item.weightGrams) : ""}</small>}</span>
-                <span>{item.points > 0 ? "+" : "−"}{format.format(Math.abs(item.points))}</span>
+              <li key={item.code} className={styles.cashoutItem}>
+                <div className={styles.cashoutLine}>
+                  <div className={styles.cashoutCell}>
+                    <strong>{item.description}</strong>
+                    <span>{dateFormat.format(new Date(item.date))}</span>
+                  </div>
+                  <div className={styles.cashoutCell}>
+                    <strong>{item.points > 0 ? "+" : item.points < 0 ? "−" : ""}{format.format(Math.abs(item.points))} poin</strong>
+                    {"weightGrams" in item && typeof item.weightGrams === "number" && <span>{formatGrams(item.weightGrams)}</span>}
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
         ) : <p className={styles.secondary}>Belum ada transaksi poin.</p>}
       </section>
 
-      <section className={styles.panel} aria-labelledby="rewards-title">
-        <h2 id="rewards-title">Katalog reward</h2>
-        {data.rewards.length ? (
+      <div className={styles.rewardColumn}>
+        <section className={styles.panel} aria-labelledby="rewards-title">
+          <h2 id="rewards-title" className={styles.cashoutTitle}><Gift aria-hidden="true" size={18} /> Tukar poin</h2>
           <ul className={styles.activity}>
+            <CashRewardRow points={data.balance} balance={data.cashBalance} pending={data.pendingCash > 0} />
             {data.rewards.map((reward) => (
               <li key={reward.id} className={styles.rewardItem}>
-                <div>
+                <div className={styles.cashoutCell}>
                   <h3>{reward.name}</h3>
-                  <p className={styles.secondary}>{format.format(reward.cost)} poin · {reward.stock ? `Stok ${format.format(reward.stock)}` : "Stok habis"}</p>
+                  <span>{format.format(reward.cost)} poin</span>
                 </div>
                 <Button type="button" variant="outline" disabled={!reward.stock || data.balance < reward.cost} onClick={() => open(reward)}>
-                  {reward.stock && data.balance < reward.cost ? "Poin belum cukup" : "Tukar"}
+                  {!reward.stock ? "Stok habis" : data.balance < reward.cost ? "Poin belum cukup" : "Tukar"}
                 </Button>
               </li>
             ))}
           </ul>
-        ) : <p className={styles.secondary}>Belum ada reward yang tersedia.</p>}
+        </section>
 
-        <h3 className={styles.subheading}>Penukaran terbaru</h3>
-        {data.redemptions.length ? (
-          <ul className={styles.activity}>
-            {data.redemptions.map((item) => (
-              <li key={item.code} className={styles.rewardItem}>
-                <div>
-                  <h4>{item.name}</h4>
-                  <p className={styles.secondary}>{item.fulfilled ? "Sudah diserahkan" : item.pickup}</p>
-                  <code>{item.code}</code>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : <p className={styles.secondary}>Belum ada penukaran.</p>}
-      </section>
+        <section className={styles.panel} aria-labelledby="redemption-history">
+          <h2 id="redemption-history" className={styles.cashoutTitle}><History aria-hidden="true" size={18} /> Penukaran terbaru</h2>
+          {data.redemptions.length ? (
+            <ul className={styles.activity}>
+              {data.redemptions.map((item) => (
+                <li key={item.code} className={styles.cashoutItem}>
+                  <div className={styles.cashoutLine}>
+                    <div className={styles.cashoutCell}>
+                      <strong>{item.kind === "cash" ? "Saldo rupiah" : item.name}</strong>
+                      <span>{dateFormat.format(new Date(item.createdAt))}</span>
+                      {item.kind === "item" && !item.fulfilled && <code>{item.code}</code>}
+                    </div>
+                    <div className={styles.cashoutCell}>
+                      <strong>{item.kind === "cash" ? item.name : format.format(item.cost) + " poin"}</strong>
+                      <span>{item.kind === "cash" ? format.format(item.cost) + " poin" : item.fulfilled ? "Sudah diambil" : "Menunggu diambil"}</span>
+                    </div>
+                  </div>
+                  {item.kind === "item" && !item.fulfilled && <p className={styles.cashoutNote}>{item.pickup}</p>}
+                </li>
+              ))}
+            </ul>
+          ) : <p className={styles.secondary}>Belum ada penukaran.</p>}
+        </section>
+      </div>
 
       <dialog ref={dialog} className={styles.dialog} aria-labelledby="redeem-title" onCancel={(event) => { if (busy) event.preventDefault(); }}>
         <h2 id="redeem-title">{receipt ? "Penukaran berhasil" : "Tukar poin?"}</h2>

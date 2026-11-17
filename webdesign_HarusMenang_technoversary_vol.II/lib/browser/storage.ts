@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { collectionPoints, demoAccounts, initialState, type BrowserState, type Mode, type Profile, type Role, type Workspace } from "./data";
+import { collectionPoints, defaultRewardCatalog, demoAccounts, demoResident, initialState, refreshBuiltInWallet, type BrowserState, type Mode, type Profile, type Role, type Workspace } from "./data";
 import { createBrowserId } from "./id";
 import { depositPhotoAssets } from "./deposit-photo-assets";
 import { unifyWorkspaces } from "./workspaces";
@@ -29,6 +29,15 @@ function refreshStoredLabels(workspace: Workspace) {
       reward.pickup = "Tunjukkan kode saat serah terima.";
     }
   }
+  for (const { id, oldName, oldCost, name, cost } of defaultRewardCatalog) {
+    const reward = workspace.rewards.find((entry) => entry.id === id && entry.name === oldName && entry.cost === oldCost);
+    if (!reward) continue;
+    for (const claim of workspace.claims) {
+      if (claim.rewardId === id) claim.rewardName ??= oldName;
+    }
+    reward.name = name;
+    reward.cost = cost;
+  }
   const message = workspace.messages.find(({ id }) => id === "pesan-contoh");
   if (message?.name === "Warga Contoh") message.name = "Warga ReVessel";
   if (message?.email === "warga@example.test") message.email = "user@revessel.com";
@@ -52,6 +61,9 @@ export function readState(): BrowserState {
   unifyWorkspaces(state);
   refreshStoredLabels(state.workspaces.demo);
   refreshStoredLabels(state.workspaces.account);
+  if (state.accounts.some(({ id, email, password }) => id === demoResident.id && email === demoResident.email && !password)) {
+    refreshBuiltInWallet(state.workspaces.account);
+  }
   cache = { raw, state };
   return state;
 }

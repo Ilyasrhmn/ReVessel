@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { Boxes, ClipboardCheck, FileCheck, Gift, Mail, Search, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { adminDepositBuckets, adminDeposits, dashboardResidents, pendingRedemptions, rewardCatalog } from "@/lib/browser/selectors";
+import { adminDepositBuckets, adminDeposits, cashoutTotals, dashboardResidents, pendingRedemptions, rewardCatalog } from "@/lib/browser/selectors";
+import { rupiah } from "@/lib/browser/glass-value";
 import type { BrowserState, Mode, Workspace } from "@/lib/browser/data";
 import BrowserGate from "../browser-gate";
 import DashboardShell from "../dashboard-shell";
@@ -15,9 +16,11 @@ import styles from "../dashboard.module.css";
 import DepositAnalytics from "../deposit-analytics";
 import { HandOverForm, PublishRewardForm } from "./reward-forms";
 import ContactInbox from "./contact-inbox";
+import { AdminCashouts } from "../cashout-panels";
+import BalanceSummary from "../balance-summary";
 
 const tabs = [
-  { id: "ringkasan", label: "Ringkasan", title: "Ringkasan setoran", icon: Boxes },
+  { id: "ringkasan", label: "Ringkasan", title: "Ringkasan", icon: Boxes },
   { id: "setoran", label: "Setoran masuk", title: "Setoran masuk", icon: ClipboardCheck },
   { id: "pengguna", label: "Pengguna", title: "Pengguna", icon: Users },
   { id: "reward", label: "Reward", title: "Reward", icon: Gift },
@@ -72,8 +75,15 @@ function AdminWorkspace({ query, state, mode, name }: { query: Pick<URLSearchPar
 function AdminOverview({ workspace }: { workspace: Workspace }) {
   const buckets = adminDepositBuckets(workspace);
   const entries = adminDeposits(workspace, null, 5);
+  const { pending, paid } = cashoutTotals(workspace.cashouts ?? []);
+  const exchanged = (workspace.cashRedemptions ?? []).reduce((total, entry) => total + entry.amount, 0);
   return (
     <>
+      <BalanceSummary title="Pencairan warga" href={`${base}?bagian=reward#admin-cashouts`} linkLabel="Lihat pencairan" values={[
+        ["Poin ditukar ke rupiah", rupiah(exchanged)],
+        ["Menunggu pencairan", rupiah(pending)],
+        ["Sudah dicairkan", rupiah(paid)],
+      ]} />
       <DepositAnalytics buckets={buckets} />
       <div className={styles.columns}>
         <AdminDepositList entries={entries} filter="semua" overview />
@@ -194,6 +204,7 @@ function AdminRewards({ workspace }: { workspace: Workspace }) {
         <h3 className={styles.subheading}>Verifikasi pengambilan</h3>
         <HandOverForm />
       </section>
+      <AdminCashouts entries={workspace.cashouts ?? []} />
     </div>
   );
 }

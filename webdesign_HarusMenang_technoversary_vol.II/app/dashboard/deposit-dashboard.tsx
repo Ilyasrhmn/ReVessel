@@ -13,7 +13,7 @@ import CollectionMap from "../ui/collection-map";
 import { bottleChecklist, bottleQuestions } from "../bottle-guide";
 import type { CollectionPoint } from "../deposit-options";
 import { depositWeightLabel, fulfillmentLabels, statusLabels, type Deposit } from "./deposit-store";
-import { maxWeightGrams } from "@/lib/browser/glass-value";
+import { maxWeightGrams, rupiah } from "@/lib/browser/glass-value";
 import { cancelDeposit as cancelStoredDeposit, createDeposit } from "@/lib/browser/deposits";
 import DashboardShell from "./dashboard-shell";
 import { isDepositPhoto } from "@/lib/browser/deposit-photo";
@@ -22,16 +22,18 @@ import DepositFulfillment from "./deposit-fulfillment";
 import ResidentRewards, { type ResidentRewardData } from "./resident-rewards";
 import styles from "./dashboard.module.css";
 import DepositAnalytics from "./deposit-analytics";
+import BalanceSummary from "./balance-summary";
 import { dashboardHref, dashboardSection, type DashboardSection } from "./sections";
 
 const dateFormat = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" });
+const number = new Intl.NumberFormat("id-ID");
 
 function Status({ deposit }: { deposit: Deposit }) {
   return <Badge className={styles.status} variant="secondary" data-state={deposit.status}>{statusLabels[deposit.status]}</Badge>;
 }
 
 const sections = {
-  ringkasan: { label: "Ringkasan", title: "Ringkasan setoran", icon: Boxes },
+  ringkasan: { label: "Ringkasan", title: "Ringkasan", icon: Boxes },
   setoran: { label: "Setoran saya", title: "Setoran saya", icon: History },
   "titik-kumpul": { label: "Titik kumpul", title: "Titik kumpul", icon: MapPin },
   poin: { label: "Poin & reward", title: "Poin & reward", icon: Gift },
@@ -200,7 +202,17 @@ export default function DepositDashboard({ deposits, points, profile, rewards }:
         </div>
       ) : (
         <>
-          {view === "ringkasan" && <DepositAnalytics deposits={deposits} />}
+          {view === "ringkasan" && (
+            <>
+              {rewards && <BalanceSummary title="Saldo dan poin" href={dashboardHref("poin")} linkLabel="Poin & reward" values={[
+                ["Saldo tersedia", rupiah(rewards.cashBalance)],
+                ["Sudah dicairkan", rupiah(rewards.paidCash)],
+                ...(rewards.pendingCash > 0 ? [["Menunggu pencairan", rupiah(rewards.pendingCash)] as const] : []),
+                ["Saldo poin", number.format(rewards.balance) + " poin"],
+              ]} />}
+              <DepositAnalytics deposits={deposits} />
+            </>
+          )}
 
           <div className={styles.columns} data-wide={view !== "ringkasan"}>
             {view === "titik-kumpul" && <CollectionMap />}

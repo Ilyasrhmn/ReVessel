@@ -17,7 +17,7 @@ export default function ResidentPage() {
           <DepositDashboard
             deposits={residentDeposits(workspace, user.id)}
             points={collectionPoints}
-            rewards={section === "poin" ? residentRewards(workspace, user.id) : null}
+            rewards={section === "poin" || section === "ringkasan" ? residentRewards(workspace, user.id) : null}
             profile={user}
           />
         );

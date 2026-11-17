@@ -24,6 +24,7 @@ function mergeWorkspaces(primary: Workspace, secondary: Workspace): Workspace {
   const importedClaims = claims.filter((claim) => !claimKeys(claim).some((key) => originalClaims.has(key)));
   const primaryRewards = new Set(primary.rewards.map(({ id }) => id));
   return {
+    demoWalletSeeded: primary.demoWalletSeeded || secondary.demoWalletSeeded,
     deposits: combine(primary.deposits, secondary.deposits, depositKeys)
       .sort((a, b) => b.item.createdAt.localeCompare(a.item.createdAt)),
     claims: claims.map((claim) => {
@@ -37,6 +38,8 @@ function mergeWorkspaces(primary: Workspace, secondary: Workspace): Workspace {
         ? Math.max(0, reward.stock - importedClaims.filter((claim) => claim.rewardId === reward.id).length)
         : reward.stock,
     })),
+    cashouts: combine(primary.cashouts ?? [], secondary.cashouts ?? [], (entry) => [entry.code]),
+    cashRedemptions: combine(primary.cashRedemptions ?? [], secondary.cashRedemptions ?? [], (entry) => [entry.owner + ":" + entry.requestId]),
     messages: combine(primary.messages, secondary.messages, (message) => [message.id])
       .sort((a, b) => b.sentAt.localeCompare(a.sentAt)),
   };

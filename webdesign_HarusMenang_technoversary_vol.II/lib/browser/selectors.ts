@@ -1,8 +1,8 @@
 import type { DepositBucket } from "@/app/dashboard/deposit-analytics";
-import type { BrowserState, Workspace } from "./data";
+import type { BrowserState, Cashout, Workspace } from "./data";
 import { isKnownCollectionPointId } from "@/app/collection-directory";
 import type { Deposit } from "@/app/dashboard/deposit-store";
-import { pointsForWeight } from "./glass-value";
+import { pointsForWeight, rupiah } from "./glass-value";
 
 export function residentDeposits(workspace: Workspace, owner: string) {
   return workspace.deposits.filter((row) => row.owner === owner).map(({ item }) => item);
@@ -15,16 +15,31 @@ export function rewardCatalog(workspace: Workspace) {
 export function pendingRedemptions(workspace: Workspace) {
   return workspace.claims.filter((claim) => !claim.fulfilled).slice(0, 25).map((claim) => {
     const reward = workspace.rewards.find(({ id }) => id === claim.rewardId)!;
-    return { code: claim.code, name: reward.name };
+    return { code: claim.code, name: claim.rewardName ?? reward.name };
   });
+}
+
+export function cashoutTotals(entries: readonly Cashout[]) {
+  return {
+    paid: entries.reduce((total, entry) => total + (entry.status === "paid" ? entry.amount : 0), 0),
+    pending: entries.reduce((total, entry) => total + (entry.status === "pending" ? entry.amount : 0), 0),
+  };
 }
 
 export function residentRewards(workspace: Workspace, owner: string) {
   const deposits = workspace.deposits.filter((row) => row.owner === owner && row.item.status === "accepted");
   const claims = workspace.claims.filter((claim) => claim.owner === owner).map((claim) => {
     const reward = workspace.rewards.find(({ id }) => id === claim.rewardId)!;
-    return { ...claim, name: reward.name, pickup: reward.pickup };
+    return { ...claim, kind: "item" as const, name: claim.rewardName ?? reward.name, pickup: reward.pickup };
   });
+  const cashouts = (workspace.cashouts ?? []).filter((entry) => entry.owner === owner);
+  const cashTotals = cashoutTotals(cashouts);
+  const cashRedemptions = (workspace.cashRedemptions ?? []).filter((entry) => entry.owner === owner);
+  const walletCredits = cashRedemptions.reduce((total, entry) => total + entry.amount, 0);
+  const committedCash = cashouts.reduce((total, entry) => total + (entry.fromWallet && (entry.status === "pending" || entry.status === "paid") ? entry.amount : 0), 0);
+  const cashClaims = cashRedemptions.map((entry) => ({
+    ...entry, kind: "cash" as const, code: "cash-" + entry.requestId, name: rupiah(entry.amount),
+  }));
   const activity = [
     ...deposits.map(({ item, reviewedAt }) => ({
       code: item.code,
@@ -34,12 +49,25 @@ export function residentRewards(workspace: Workspace, owner: string) {
       date: reviewedAt ?? item.createdAt,
     })),
     ...claims.map((claim) => ({ code: claim.code, points: -claim.cost, description: claim.name, date: claim.createdAt })),
+    ...cashClaims.map((entry) => ({ code: entry.code, points: -entry.cost, description: entry.name, date: entry.createdAt })),
+    ...cashouts.flatMap((entry) => {
+      if (entry.cost === undefined) return [];
+      const debit = { code: entry.code, points: -entry.cost, description: rupiah(entry.amount), date: entry.createdAt };
+      return entry.resolvedAt && (entry.status === "rejected" || entry.status === "cancelled")
+        ? [debit, { code: entry.code + "-refund", points: entry.cost, description: "Pengembalian poin pencairan", date: entry.resolvedAt }]
+        : [debit];
+    }),
   ].sort((a, b) => b.date.localeCompare(a.date));
+  const balance = activity.reduce((total, entry) => total + entry.points, 0);
   return {
     rewards: rewardCatalog(workspace),
-    balance: activity.reduce((balance, entry) => balance + entry.points, 0),
+    cashBalance: Math.max(0, walletCredits - committedCash),
+    cashouts: cashouts.slice(0, 25),
+    paidCash: cashTotals.paid,
+    pendingCash: cashTotals.pending,
+    balance,
     activity: activity.slice(0, 25),
-    redemptions: claims.sort((a, b) => Number(a.fulfilled) - Number(b.fulfilled)).slice(0, 25),
+    redemptions: [...claims, ...cashClaims].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 25),
   };
 }
 
