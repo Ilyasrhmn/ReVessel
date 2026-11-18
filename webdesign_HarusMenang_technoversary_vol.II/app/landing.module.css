@@ -232,17 +232,8 @@
   font-size: var(--type-body);
   line-height: 1.55;
 }
-.storyButton,
 .footerButton {
   --liquid-highlight: rgb(255 255 255 / 32%);
-}
-.storyButton {
-  margin-top: clamp(0.65rem, 2.5svh, 1.5rem);
-  font-size: 0.75rem;
-  padding: 0.75rem 1rem;
-}
-.storyButton svg {
-  width: 17px;
 }
 .chapterNav {
   position: relative;
@@ -385,9 +376,6 @@
   font-weight: 450;
   margin-block: clamp(1.5rem, 5svh, 3rem) 1.5rem;
   letter-spacing: -0.065em;
-}
-.footerButton svg {
-  margin-left: 2rem;
 }
 .footerBottom {
   align-self: stretch;

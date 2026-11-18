@@ -190,18 +190,6 @@ export default function Landing() {
               >
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
-                {index === 0 && (
-                  <button
-                    className={`glass-button ${glass.surface} ${styles.storyButton}`}
-                    data-fluid-layer="control"
-                    onPointerMove={moveGlassLight}
-                    data-tone="dark"
-                    onClick={(event) => openGuide(event.currentTarget)}
-                  >
-                    Siapkan botol
-                    <Icon kind="bottle" />
-                  </button>
-                )}
               </article>
             ))}
           </div>
@@ -312,7 +300,6 @@ export default function Landing() {
           onClick={(event) => openGuide(event.currentTarget)}
         >
           Siapkan botol
-          <Icon kind="bottle" />
         </button>
         <nav className={styles.footerLinks} aria-label="Halaman situs">
           <Link href="/tentang">

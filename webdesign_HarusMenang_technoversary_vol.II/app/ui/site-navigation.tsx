@@ -83,7 +83,7 @@ function PublicNavigation({ children, pathname }: { children: ReactNode; pathnam
   const menuRef = useRef<HTMLElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const goingToCollection = useRef(false);
+  const leavingGuide = useRef(false);
   const [checks, setChecks] = useState(() => bottleChecklist.map(() => false));
   const complete = checks.every(Boolean);
   const [navTone, setNavTone] = useState("dark");
@@ -205,19 +205,11 @@ function PublicNavigation({ children, pathname }: { children: ReactNode; pathnam
               className={`${styles.nav} ${glass.surface}`}
               aria-label="Navigasi utama"
             >
-              <NavBubble active={menuOpen ? "menu" : "guide"} />
+              {menuOpen && <NavBubble active="menu" />}
               <Link href="/masuk" className={styles.loginLink}>
                 <LogIn aria-hidden="true" />
                 <span>Masuk</span>
               </Link>
-              <button
-                data-nav-item="guide"
-                aria-haspopup="dialog"
-                onClick={(event) => openGuide(event.currentTarget)}
-              >
-                <Icon kind="bottle" />
-                <span>Siapkan botol</span>
-              </button>
               <button
                 ref={menuTriggerRef}
                 data-nav-item="menu"
@@ -225,9 +217,7 @@ function PublicNavigation({ children, pathname }: { children: ReactNode; pathnam
                 aria-controls="site-menu"
                 onClick={() => setMenuOpen((open) => !open)}
               >
-                <span className={styles.menuToggleIcon}>
-                  <Icon kind="plus" />
-                </span>
+                <span className={styles.menuToggleIcon} aria-hidden="true"><span /><span /></span>
                 <span>Menu</span>
               </button>
             </nav>
@@ -294,8 +284,8 @@ function PublicNavigation({ children, pathname }: { children: ReactNode; pathnam
         className={styles.dialog}
         aria-labelledby="guide-title"
         onClose={() => {
-          if (!goingToCollection.current) triggerRef.current?.focus({ preventScroll: true });
-          goingToCollection.current = false;
+          if (!leavingGuide.current) triggerRef.current?.focus({ preventScroll: true });
+          leavingGuide.current = false;
         }}
       >
         <button
@@ -323,21 +313,20 @@ function PublicNavigation({ children, pathname }: { children: ReactNode; pathnam
         </div>
         <p role="status" className={styles.guideStatus}>
           {complete
-            ? "Botolmu sudah disiapkan. Cek jenis botol yang diterima titik kumpul."
+            ? "Botolmu sudah siap disetor."
             : `${checks.filter(Boolean).length} dari ${checks.length} langkah selesai`}
         </p>
         {complete && (
           <a
             className={styles.guideNext}
-            href={home ? "#titik-kumpul" : "/#titik-kumpul"}
+            href="/masuk?bagian=setoran"
             onClick={(event) => {
               if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-              goingToCollection.current = true;
+              leavingGuide.current = true;
               dialogRef.current?.close();
-              if (home) document.getElementById("titik-kumpul")?.focus({ preventScroll: true });
             }}
           >
-            Lihat titik kumpul <Icon kind="down" />
+            Masuk untuk setor
           </a>
         )}
       </dialog>
