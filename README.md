@@ -1,4 +1,4 @@
-# ReVessel
+# ReVessel - Platform Digital Bank Sampah & Upcycling Kreatif Limbah Kaca
 
 Bank sampah digital untuk menyalurkan botol dan jar kaca bekas agar bisa dipakai ulang atau didaur ulang.
 
@@ -8,6 +8,7 @@ Bank sampah digital untuk menyalurkan botol dan jar kaca bekas agar bisa dipakai
 | Tema | EcoDigital For Environment |
 | Subtema | 1. Bank Sampah Digital<br>2. Pengelolaan Limbah & Upcycling<br>3. Edukasi Lingkungan |
 | Tim | Harus Menang |
+| Institusi | Universitas Amikom Yogyakarta, Fakultas Ilmu Komputer |
 | Website | [Buka ReVessel](https://revessel-ten.vercel.app/) |
 | Repositori | [Ilyasrhmn/ReVessel](https://github.com/Ilyasrhmn/ReVessel) |
 
