@@ -6,7 +6,7 @@ Bank sampah digital untuk menyalurkan botol dan jar kaca bekas agar bisa dipakai
 | --- | --- |
 | Kompetisi | Web Design Competition Techno Versary Vol. II |
 | Tema | EcoDigital For Environment |
-| Subtema | Bank Sampah Digital |
+| Subtema | 1. Bank Sampah Digital<br>2. Pengelolaan Limbah & Upcycling<br>3. Edukasi Lingkungan |
 | Tim | Harus Menang |
 | Website | [Buka ReVessel](https://revessel-ten.vercel.app/) |
 | Repositori | [Ilyasrhmn/ReVessel](https://github.com/Ilyasrhmn/ReVessel) |
@@ -15,13 +15,42 @@ Bank sampah digital untuk menyalurkan botol dan jar kaca bekas agar bisa dipakai
 
 - Ilyas Nur Rohman
 - Melsindy Aulia Febiola
-- Nisa Atthifah As Sodri
+- Nisa Athifah As Sodri
 
-## Masalah, solusi, dan pengguna
+## Deskripsi
 
-Warga yang ingin menyetor botol kaca perlu tahu cara menyiapkan wadah, lokasi tujuan, dan kapan setoran bisa diserahkan. Saat botol utuh tercampur dengan kaca retak atau pecah, peluang pakai ulang berkurang. Pengelola titik kumpul memerlukan informasi tentang jenis, perkiraan berat, dan kondisi kaca sebelum menerimanya.
+### 1. Latar belakang dan analisis permasalahan
 
-Kami membuat ReVessel untuk menghubungkan panduan pemilahan, titik kumpul, dan pengajuan setoran dalam satu alur. Warga mengirim foto, jenis kaca, dan perkiraan berat dalam gram. Admin meninjau foto dan memutuskan apakah pengajuan bisa dilanjutkan. Setelah disetujui, warga memilih antar sendiri atau penjemputan. Poin diberikan berdasarkan berat bersih yang dicatat admin saat menerima setoran.
+Botol kaca bekas, seperti wadah parfum, sirup, minuman, dan kosmetik, sering langsung dibuang meski sebagian masih layak dipakai ulang. ReVessel berangkat dari tiga persoalan dalam pengumpulan kaca rumah tangga:
+
+- **Pengumpulan kaca belum merata.** Kaca berat dan mudah pecah. Titik kumpul juga punya ketentuan penerimaan yang berbeda, sehingga warga perlu tahu ke mana membawa kaca yang sudah dipilah.
+- **Alur penyetoran kurang jelas.** Warga perlu membedakan botol utuh dari kaca pecah, menemukan titik kumpul, dan mengetahui status setoran setelah diajukan.
+- **Insentif dan informasi setoran terbatas.** Warga perlu mengetahui jenis kaca yang diterima, berat yang tercatat, serta poin yang bisa diperoleh.
+
+### 2. Solusi melalui platform ReVessel
+
+ReVessel adalah platform web yang menghubungkan warga dengan pengelola titik kumpul melalui tiga fitur utama:
+
+- **Panduan pemilahan dan peta titik kumpul.** Warga bisa mengikuti checklist persiapan botol, membaca FAQ, dan melihat lokasi serta kontak titik kumpul di peta interaktif.
+- **Pengajuan dan verifikasi setoran.** Warga mengunggah foto, memilih jenis kaca, dan memasukkan perkiraan berat dalam gram. Admin meninjau pengajuan. Warga bisa memantau statusnya dan memilih antar sendiri atau penjemputan setelah disetujui.
+- **Poin dan penukaran.** Setoran yang diterima menghasilkan poin berdasarkan berat bersih. Poin bisa ditukar dengan bibit tanaman, stoples rekondisi, atau saldo rupiah yang bisa diajukan untuk pencairan.
+
+### 3. Tujuan
+
+1. Menjelaskan alur botol dalam tiga tahap, yaitu pilah dan siapkan, kumpulkan dan periksa, lalu salurkan dan pakai ulang.
+2. Memberi edukasi tentang pakai ulang dan daur ulang melalui artikel, FAQ, dan checklist **Cek botolmu**.
+3. Mempermudah warga menemukan titik kumpul dan mengajukan setoran.
+4. Memperjelas proses verifikasi dan memberi insentif melalui poin.
+5. Mendokumentasikan tahapan pengumpulan dan pengolahan kaca melalui galeri kegiatan.
+
+### 4. Manfaat
+
+- **Bagi warga**, persiapan botol, lokasi setoran, status pengajuan, dan insentif lebih mudah diketahui.
+- **Bagi perajin**, botol utuh yang bersih dan terpilah lebih mudah dimanfaatkan kembali sebagai wadah.
+- **Bagi pengelola titik kumpul**, jenis kaca, foto, berat, dan hasil verifikasi setoran tercatat dalam satu alur.
+- **Bagi lingkungan**, botol yang masih layak berpeluang dipakai ulang, sementara kaca lainnya dapat disalurkan ke pengolah sesuai ketentuan penerimaannya.
+
+Penerimaan daur ulang bergantung pada pengolah. Karena itu, ReVessel menyarankan pengguna menanyakan jenis kaca yang diterima, cara membungkusnya, dan waktu penyerahan ke titik kumpul masing-masing.
 
 ## Fitur yang diimplementasikan
 
@@ -79,32 +108,53 @@ Pada **Ringkasan**, rentang 30 hari menampilkan 21 setoran dengan berat bersih 2
 2. Dashboard admin membaca data yang sama untuk meninjau pengajuan dan mencatat penerimaan. Dashboard warga menghitung saldo dari setoran yang diterima dan riwayat penukaran.
 3. Akun, sesi, setoran dan foto, katalog reward, riwayat penukaran, pengaturan dashboard, serta pesan kontak tetap tersedia saat halaman dimuat ulang selama data situs masih tersimpan.
 
-Untuk mencoba kedua peran, gunakan **profil browser dan alamat situs yang sama**. Data di localhost dan situs Vercel tersimpan terpisah. Instalasi lokal hanya memerlukan Node.js dan npm.
+Untuk mencoba kedua peran, gunakan **profil browser dan alamat situs yang sama**. Data di localhost dan situs Vercel tersimpan terpisah.
 
 ## Instalasi dan cara menjalankan
 
-Gunakan **Node.js 22** dan npm.
+### Prasyarat
+
+- Git untuk menyalin repositori.
+- Node.js 22 dan npm untuk memasang dependensi dan menjalankan proyek.
+- Browser modern dengan penyimpanan situs aktif untuk mencoba alur setoran dan akun.
+
+### 1. Salin repositori
 
 ```sh
 git clone https://github.com/Ilyasrhmn/ReVessel.git
 cd ReVessel/webdesign_HarusMenang_technoversary_vol.II
+```
+
+### 2. Pasang dependensi
+
+```sh
 npm ci
+```
+
+### 3. Jalankan server lokal
+
+```sh
 npm run dev
 ```
 
 Buka [http://localhost:3000](http://localhost:3000). Gunakan localhost atau HTTPS agar fitur Web Crypto untuk akun baru tersedia.
 
-## Pemeriksaan dan build
+### 4. Build produksi
 
-Jalankan dari folder aplikasi.
+```sh
+npm run build
+```
+
+Next.js mengekspor berkas produksi statis ke folder `out/`.
+
+## Pemeriksaan kode
 
 ```sh
 npm run lint
 npm test
-npm run build
 ```
 
-`npm test` memeriksa alur akun, setoran, persetujuan, reward, dan persistensi data browser. Hasil build statis tersedia di folder `out/`.
+`npm test` memeriksa alur akun, setoran, persetujuan, reward, dan persistensi data browser.
 
 ## Kredit aset dan komponen
 
