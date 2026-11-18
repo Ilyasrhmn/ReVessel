@@ -16,13 +16,9 @@
   transition: opacity 420ms var(--ease-out);
 }
 
-:global(html[data-revessel-intro]) .intro {
+.intro[open] {
   display: grid;
   place-items: center;
-}
-
-:global(html[data-revessel-intro]) .intro:not([open]) {
-  animation: release-cover 5s step-end forwards;
 }
 
 .intro::backdrop {
@@ -41,8 +37,4 @@
 
 .intro[data-exiting] .canvas {
   transform: scale(1.14);
-}
-
-@keyframes release-cover {
-  to { visibility: hidden; }
 }
