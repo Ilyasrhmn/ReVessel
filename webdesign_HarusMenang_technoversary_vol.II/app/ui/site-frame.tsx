@@ -40,8 +40,8 @@ export function SiteFooter() {
       </Link>
       <nav aria-label="Halaman situs">
         {links.map((link) => (
-          <Link key={link.href} href={link.href}>
-            {link.label}
+          <Link key={link.href} href={link.href} className="link-reveal">
+            <span>{link.label}</span>
           </Link>
         ))}
       </nav>

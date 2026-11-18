@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { SiteFooter } from "./site-frame";
 import { articles } from "../content";
 import shared from "../galeri/gallery-detail.module.css";
@@ -32,7 +32,9 @@ export default function ArticleDetail({ article }: { article: (typeof articles)[
               <ul>
                 {article.sources.map((source) => (
                   <li key={source.href}>
-                    <a href={source.href} className="link-reveal" target="_blank" rel="noopener noreferrer">{source.label}</a>
+                    <a href={source.href} className="link-reveal" target="_blank" rel="noopener noreferrer">
+                      <span>{source.label}</span> <ArrowUpRight aria-hidden="true" />
+                    </a>
                   </li>
                 ))}
               </ul>

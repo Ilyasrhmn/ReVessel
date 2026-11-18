@@ -302,17 +302,17 @@ export default function Landing() {
           Siapkan botol
         </button>
         <nav className={styles.footerLinks} aria-label="Halaman situs">
-          <Link href="/tentang">
-            Tentang
+          <Link href="/tentang" className="link-reveal">
+            <span>Tentang</span>
           </Link>
-          <Link href="/artikel">
-            Artikel
+          <Link href="/artikel" className="link-reveal">
+            <span>Artikel</span>
           </Link>
-          <Link href="/galeri">
-            Galeri
+          <Link href="/galeri" className="link-reveal">
+            <span>Galeri</span>
           </Link>
-          <Link href="/kontak">
-            Kontak
+          <Link href="/kontak" className="link-reveal">
+            <span>Kontak</span>
           </Link>
         </nav>
         <div className={styles.footerBottom}>

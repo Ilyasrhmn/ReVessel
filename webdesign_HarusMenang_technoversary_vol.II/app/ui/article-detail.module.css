@@ -55,6 +55,12 @@
   text-decoration: none;
   overflow-wrap: anywhere;
 }
+.sources a svg {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.12em;
+}
 @media (max-width: 1000px) and (min-width: 761px) {
   .layout { grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); gap: 2rem; }
   .sections { gap: 2rem 1.5rem; }
